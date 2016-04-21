@@ -6,7 +6,7 @@ MODULES = $(shell ls -d */ | cut -f1 -d'/')
 
 .PHONY: all
 all:
-	for dir in $(MODULES); do (cd $$dir && $(MAKE) $@); done
+	for dir in $(MODULES); do (cd $$dir && $(MAKE)); done
 
 .PHONY: clean
 clean:

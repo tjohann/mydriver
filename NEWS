@@ -1,0 +1,14 @@
+#
+# NEWS
+#
+
+- retructure repository to support more than on template
+  The idea is to have 
+  -> a template for a char driver                            
+  -> a template for a I2C driver
+  -> a template for a GPIO driver
+  -> a template for a SPI driver
+  as the basic for concrete projects like
+  -> https://github.com/tjohann/lcd160x_driver.git
+  -> https://github.com/tjohann/pcf8574_gpio.git
+  -> https://github.com/tjohann/max7119_array.git

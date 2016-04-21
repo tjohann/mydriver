@@ -1,0 +1,39 @@
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects 
+*.so
+*.so.*
+
+# Executables
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# my stuff
+*.tgz
+*.gz
+*.bz2
+*.xz
+*~
+
+# additional driver stuff
+*.cmd
+*.symvers
+*.order
+./tmp_versions
