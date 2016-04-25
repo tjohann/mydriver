@@ -1,20 +1,20 @@
 #
-# build example.c
+# build pcf8574.c
 #
 
 CC = gcc
 CFLAGS = -Wall -Wextra
 
-OBJ = usage.o
+OBJ = pcf8574.o
 
 %.o: %.c
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-usage: $(OBJ)
+pcf8574: $(OBJ)
 	gcc -o $@ $^ $(CFLAGS)
 
 clean::
-	rm -rf *~
 	rm -rf *.o
-	rm -rf usage
+	rm -rf *~
+	rm -rf pcf8574
 

@@ -15,5 +15,6 @@ usage: $(OBJ)
 
 clean::
 	rm -rf *~
+	rm -rf *.o
 	rm -rf usage
 
