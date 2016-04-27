@@ -98,8 +98,8 @@ static struct file_operations fops = {
 };
 
 static int __init
-char_driver_init(void) {
-
+char_driver_init(void)
+{
 /*
  * - first get a device number
  * - alloc a driver object
@@ -155,7 +155,6 @@ free_dev_number:
 	
 	return -EIO;
 }
-
 
 static void __exit
 char_driver_exit(void)

@@ -38,18 +38,8 @@ static struct file_operations fops = {
 
 
 static int __init
-char_driver_old_school_init(void) {
-
-/*
- * - first get a device number
- * - alloc a driver object
- * - init driver object
- * - add driver object to kernel
- *
- * - create sysfs entry (/sys/devices/virtual/char_driver_old_school/char_driver_old_school)
- * - create /dev entry via udev (/etc/udev/rules/90-<modulename>.rules)
- *   entry -> KERNEL=="char_driver_old_school", MODE="0666"
- */
+char_driver_old_school_init(void)
+{
 	/* get a device number */
 	if (alloc_chrdev_region(&dev_number, 0, 1, DRIVER_NAME) < 0)
 		return -EIO;
@@ -81,7 +71,6 @@ free_dev_number:
 	
 	return -EIO;
 }
-
 
 static void __exit
 char_driver_old_school_exit(void)

@@ -38,8 +38,8 @@ static struct file_operations fops = {
 
 
 static int __init
-spi_driver_init(void) {
-
+spi_driver_init(void)
+{
 /*
  * - first get a device number
  * - alloc a driver object
@@ -81,7 +81,6 @@ free_dev_number:
 	
 	return -EIO;
 }
-
 
 static void __exit
 spi_driver_exit(void)

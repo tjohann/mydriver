@@ -42,7 +42,7 @@ i2c driver
 
 Basic for drivers like https://github.com/tjohann/lcd160x_driver.git
 
-State: started
+State: not started
 
 
 gpio driver
@@ -50,7 +50,7 @@ gpio driver
 
 Basic for drivers like https://github.com/tjohann/pcf8574_gpio.git
 
-State: not started
+State: started
 
 
 spi driver
