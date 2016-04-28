@@ -1,13 +1,22 @@
 #
-# NEWS
+# TODO
 #
 
+
+#
+# -------------- 2016-04-21 ----------------------------------------------------
+#
 - add make install target for all driver
 - add make uninstall target for all driver
-- add make install/uninstall for all usage examples ($PREFIX=$HOME)
+- add make install/uninstall for all usage examples
+  ($PREFIX=$HOME)
 
+
+#
+# -------------- 2016-xx-xx ----------------------------------------------------
+#
 - retructure repository to support more than on template
-  -> a template for a char driver                            [done, 21.04.2016]
+  -> a template for a char driver                            [2016-04-21 -> done]
   -> a template for a I2C driver
   -> a template for a GPIO driver
   -> a template for a SPI driver
