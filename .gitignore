@@ -37,3 +37,7 @@
 *.symvers
 *.order
 ./tmp_versions
+
+# build applications
+usage
+pcf8574

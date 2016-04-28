@@ -2,6 +2,10 @@
 # NEWS
 #
 
+- add make install target for all driver
+- add make uninstall target for all driver
+- add make install/uninstall for all usage examples ($PREFIX=$HOME)
+
 - retructure repository to support more than on template
   -> a template for a char driver                            [done, 21.04.2016]
   -> a template for a I2C driver

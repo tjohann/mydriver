@@ -40,10 +40,10 @@ char_driver_read(struct file *instance,
 	unsigned long not_copied;
 	unsigned long to_copy;
 
-	char data[]="char_driver says hello crude world!\n";
+	char data[]="char_driver says hello crude world!";
 	
 	dev_info(drv_dev, "char_driver_read called\n");
-	dev_info(drv_dev, "used data %s", data);
+	dev_info(drv_dev, "used data \"%s\"", data);
 	
 	to_copy = min(count, strlen(data) + 1);
 	not_copied = copy_to_user(user, data, to_copy);
@@ -109,6 +109,7 @@ char_driver_init(void)
  * - create sysfs entry (/sys/devices/virtual/char_driver/char_driver)
  * - create /dev entry via udev (/etc/udev/rules/90-<modulename>.rules)
  *   entry -> KERNEL=="char_driver", MODE="0666"
+ * -> see mydriver.git/udev
  */
 	pr_info("char_driver_init called\n");
 	

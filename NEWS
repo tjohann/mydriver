@@ -2,6 +2,19 @@
 # NEWS
 #
 
+
+2016-04-28
+- add some documentation with links below ./Documentation
+- add skeleton for a gpio based irq line (for bananapi and olimex-a20)
+- add userspace example for the char example driver (./char_driver)
+- add udev rule for char_driver (./udev)
+
+
+2016-04-27
+- add some first skeleton for gpio driver based on a pcf8574
+
+
+2016-xx-xx
 - retructure repository to support more than on template
   The idea is to have 
   -> a template for a char driver                            

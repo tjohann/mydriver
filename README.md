@@ -7,6 +7,7 @@ This is a collection of different linux kernel driver templates:
   char driver
   i2c driver
   gpio driver
+  gpio irq driver
   spi driver
 
 It's an playground for different topics. So you find also schematics and pics about my test setup but be aware: this is work in progress! Don't expect things to be complete in any dimension! 
@@ -49,6 +50,19 @@ gpio driver
 -----------
 
 Basic for drivers like https://github.com/tjohann/pcf8574_gpio.git
+Feartures:
+	dts config for int, id and more
+	irq handler for pin 13 (irq line of pcf8574)
+	read/write all pins (8 bit)
+	using offset to read/write a bit position
+
+State: started
+
+
+gpio irq driver
+---------------
+
+Simple driver to show the usage of an irq connected pin. I use a bananapi-m1 and olimex-a20-som/evb as hardware. 
 
 State: started
 
