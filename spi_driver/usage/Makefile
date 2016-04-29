@@ -1,20 +1,30 @@
 #
-# build example.c
+# build usage.c
 #
 
 CC = gcc
 CFLAGS = -Wall -Wextra
 
+PROG = usage
 OBJ = usage.o
 
 %.o: %.c
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-usage: $(OBJ)
+$(PROG): $(OBJ)
 	gcc -o $@ $^ $(CFLAGS)
 
-clean::
+install: $(PROG)
+	install $(PROG) $(HOME)/bin/$(PROG)_spi_driver
+
+uninstall:
+	rm -rf $(HOME)/bin/$(PROG)_spi_driver
+
+clean:
 	rm -rf *~
 	rm -rf *.o
-	rm -rf usage
+	rm -rf $(PROG)
 
+distclean: clean
+
+.PHONY: clean uninstall

@@ -2,21 +2,40 @@
 # TODO
 #
 
+#
+# -------------- 2016-04-29 ----------------------------------------------------
+#
+
+## char_driver
+- add support for ioctl in char_driver (Idea switch between
+  different strings for read)
+  
+## i2c_gpio_driver
+driver part:
+- add dts config
+- add irq handler -> PIN13(!INT)
+- driver_read and driver write a whole byte
+- driver_read and driver_write read/write only one bit
+  - add offset handling for read/write -> offset for bit position
+- add /dev entry for every bit on P0...P7
+userspace example:
+- add userspace example code
+
+
 
 #
 # -------------- 2016-04-21 ----------------------------------------------------
 #
-- add make install target for all driver
-- add make uninstall target for all driver
+- add make install target for all driver                    [2016-04-29 -> done]
+- add make uninstall target for all driver                  [2016-04-29 -> done]
 - add make install/uninstall for all usage examples
-  ($PREFIX=$HOME)
+  ($PREFIX=$HOME)                                           [2016-04-29 -> done]
 
 
 #
 # -------------- 2016-xx-xx ----------------------------------------------------
 #
 - retructure repository to support more than on template
-  -> a template for a char driver                            [2016-04-21 -> done]
-  -> a template for a I2C driver
-  -> a template for a GPIO driver
-  -> a template for a SPI driver
+  -> a template for a char driver                           [2016-04-21 -> done]
+  -> a skeleton for a I2C_GPIO driver                       [2016-04-29 -> done]
+  -> a skeleton for a SPI driver                            [2016-04-29 -> done]

@@ -30,7 +30,7 @@ int init_module(void)
 
 void cleanup_module(void)
 {
-	printk("you're in cleanup_module called\n");
+	printk("you're in cleanup_module\n");
 }
 
 MODULE_LICENSE("GPL");

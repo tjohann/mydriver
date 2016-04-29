@@ -1,11 +1,13 @@
-# Makefile for char_driver_old_school.c
+# Makefile for gpio_driver.c
 #
 # GPL
 # (c) 2016, thorsten.johannvorderbrueggen@t-online.de
 # 
 
+DRIVER=i2c_gpio_driver
+
 ifneq ($(KERNELRELEASE),)
-obj-m	:= char_driver_old_school.o
+obj-m	:= $(DRIVER).o
 else
 KDIR	:= /lib/modules/$(shell uname -r)/build
 PWD	:= $(shell pwd)
@@ -20,3 +22,13 @@ clean:
 	rm -f Module.symvers modules.order
 	rm -f .*.cmd *.ko *.mod.c
 	rm -rf .tmp_versions
+
+install: default
+	sudo cp $(DRIVER).ko /lib/modules/$(shell uname -r)/kernel
+	sudo depmod -a
+
+uninstall: 
+	sudo rm -rf /lib/modules/$(shell uname -r)/kernel/$(DRIVER).ko
+	sudo depmod -a
+
+.PHONY: clean uninstall

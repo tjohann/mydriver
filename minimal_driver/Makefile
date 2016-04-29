@@ -3,14 +3,26 @@
 #
 
 MODULES = $(shell ls -d */ | cut -f1 -d'/')
+PWD=$(shell pwd)
 
-.PHONY: all
-all:
-	for dir in $(MODULES); do (cd $$dir && $(MAKE)); done
+all: driver
 
-.PHONY: clean
+driver:
+	@echo "+------------------------------------------------------------+"
+	@echo "|   build $@ in $(PWD)"
+	@echo "+------------------------------------------------------------+"
+	(cd $@ && $(MAKE))
+
+install: 
+	for dir in $(MODULES); do (cd $$dir && $(MAKE) $@); done
+
+uninstall:
+	for dir in $(MODULES); do (cd $$dir && $(MAKE) $@); done
+
 clean:
 	rm -f *~ .*~
 	for dir in $(MODULES); do (cd $$dir && $(MAKE) $@); done
 
 distclean: clean
+
+.PHONY: clean driver install uninstall

@@ -79,12 +79,13 @@ int main(int argc, char *argv[])
 	if ((strcmp(argv[1], "-w") == 0) || (strcmp(argv[1], "-a") == 0)) {
 		fprintf(stdout, "try to write \"%s\" from %s\n", TO_WRITE, DEV_NAME);
 
-		n = write(fd, buf, strlen(TO_WRITE));
+		n = write(fd, TO_WRITE, strlen(TO_WRITE));
 		if (n == -1) {
 			perror("write");
 			exit(EXIT_FAILURE);
 		}
-		
+
+		fprintf(stdout, "wrote %d bytes \"%s\"\n", (int) n, TO_WRITE);	
 	}	
 
 	close (fd);

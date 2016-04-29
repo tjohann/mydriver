@@ -5,78 +5,57 @@ This is a collection of different linux kernel driver templates:
 
   an absolute minimal driver
   char driver
-  i2c driver
-  gpio driver
+  i2c-gpio driver
   gpio irq driver
   spi driver
 
-It's an playground for different topics. So you find also schematics and pics about my test setup but be aware: this is work in progress! Don't expect things to be complete in any dimension! 
+It's an playground for different topics like I2C. Therefore i implement a userspace example based on what is already available within the kernel/userspace (like i2ctools) and a driver with a specialized interface (and a example of how to use it). You find also schematics and pics about my test setup.
+
+But be aware: this is work in progress! Don't expect things to be complete in any dimension! See the State info below to get an idea of what is working.
 
 
-minimal driver
---------------
+Usage
+-----
 
-The purpose for this driver is simply to check an crosstool enviroment. If you work with embedded device you often need to crossbuild drivers. With that simple driver you can check if your toolchain works and if you have the correct versions.
-Simply crossbuild it vi make ARCH=... CROSS_COMPILE=... KDIR=... and transfer minimal_driver.ko to your device and then insmod it, check syslog entry and rmmod it. If everthing works fine, then your environment should be also fine, otherwise you have to check.
+The simple user interface to this repository is a Makefile. So type
 
-State: finished
+    make
 
-
-char driver
------------
-
-Basic character driver with open, close, read and write support. It uses device numbers instead of major/minor.
-
-State: nearly finished (userspace example missing)
+to get more info.
 
 
-char driver old school
-----------------------
-
-Basic character driver with open, close, read and write support. It uses major/minor number instead device numbers. This is the old way, usage devices numbers are preferred.
-
-State: started
-
-
-i2c driver
-----------
-
-Basic for drivers like https://github.com/tjohann/lcd160x_driver.git
-
-State: not started
-
-
-gpio driver
------------
-
-Basic for drivers like https://github.com/tjohann/pcf8574_gpio.git
-Feartures:
-	dts config for int, id and more
-	irq handler for pin 13 (irq line of pcf8574)
-	read/write all pins (8 bit)
-	using offset to read/write a bit position
-
-State: started
-
-
-gpio irq driver
----------------
-
-Simple driver to show the usage of an irq connected pin. I use a bananapi-m1 and olimex-a20-som/evb as hardware. 
-
-State: started
-
-
-spi driver
-----------
-
-Basic for drivers like https://github.com/tjohann/max7119_array.git
-
-State: not started
-
-
-common structure
+(Un)Installation
 ----------------
+
+You can install all driver and userspace examples via
+
+    make install
+
+
+To get rid of them use
+
+   make uninstall
+
+
+The make install tag will install all modules to /lib/modules/$(shell uname -r)/kernel. So you can simple type
+
+    modprobe char_driver
+
+to load it. Depending on your distribution you can see info message from the driver in /var/log/messages.
+
+   (sudo) tail -n 50 -f /var/log/messages
+
+The userspace example (usage_$(DRIVER_NAME)) will be installed in $(HOME)/bin. If you have it in your $PATH, then you can simply tape
+
+    usage_char_driver -a
+
+and see in /var/log/messages what the driver is doing.
+
+
+The different driver
+--------------------
+
+Every driver tries to implement a single topic.
 
 Nearly all drivers in this repository have the same structure:
 
@@ -98,8 +77,56 @@ Nearly all drivers in this repository have the same structure:
 Below the usage directory you can find one or more examples on how to access the driver. 
 
 
-userspace examples
+
+The minimal driver
 ------------------
+
+The purpose for this driver is simply to check an crosstool enviroment. If you work with embedded device you often need to crossbuild drivers. With that simple driver you can check if your toolchain works and if you have the correct versions.
+Simply crossbuild it vi make ARCH=... CROSS_COMPILE=... KDIR=... and transfer minimal_driver.ko to your device and then insmod it, check syslog entry and rmmod it. If everthing works fine, then your environment should be also fine, otherwise you have to check.
+
+State: finished
+
+
+The char driver
+---------------
+
+Basic character driver with open, close, read and write support.
+
+State: finished
+
+
+The i2c-gpio driver
+------------------
+
+Basic for drivers like https://github.com/tjohann/pcf8574_gpio.git and https://github.com/tjohann/lcd160x_driver.git
+
+Feartures:
+	dts config for intr, id and more
+	intr handler for pin 13 (intr line of pcf8574)
+	read/write all pins (8 bit)
+	using offset to read/write a bit position
+
+State: started
+
+
+The gpio irq driver
+-------------------
+
+Simple driver to show the usage of an irq connected pin. I use a bananapi-m1 and olimex-a20-som/evb as hardware. 
+
+State: not started
+
+
+The spi driver
+--------------
+
+Basic for drivers like https://github.com/tjohann/max7119_array.git
+
+State: not started
+
+
+The userspace examples
+----------------------
 
 Below the directory userspace_examples you find my basic userspace playground. To implement an I2C driver you normally also have to implement the protocol which is specific to the IC and it's functionlity. As example think of the LCD1602 connected via PCF8574 portexpander with the I2C bus.
 
@@ -112,13 +139,13 @@ Documentation
 Below the directory Documentation you can find useful information about the used IC or the protocol or ... take a look at it.
 
 
-pics
-----
+Pictures/Test-environment
+-------------------------
 
 Here you find some pictures of the wiring and my test setup. 
 
 
-schematics
+Schematics
 ----------
 
 Here you find some simple schematics of my test setup.

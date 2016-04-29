@@ -227,5 +227,5 @@ module_init(gpio_driver_init);
 module_exit(gpio_driver_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_DESCRIPTION("simple pcf8574 gpio - template driver");
+MODULE_DESCRIPTION("gpio_irg_driver - simple template driver");
 MODULE_AUTHOR("Thorsten Johannvorderbrueggen <thorsten.johannvorderbrueggen@t-online.de>");

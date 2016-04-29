@@ -39,17 +39,20 @@ char_driver_read(struct file *instance,
 {
 	unsigned long not_copied;
 	unsigned long to_copy;
+	unsigned long diff_of_both;
 
 	char data[]="char_driver says hello crude world!";
 	
-	dev_info(drv_dev, "char_driver_read called\n");
-	dev_info(drv_dev, "used data \"%s\"", data);
-	
 	to_copy = min(count, strlen(data) + 1);
 	not_copied = copy_to_user(user, data, to_copy);
-	*offset += to_copy - not_copied;
+	
+	diff_of_both = to_copy - not_copied;
+	*offset += diff_of_both;
 
-	return to_copy - not_copied;
+	dev_info(drv_dev, "copied %d bytes from user \"%s\"",
+		 (int) diff_of_both, data);
+	
+	return diff_of_both;
 }
 
 static ssize_t
@@ -58,19 +61,21 @@ char_driver_write( struct file *instance,
 {
 	unsigned long not_copied;
 	unsigned long to_copy;
+	unsigned long diff_of_both;
 
 	char data[256];
 	memset(data, 0, sizeof(data));
-	
-	dev_info(drv_dev, "char_driver_write called\n");
 
-	to_copy = min(count, strlen(data) + 1);
+	to_copy = min(count, sizeof(data));
 	not_copied = copy_from_user(data, user, to_copy);
-	*offset += to_copy - not_copied;
-
-	dev_info(drv_dev, "used data %s", data);
 	
-	return to_copy - not_copied;
+	diff_of_both = to_copy - not_copied;
+	*offset += diff_of_both;
+	
+	dev_info(drv_dev, "copied %d bytes from user \"%s\"",
+		 (int) diff_of_both, data);
+
+	return diff_of_both;
 }
 
 static int
@@ -175,5 +180,5 @@ module_init(char_driver_init);
 module_exit(char_driver_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_DESCRIPTION("simple char - template driver");
+MODULE_DESCRIPTION("char_driver - simple template driver");
 MODULE_AUTHOR("Thorsten Johannvorderbrueggen <thorsten.johannvorderbrueggen@t-online.de>");

@@ -1,0 +1,1 @@
+KERNEL=="i2c_gpio_driver", MODE="0666"

@@ -98,5 +98,5 @@ module_init(spi_driver_init);
 module_exit(spi_driver_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_DESCRIPTION("simple spi - template driver");
+MODULE_DESCRIPTION("spi_driver - simple template driver");
 MODULE_AUTHOR("Thorsten Johannvorderbrueggen <thorsten.johannvorderbrueggen@t-online.de>");

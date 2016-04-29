@@ -26,7 +26,7 @@
 #include <asm/uaccess.h>
 #include <linux/i2c.h>
 
-#define DRIVER_NAME "gpio_driver" 
+#define DRIVER_NAME "i2_gpio_driver" 
 
 static dev_t pcf8574_dev_number;
 static struct cdev *pcf8574_object;
@@ -227,5 +227,5 @@ module_init(gpio_driver_init);
 module_exit(gpio_driver_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_DESCRIPTION("simple pcf8574 gpio - template driver");
+MODULE_DESCRIPTION("pcf8574 gpio - simple template driver");
 MODULE_AUTHOR("Thorsten Johannvorderbrueggen <thorsten.johannvorderbrueggen@t-online.de>");
