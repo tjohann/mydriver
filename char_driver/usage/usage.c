@@ -32,7 +32,8 @@
 #define TO_WRITE "this is a test string with no meaning"
 
 
-static void usage(void)
+static void
+__attribute__((noreturn)) usage(void)
 {
 	fprintf(stdout, "Usage: ./usage -[rwa]     \n");
 	fprintf(stdout, "       -r -> only read    \n");
@@ -48,7 +49,8 @@ static void usage(void)
 }
 
 
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
 	if (argc != 2)
 		usage();

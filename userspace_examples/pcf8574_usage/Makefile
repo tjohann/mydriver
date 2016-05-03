@@ -3,7 +3,7 @@
 #
 
 CC = gcc
-CFLAGS = -Wall -Wextra
+CFLAGS = -Wall -Wextra 
 
 PROG = pcf8574
 OBJ = pcf8574.o
@@ -12,7 +12,7 @@ OBJ = pcf8574.o
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 $(PROG): $(OBJ)
-	gcc -o $@ $^ $(CFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS) -lc
 
 install: $(PROG)
 	install $(PROG) $(HOME)/bin/$(PROG)
