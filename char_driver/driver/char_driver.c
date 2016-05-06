@@ -47,8 +47,9 @@ char_driver_read(struct file *instance,
 	unsigned long diff_of_both;
 
 	char data[] = DATA_S;
+	struct _instance_data *data_p = (struct _instance_data*) instance->private_data;
 
-	to_copy = min(count, strlen(data) + 1);
+	to_copy = min(count, (size_t) data_p->count);
 	not_copied = copy_to_user(user, data, to_copy);
 
 	diff_of_both = to_copy - not_copied;
@@ -107,6 +108,9 @@ static int
 char_driver_close(struct inode *dev_node, struct file *instance)
 {
 	dev_info(drv_dev, "char_driver_closed called\n");
+
+	if (instance->private_data)
+		kfree(instance->private_data);
 
 	return 0;
 }
