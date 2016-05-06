@@ -1,22 +1,22 @@
 /*
  * usage.c -> show usage of char_driver
- *                                                                             
- * GPL                                                                      
- * (c) 2016, thorsten.johannvorderbrueggen@t-online.de                     
- *                                                                          
- * This program is free software; you can redistribute it and/or modify      
- * it under the terms of the GNU General Public License as published by      
- * the Free Software Foundation; either version 2 of the License, or        
- * (at your option) any later version.                                       
- *                                                                          
- * This program is distributed in the hope that it will be useful,           
- * but WITHOUT ANY WARRANTY; without even the implied warranty of             
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the               
- * GNU General Public License for more details.                               
- *                                                                            
- * You should have received a copy of the GNU General Public License          
- * along with this program; if not, write to the Free Software                
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
+ *
+ * GPL
+ * (c) 2016, thorsten.johannvorderbrueggen@t-online.de
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include <stdio.h>
@@ -54,7 +54,7 @@ main(int argc, char *argv[])
 {
 	if (argc != 2)
 		usage();
-	
+
 	char buf[MAX_LINE];
 	memset(buf, 0, MAX_LINE);
 
@@ -65,16 +65,16 @@ main(int argc, char *argv[])
 	}
 
 	ssize_t n = -1;
-	
+
 	if ((strcmp(argv[1], "-r") == 0) || (strcmp(argv[1], "-a") == 0)) {
 		fprintf(stdout, "try to read data from %s\n", DEV_NAME);
-		
+
 		n = read(fd, buf, MAX_LINE);
 		if (n == -1) {
 			perror("read");
 			exit(EXIT_FAILURE);
 		}
-		
+
 		fprintf(stdout, "read %d bytes \"%s\"\n", (int) n, buf);
 	}
 
@@ -87,10 +87,10 @@ main(int argc, char *argv[])
 			exit(EXIT_FAILURE);
 		}
 
-		fprintf(stdout, "wrote %d bytes \"%s\"\n", (int) n, TO_WRITE);	
-	}	
+		fprintf(stdout, "wrote %d bytes \"%s\"\n", (int) n, TO_WRITE);
+	}
 
 	close (fd);
-	
+
 	return EXIT_SUCCESS;
 }

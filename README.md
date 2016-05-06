@@ -64,7 +64,7 @@ Nearly all drivers in this repository have the same structure:
 |   |   |-- char_driver.c
 |   |   |-- ...
 |   |   `-- Makefile
-|   |-- ... 
+|   |-- ...
 |   |-- TODO
 |   `-- usage
 |       |-- usage.c
@@ -74,7 +74,7 @@ Nearly all drivers in this repository have the same structure:
 ...
 
 
-Below the usage directory you can find one or more examples on how to access the driver. 
+Below the usage directory you can find one or more examples on how to access the driver.
 
 
 
@@ -112,7 +112,7 @@ State: started
 The gpio irq driver
 -------------------
 
-Simple driver to show the usage of an irq connected pin. I use a bananapi-m1 and olimex-a20-som/evb as hardware. 
+Simple driver to show the usage of an irq connected pin. I use a bananapi-m1 and olimex-a20-som/evb as hardware.
 
 State: not started
 
@@ -143,7 +143,7 @@ Below the directory Documentation you can find useful information about the used
 Pictures/Test-environment
 -------------------------
 
-Here you find some pictures of the wiring and my test setup. 
+Here you find some pictures of the wiring and my test setup.
 
 
 Schematics

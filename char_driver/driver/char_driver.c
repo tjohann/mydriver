@@ -1,22 +1,22 @@
 /*
  * char_driver.c -> simple template driver
- *                                                                             
- * GPL                                                                      
- * (c) 2013-2016, thorsten.johannvorderbrueggen@t-online.de                     
- *                                                                          
- * This program is free software; you can redistribute it and/or modify      
- * it under the terms of the GNU General Public License as published by      
- * the Free Software Foundation; either version 2 of the License, or        
- * (at your option) any later version.                                       
- *                                                                          
- * This program is distributed in the hope that it will be useful,           
- * but WITHOUT ANY WARRANTY; without even the implied warranty of             
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the               
- * GNU General Public License for more details.                               
- *                                                                            
- * You should have received a copy of the GNU General Public License          
- * along with this program; if not, write to the Free Software                
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
+ *
+ * GPL
+ * (c) 2013-2016, thorsten.johannvorderbrueggen@t-online.de
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include <linux/module.h>
@@ -25,7 +25,7 @@
 #include <linux/device.h>
 #include <asm/uaccess.h>
 
-#define DRIVER_NAME "char_driver" 
+#define DRIVER_NAME "char_driver"
 
 static dev_t dev_number;
 static struct cdev *dev_object;
@@ -42,16 +42,16 @@ char_driver_read(struct file *instance,
 	unsigned long diff_of_both;
 
 	char data[]="char_driver says hello crude world!";
-	
+
 	to_copy = min(count, strlen(data) + 1);
 	not_copied = copy_to_user(user, data, to_copy);
-	
+
 	diff_of_both = to_copy - not_copied;
 	*offset += diff_of_both;
 
 	dev_info(drv_dev, "copied %d bytes from user \"%s\"",
 		 (int) diff_of_both, data);
-	
+
 	return diff_of_both;
 }
 
@@ -68,10 +68,10 @@ char_driver_write( struct file *instance,
 
 	to_copy = min(count, sizeof(data));
 	not_copied = copy_from_user(data, user, to_copy);
-	
+
 	diff_of_both = to_copy - not_copied;
 	*offset += diff_of_both;
-	
+
 	dev_info(drv_dev, "copied %d bytes from user \"%s\"",
 		 (int) diff_of_both, data);
 
@@ -82,7 +82,7 @@ static int
 char_driver_open(struct inode *dev_node, struct file *instance)
 {
 	dev_info(drv_dev, "char_driver_open called\n");
-	
+
 	return 0;
 }
 
@@ -90,7 +90,7 @@ static int
 char_driver_close(struct inode *dev_node, struct file *instance)
 {
 	dev_info(drv_dev, "char_driver_closed called\n");
-	
+
 	return 0;
 }
 
@@ -98,7 +98,7 @@ static struct file_operations fops = {
 	.owner = THIS_MODULE,
 	.read = char_driver_read,
 	.write = char_driver_write,
-	.open = char_driver_open, 
+	.open = char_driver_open,
 	.release = char_driver_close,
 };
 
@@ -117,13 +117,13 @@ char_driver_init(void)
  * -> see mydriver.git/udev
  */
 	pr_info("char_driver_init called\n");
-	
+
 	/* get a device number */
 	if (alloc_chrdev_region(&dev_number, 0, 1, DRIVER_NAME) < 0)
 		return -EIO;
 
 	dev_object = cdev_alloc();
-	if (dev_object == NULL) 
+	if (dev_object == NULL)
 		goto free_dev_number;
 
 	dev_object->owner = THIS_MODULE;
@@ -140,7 +140,7 @@ char_driver_init(void)
 		pr_err("an error occured -> class_create()\n");
 		goto free_cdev;
 	}
-	
+
 	drv_dev = device_create(dev_class, NULL, dev_number, NULL, "%s",
 				DRIVER_NAME);
 	if (IS_ERR(drv_dev)) {
@@ -152,13 +152,13 @@ char_driver_init(void)
 
 free_class:
 	class_destroy(dev_class);
-	
+
 free_cdev:
 	kobject_put(&dev_object->kobj);
-	
+
 free_dev_number:
 	unregister_chrdev_region(dev_number, 1);
-	
+
 	return -EIO;
 }
 
@@ -166,13 +166,13 @@ static void __exit
 char_driver_exit(void)
 {
 	dev_info(drv_dev, "char_driver_exit called\n");
-	
+
 	device_destroy(dev_class, dev_number);
 	class_destroy(dev_class);
-	
+
 	cdev_del(dev_object);
 	unregister_chrdev_region(dev_number, 1);
-	
+
 	return;
 }
 

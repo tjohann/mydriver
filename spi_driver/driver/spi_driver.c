@@ -1,22 +1,22 @@
 /*
  * spi_driver.c -> simple template driver
- *                                                                             
- * GPL                                                                      
- * (c) 2016, thorsten.johannvorderbrueggen@t-online.de                     
- *                                                                          
- * This program is free software; you can redistribute it and/or modify      
- * it under the terms of the GNU General Public License as published by      
- * the Free Software Foundation; either version 2 of the License, or        
- * (at your option) any later version.                                       
- *                                                                          
- * This program is distributed in the hope that it will be useful,           
- * but WITHOUT ANY WARRANTY; without even the implied warranty of             
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the               
- * GNU General Public License for more details.                               
- *                                                                            
- * You should have received a copy of the GNU General Public License          
- * along with this program; if not, write to the Free Software                
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
+ *
+ * GPL
+ * (c) 2016, thorsten.johannvorderbrueggen@t-online.de
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #include <linux/module.h>
@@ -24,15 +24,15 @@
 #include <linux/cdev.h>
 #include <linux/device.h>
 
-#define DRIVER_NAME "spi_driver" 
+#define DRIVER_NAME "spi_driver"
 
 static dev_t dev_number;
 static struct cdev *dev_object;
 struct class *dev_class;
 
 static struct file_operations fops = {
-	/* 
-	 * the supported syscalls 
+	/*
+	 * the supported syscalls
 	 */
 };
 
@@ -55,7 +55,7 @@ spi_driver_init(void)
 		return -EIO;
 
 	dev_object = cdev_alloc();
-	if (dev_object == NULL) 
+	if (dev_object == NULL)
 		goto free_dev_number;
 
 	dev_object->owner = THIS_MODULE;
@@ -68,17 +68,17 @@ spi_driver_init(void)
 	dev_class = class_create(THIS_MODULE, DRIVER_NAME);
 	if (IS_ERR(dev_class))
 		goto free_cdev;
-	
+
 	device_create(dev_class, NULL, dev_number, NULL, "%s", DRIVER_NAME);
 
 	return 0;
 
 free_cdev:
 	kobject_put(&dev_object->kobj);
-	
+
 free_dev_number:
 	unregister_chrdev_region(dev_number, 1);
-	
+
 	return -EIO;
 }
 
@@ -87,10 +87,10 @@ spi_driver_exit(void)
 {
 	device_destroy(dev_class, dev_number);
 	class_destroy(dev_class );
-	
+
 	cdev_del(dev_object);
 	unregister_chrdev_region(dev_number, 1);
-	
+
 	return;
 }
 

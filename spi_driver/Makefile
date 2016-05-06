@@ -17,10 +17,9 @@ usage:
 	@echo "+------------------------------------------------------------+"
 	@echo "|   build $@ in $(PWD)"
 	@echo "+------------------------------------------------------------+"
-
 	(cd $@ && $(MAKE))
 
-install: 
+install:
 	for dir in $(MODULES); do (cd $$dir && $(MAKE) $@); done
 
 uninstall:

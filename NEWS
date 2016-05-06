@@ -25,8 +25,8 @@
 
 2016-xx-xx
 - retructure repository to support more than on template
-  The idea is to have 
-  -> a template for a char driver                            
+  The idea is to have
+  -> a template for a char driver
   -> a template for a I2C driver
   -> a template for a GPIO driver
   -> a template for a SPI driver

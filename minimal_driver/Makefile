@@ -13,7 +13,7 @@ driver:
 	@echo "+------------------------------------------------------------+"
 	(cd $@ && $(MAKE))
 
-install: 
+install:
 	for dir in $(MODULES); do (cd $$dir && $(MAKE) $@); done
 
 uninstall:

@@ -9,7 +9,7 @@
 ## char_driver
 - add support for ioctl in char_driver (Idea switch between
   different strings for read)
-  
+
 ## i2c_gpio_driver
 driver part:
 - add dts config

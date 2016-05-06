@@ -2,7 +2,7 @@
 #
 # GPL
 # (c) 2016, thorsten.johannvorderbrueggen@t-online.de
-# 
+#
 
 DRIVER=gpio_driver
 
@@ -27,7 +27,7 @@ install: default
 	sudo cp $(DRIVER).ko /lib/modules/$(shell uname -r)/kernel
 	sudo depmod -a
 
-uninstall: 
+uninstall:
 	sudo rm -rf /lib/modules/$(shell uname -r)/kernel/$(DRIVER).ko
 	sudo depmod -a
 
