@@ -27,12 +27,13 @@
 #include <linux/slab.h>
 
 #define DRIVER_NAME "char_driver"
-#define DATA_S "char_driver says hello crude world!"
 
 static dev_t dev_number;
 static struct cdev *dev_object;
 struct class *dev_class;
 static struct device *drv_dev;
+
+char data_s[] = "char_driver says hello crude world!";
 
 struct _instance_data {
 	int count;
@@ -47,25 +48,21 @@ char_driver_read(struct file *instance,
 {
 	unsigned long not_copied;
 	unsigned long to_copy;
-	unsigned long diff_of_both;
-	char *data;
-	
-	SD *data_p = (SD*) instance->private_data;
-	if(data_p->data_s == NULL)	
-		data = DATA_S;
-	else 
-		data = data_p->data_s;
-	
-	to_copy = min(count, (size_t) data_p->count);
-	not_copied = copy_to_user(user, data, to_copy);
+	unsigned long copied;
 
-	diff_of_both = to_copy - not_copied;
-	*offset += diff_of_both;
+	SD *data_p = (SD*) instance->private_data;
+
+	to_copy = min(count, (size_t) data_p->count);
+	not_copied = copy_to_user(user, data_p->data_s, to_copy);
+
+	copied = to_copy - not_copied;
+	data_p->count -= copied;
+	*offset += copied;
 
 	dev_info(drv_dev, "copied %d bytes from user \"%s\"",
-		 (int) diff_of_both, data);
+		 (int) copied, data_p->data_s);
 
-	return diff_of_both;
+	return copied;
 }
 
 static ssize_t
@@ -74,50 +71,61 @@ char_driver_write( struct file *instance,
 {
 	unsigned long not_copied;
 	unsigned long to_copy;
-	unsigned long diff_of_both;
+	unsigned long copied;
 
 	SD *data_p = (SD*) instance->private_data;
-	
+
 	char data[256];
 	memset(data, 0, sizeof(data));
 
 	to_copy = min(count, sizeof(data));
 	not_copied = copy_from_user(data, user, to_copy);
 
-	diff_of_both = to_copy - not_copied;
-	*offset += diff_of_both;
+	copied = to_copy - not_copied;
+	*offset += copied;
 
 	dev_info(drv_dev, "copied %d bytes from user \"%s\"",
-		 (int) diff_of_both, data);
+		(int) copied, data);
 
-	if(data_p->data_s != NULL)	
+	if(data_p->data_s != NULL)
 		kfree(data_p->data_s);
 
-	data_p->data_s = (char *) kmalloc(sizeof(diff_of_both), GFP_KERNEL);
+	data_p->data_s = (char *) kmalloc(copied + 1, GFP_KERNEL);
 	if (data_p->data_s == NULL) {
 		pr_err("kmalloc in *_driver_write");
 		return  -ENOMEM;
 	}
 
-	memcpy(data_p->data_s, data, diff_of_both);
-	
-	return diff_of_both;
+	memcpy(data_p->data_s, data, copied);
+	data_p->data_s[copied] = '\0';
+
+	return copied;
 }
 
 static int
 char_driver_open(struct inode *dev_node, struct file *instance)
 {
+	size_t len = strlen(data_s) + 1;
 	SD *data_p = (SD *) kmalloc(sizeof(SD), GFP_KERNEL);
 	if (data_p == NULL) {
 		pr_err("kmalloc in *_driver_open");
 		return -ENOMEM;
 	}
 
-	data_p->count = strlen(DATA_S) + 1;
+	data_p->data_s = (char *) kmalloc(len, GFP_KERNEL);
+	if (data_p->data_s == NULL) {
+		pr_err("kmalloc in *_driver_open");
+		return -ENOMEM;
+	}
+
+	memcpy(data_p->data_s, data_s, len);
+	data_p->data_s[len] = '\0';
+	
+	data_p->count = len;
 	instance->private_data = (void *) data_p;
 
 	dev_info(drv_dev, "char_driver_open finished open\n");
-	
+
 	return 0;
 }
 
@@ -125,13 +133,15 @@ static int
 char_driver_close(struct inode *dev_node, struct file *instance)
 {
 	SD *data_p;
-	
+
 	if (instance->private_data) {
 		data_p = (SD *) instance->private_data;
-			
-		if (data_p->data_s != NULL)
+
+		if (data_p->data_s != NULL) {
 			kfree(data_p->data_s);
-		
+			pr_info("release data_p->data_s");
+		}
+
 		kfree(instance->private_data);
 	}
 
