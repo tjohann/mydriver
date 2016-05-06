@@ -24,14 +24,19 @@
 #include <linux/cdev.h>
 #include <linux/device.h>
 #include <asm/uaccess.h>
+#include <linux/slab.h>
 
 #define DRIVER_NAME "char_driver"
+#define DATA_S "char_driver says hello crude world!"
 
 static dev_t dev_number;
 static struct cdev *dev_object;
 struct class *dev_class;
 static struct device *drv_dev;
 
+struct _instance_data {
+	int count;
+};
 
 static ssize_t
 char_driver_read(struct file *instance,
@@ -41,7 +46,7 @@ char_driver_read(struct file *instance,
 	unsigned long to_copy;
 	unsigned long diff_of_both;
 
-	char data[]="char_driver says hello crude world!";
+	char data[] = DATA_S;
 
 	to_copy = min(count, strlen(data) + 1);
 	not_copied = copy_to_user(user, data, to_copy);
@@ -81,7 +86,19 @@ char_driver_write( struct file *instance,
 static int
 char_driver_open(struct inode *dev_node, struct file *instance)
 {
+	struct _instance_data *data_p;
+
 	dev_info(drv_dev, "char_driver_open called\n");
+
+	data_p = (struct _instance_data *) kmalloc(sizeof(struct _instance_data),
+						GFP_KERNEL);
+	if (data_p == NULL) {
+		pr_err("kmalloc in *_driver_open");
+		return -ENOMEM;
+	}
+
+	data_p->count = strlen(DATA_S) + 1;
+	instance->private_data = (void *) data_p;
 
 	return 0;
 }
