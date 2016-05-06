@@ -98,6 +98,7 @@ char_driver_write( struct file *instance,
 
 	memcpy(data_p->data_s, data, copied);
 	data_p->data_s[copied] = '\0';
+	data_p->count = copied;
 
 	return copied;
 }
