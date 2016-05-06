@@ -36,7 +36,10 @@ static struct device *drv_dev;
 
 struct _instance_data {
 	int count;
+	char *data_s;
 };
+#define SD struct _instance_data
+
 
 static ssize_t
 char_driver_read(struct file *instance,
@@ -45,10 +48,14 @@ char_driver_read(struct file *instance,
 	unsigned long not_copied;
 	unsigned long to_copy;
 	unsigned long diff_of_both;
-
-	char data[] = DATA_S;
-	struct _instance_data *data_p = (struct _instance_data*) instance->private_data;
-
+	char *data;
+	
+	SD *data_p = (SD*) instance->private_data;
+	if(data_p->data_s == NULL)	
+		data = DATA_S;
+	else 
+		data = data_p->data_s;
+	
 	to_copy = min(count, (size_t) data_p->count);
 	not_copied = copy_to_user(user, data, to_copy);
 
@@ -69,6 +76,8 @@ char_driver_write( struct file *instance,
 	unsigned long to_copy;
 	unsigned long diff_of_both;
 
+	SD *data_p = (SD*) instance->private_data;
+	
 	char data[256];
 	memset(data, 0, sizeof(data));
 
@@ -81,18 +90,24 @@ char_driver_write( struct file *instance,
 	dev_info(drv_dev, "copied %d bytes from user \"%s\"",
 		 (int) diff_of_both, data);
 
+	if(data_p->data_s != NULL)	
+		kfree(data_p->data_s);
+
+	data_p->data_s = (char *) kmalloc(sizeof(diff_of_both), GFP_KERNEL);
+	if (data_p->data_s == NULL) {
+		pr_err("kmalloc in *_driver_write");
+		return  -ENOMEM;
+	}
+
+	memcpy(data_p->data_s, data, diff_of_both);
+	
 	return diff_of_both;
 }
 
 static int
 char_driver_open(struct inode *dev_node, struct file *instance)
 {
-	struct _instance_data *data_p;
-
-	dev_info(drv_dev, "char_driver_open called\n");
-
-	data_p = (struct _instance_data *) kmalloc(sizeof(struct _instance_data),
-						GFP_KERNEL);
+	SD *data_p = (SD *) kmalloc(sizeof(SD), GFP_KERNEL);
 	if (data_p == NULL) {
 		pr_err("kmalloc in *_driver_open");
 		return -ENOMEM;
@@ -101,16 +116,26 @@ char_driver_open(struct inode *dev_node, struct file *instance)
 	data_p->count = strlen(DATA_S) + 1;
 	instance->private_data = (void *) data_p;
 
+	dev_info(drv_dev, "char_driver_open finished open\n");
+	
 	return 0;
 }
 
 static int
 char_driver_close(struct inode *dev_node, struct file *instance)
 {
-	dev_info(drv_dev, "char_driver_closed called\n");
-
-	if (instance->private_data)
+	SD *data_p;
+	
+	if (instance->private_data) {
+		data_p = (SD *) instance->private_data;
+			
+		if (data_p->data_s != NULL)
+			kfree(data_p->data_s);
+		
 		kfree(instance->private_data);
+	}
+
+	dev_info(drv_dev, "char_driver_closed finished cleanup\n");
 
 	return 0;
 }
