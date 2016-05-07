@@ -26,6 +26,9 @@
 #include <asm/uaccess.h>
 #include <linux/slab.h>
 
+/* common defines for driver and usage */
+#include "../common.h"
+
 #define DRIVER_NAME "char_driver"
 
 static dev_t dev_number;
@@ -59,7 +62,7 @@ char_driver_read(struct file *instance,
 	data_p->count -= copied;
 	*offset += copied;
 
-	dev_info(drv_dev, "copied %d bytes from user \"%s\"",
+	dev_info(drv_dev, "copied %d bytes in *_driver_read to user \"%s\"\n",
 		 (int) copied, data_p->data_s);
 
 	return copied;
@@ -84,15 +87,15 @@ char_driver_write( struct file *instance,
 	copied = to_copy - not_copied;
 	*offset += copied;
 
-	dev_info(drv_dev, "copied %d bytes from user \"%s\"",
+	dev_info(drv_dev, "copied %d bytes in *_driver_write from user \"%s\"\n",
 		(int) copied, data);
 
 	if(data_p->data_s != NULL)
 		kfree(data_p->data_s);
 
-	data_p->data_s = (char *) kmalloc(copied + 1, GFP_KERNEL);
+	data_p->data_s = (char *) kmalloc(copied + 1, GFP_USER);
 	if (data_p->data_s == NULL) {
-		pr_err("kmalloc in *_driver_write");
+		pr_err("kmalloc in *_driver_write\n");
 		return  -ENOMEM;
 	}
 
@@ -107,15 +110,15 @@ static int
 char_driver_open(struct inode *dev_node, struct file *instance)
 {
 	size_t len = strlen(data_s) + 1;
-	SD *data_p = (SD *) kmalloc(sizeof(SD), GFP_KERNEL);
+	SD *data_p = (SD *) kmalloc(sizeof(SD), GFP_USER);
 	if (data_p == NULL) {
-		pr_err("kmalloc in *_driver_open");
+		pr_err("kmalloc in *_driver_open\n");
 		return -ENOMEM;
 	}
 
-	data_p->data_s = (char *) kmalloc(len, GFP_KERNEL);
+	data_p->data_s = (char *) kmalloc(len, GFP_USER);
 	if (data_p->data_s == NULL) {
-		pr_err("kmalloc in *_driver_open");
+		pr_err("kmalloc in *_driver_open\n");
 		return -ENOMEM;
 	}
 
@@ -138,10 +141,8 @@ char_driver_close(struct inode *dev_node, struct file *instance)
 	if (instance->private_data) {
 		data_p = (SD *) instance->private_data;
 
-		if (data_p->data_s != NULL) {
+		if (data_p->data_s != NULL) 
 			kfree(data_p->data_s);
-			pr_info("release data_p->data_s");
-		}
 
 		kfree(instance->private_data);
 	}
@@ -154,8 +155,43 @@ char_driver_close(struct inode *dev_node, struct file *instance)
 static long
 char_driver_ioctl(struct file *instance, unsigned int cmd, unsigned long arg)
 {
+	unsigned long not_copied;
+	unsigned long to_copy;
+	unsigned long copied;
+	
+	SD *data_p = (SD*) instance->private_data;
+	char *data;
+	char *tmp_data;
 
+	switch(cmd) {
+	case IOCTL_SET_DATA:
+		data = (char *) arg;
+		to_copy = strlen(data);
 
+		tmp_data = (char *) kmalloc(to_copy + 1, GFP_USER);
+		if (data_p->data_s == NULL) {
+			pr_err("kmalloc in *_driver_ioctl\n");
+			return  -ENOMEM;
+		}
+
+		not_copied = copy_from_user(tmp_data, data, to_copy);
+		copied = to_copy - not_copied;
+
+		if(data_p->data_s != NULL)
+			kfree(data_p->data_s);
+		data_p->data_s = tmp_data;
+
+		data_p->data_s[copied] = '\0';
+		data_p->count = copied;
+		
+		break;
+	default:
+		pr_err("unknown ioctl 0x%x\n", cmd);
+		return -EINVAL;
+	}
+
+	dev_info(drv_dev, "char_driver_ioctl finished\n");
+	
 	return 0;
 }
 
@@ -164,7 +200,7 @@ static struct file_operations fops = {
 	.read = char_driver_read,
 	.write = char_driver_write,
 	.open = char_driver_open,
-	.compat_ioctl = char_driver_ioctl,
+	.unlocked_ioctl = char_driver_ioctl,
 	.release = char_driver_close,
 };
 
