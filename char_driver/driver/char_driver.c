@@ -121,7 +121,7 @@ char_driver_open(struct inode *dev_node, struct file *instance)
 
 	memcpy(data_p->data_s, data_s, len);
 	data_p->data_s[len] = '\0';
-	
+
 	data_p->count = len;
 	instance->private_data = (void *) data_p;
 
@@ -151,11 +151,20 @@ char_driver_close(struct inode *dev_node, struct file *instance)
 	return 0;
 }
 
+static long
+char_driver_ioctl(struct file *instance, unsigned int cmd, unsigned long arg)
+{
+
+
+	return 0;
+}
+
 static struct file_operations fops = {
 	.owner = THIS_MODULE,
 	.read = char_driver_read,
 	.write = char_driver_write,
 	.open = char_driver_open,
+	.compat_ioctl = char_driver_ioctl,
 	.release = char_driver_close,
 };
 

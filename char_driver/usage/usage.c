@@ -80,7 +80,7 @@ main(int argc, char *argv[])
 
 	putchar('\n');
 	sleep(1);
-	
+
 	if ((strcmp(argv[1], "-w") == 0) || (strcmp(argv[1], "-a") == 0)) {
 		fprintf(stdout, "try to write \"%s\" from %s\n", TO_WRITE, DEV_NAME);
 
@@ -95,7 +95,7 @@ main(int argc, char *argv[])
 
 	putchar('\n');
 	sleep(1);
-	
+
 	if ((strcmp(argv[1], "-r") == 0) || (strcmp(argv[1], "-a") == 0)) {
 		fprintf(stdout, "try to read data from %s\n", DEV_NAME);
 
@@ -107,6 +107,11 @@ main(int argc, char *argv[])
 
 		fprintf(stdout, "read %d bytes \"%s\"\n", (int) n, buf);
 	}
+
+
+
+
+
 
 	close (fd);
 

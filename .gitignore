@@ -36,7 +36,7 @@
 *.cmd
 *.symvers
 *.order
-./tmp_versions
+.tmp_versions
 
 # build applications
 usage
