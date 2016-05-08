@@ -141,7 +141,7 @@ char_driver_close(struct inode *dev_node, struct file *instance)
 	if (instance->private_data) {
 		data_p = (SD *) instance->private_data;
 
-		if (data_p->data_s != NULL) 
+		if (data_p->data_s != NULL)
 			kfree(data_p->data_s);
 
 		kfree(instance->private_data);
@@ -158,7 +158,7 @@ char_driver_ioctl(struct file *instance, unsigned int cmd, unsigned long arg)
 	unsigned long not_copied;
 	unsigned long to_copy;
 	unsigned long copied;
-	
+
 	SD *data_p = (SD*) instance->private_data;
 	char *data;
 	char *tmp_data;
@@ -183,7 +183,7 @@ char_driver_ioctl(struct file *instance, unsigned int cmd, unsigned long arg)
 
 		data_p->data_s[copied] = '\0';
 		data_p->count = copied;
-		
+
 		break;
 	default:
 		pr_err("unknown ioctl 0x%x\n", cmd);
@@ -191,7 +191,7 @@ char_driver_ioctl(struct file *instance, unsigned int cmd, unsigned long arg)
 	}
 
 	dev_info(drv_dev, "char_driver_ioctl finished\n");
-	
+
 	return 0;
 }
 
@@ -203,6 +203,43 @@ static struct file_operations fops = {
 	.unlocked_ioctl = char_driver_ioctl,
 	.release = char_driver_close,
 };
+
+
+#ifdef CONFIG_PM
+static int
+char_driver_suspend(struct device *dev, pm_message_t state)
+{
+	switch (state.event) {
+	case PM_EVENT_ON:
+		dev_dbg(dev, "on event\n");
+		break;
+	case PM_EVENT_FREEZE:
+		dev_dbg(dev, "freeze event\n");
+		break;
+	case PM_EVENT_SUSPEND:
+		dev_dbg(dev, "suspend event\n");
+	        break;
+	case PM_EVENT_HIBERNATE:
+		dev_dbg(dev,"hibernate...\n");
+		break;
+	default:
+		dev_dbg(dev,"no valid pm event: 0x%x\n", state.event);
+		break;
+	}
+
+	dev_info(dev,"char_driver_suspend(%p) finished \n", dev );
+
+	return 0;
+}
+
+static int
+char_driver_resume(struct device *dev)
+{
+	dev_info(dev, "char_driver_resume(%p) finished \n",dev);
+
+	return 0;
+}
+#endif
 
 static int __init
 char_driver_init(void)
@@ -242,7 +279,10 @@ char_driver_init(void)
 		pr_err("an error occured -> class_create()\n");
 		goto free_cdev;
 	}
-
+#ifdef CONFIG_PM
+	dev_class->suspend = char_driver_suspend;
+	dev_class->resume = char_driver_resume;
+#endif
 	drv_dev = device_create(dev_class, NULL, dev_number, NULL, "%s",
 				DRIVER_NAME);
 	if (IS_ERR(drv_dev)) {

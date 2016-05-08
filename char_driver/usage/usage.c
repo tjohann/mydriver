@@ -55,7 +55,7 @@ __attribute__((noreturn)) usage(void)
 
 
 /*
- * ./usage -a 
+ * ./usage -a
  * ----------------------
  * 1. open char_driver
  * 2. read driver default string from driver
@@ -117,6 +117,7 @@ main(int argc, char *argv[])
 	if ((strcmp(argv[1], "-w") == 0) || (strcmp(argv[1], "-a") == 0)) {
 		fprintf(stdout, "try to read data from %s\n", DEV_NAME);
 
+		memset(buf, 0, MAX_LINE);
 		n = read(fd, buf, MAX_LINE);
 		if (n == -1) {
 			perror("read");
@@ -137,11 +138,12 @@ main(int argc, char *argv[])
 			exit(EXIT_FAILURE);
 		}
 	}
-		
+
         /* 6. read new string from driver */
 	if ((strcmp(argv[1], "-i") == 0) || (strcmp(argv[1], "-a") == 0)) {
 		fprintf(stdout, "try to read data from %s\n", DEV_NAME);
 
+		memset(buf, 0, MAX_LINE);
 		n = read(fd, buf, MAX_LINE);
 		if (n == -1) {
 			perror("read");
