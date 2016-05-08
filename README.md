@@ -101,11 +101,11 @@ The driver develops a simple char_driver. It creates an dev-node (/dev/char_driv
 5. set IOCTL_TO_WRITE via ioctl
 6. read new string from driver
 
-Build and load the driver
+Build and load the driver:
 
 ![Alt text](Documentation/char_driver_build_load.png?raw=true "Build and load driver")
 
-Example usage of the driver
+Example usage of the driver:
 
 ![Alt text](Documentation/char_driver_usage.png?raw=true "Usage of driver")
 
