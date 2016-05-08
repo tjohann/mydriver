@@ -96,6 +96,10 @@ static struct file_operations fops = {
 static int
 conf_gpio_pin(int gpio_pin)
 {
+
+
+	pr_info("conf_gpio_pin finished\n");
+
 	return 0;
 }
 
