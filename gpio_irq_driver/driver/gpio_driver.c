@@ -96,11 +96,41 @@ static struct file_operations fops = {
 static int
 conf_gpio_pin(int gpio_pin)
 {
+	int pin, err;
+	char pin_s[20];
+	size_t len = sizeof(pin_s);
 
+	memset(pin_s, 0, len);
+	snprintf(pin_s, len, "gpio-%d", gpio_pin);
+
+	err = gpio_request(gpio_pin, pin_s);
+	if (err) {
+		return -1;
+	}
+
+	err = gpio_direction_input(gpio_pin);
+	if (err < 0) {
+		gpio_free(gpio_pin);
+		return -1;
+	}
+
+	pin = gpio_to_irq(gpio_pin);
+	if (pin < 0) {
+		gpio_free(gpio_pin);
+		return -1;
+	}
+
+	err = request_threaded_irq(pin, hard_irq_driver_isr, gpio_irq_driver_isr,
+				IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
+				DRIVER_NAME, dev_object);
+	if (err < 0) {
+		dev_err(drv_dev, "irq %d busy? error %d\n", gpio_pin, err);
+		return -1;
+	}
 
 	pr_info("conf_gpio_pin finished\n");
 
-	return 0;
+	return pin;
 }
 
 static int __init
