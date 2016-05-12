@@ -146,10 +146,23 @@ State: not started
 The userspace examples
 ----------------------
 
-Below the directory userspace_examples you find my basic userspace playground. To implement an I2C driver you normally also have to implement the protocol which is specific to the IC and it's functionlity. As example think of the LCD1602 connected via PCF8574 portexpander with the I2C bus.
+Below the directory userspace_examples you find my basic userspace playground. 
+
+
+The userspace examples (pcf8574_usage)
+--------------------------------------
+
+To implement an I2C driver you normally also have to implement the protocol which is specific to the IC and it's functionlity. As example think of the LCD1602 connected via PCF8574 portexpander with the I2C bus.
 All example use the i2c-dev driver (http://lxr.free-electrons.com/source/Documentation/i2c/dev-interface) and i2c-tools (www.lm-sensors.org).
 
 State (pcf8574_usage): started
+
+
+The userspace examples (gpio_script)
+------------------------------------
+
+This is a simple demonstration about the usage of sysfs-gpio interface. This scripts toogle PIN11(IO-0/PI19) of a bananapi. See ./Documentation/gpio_bananapi.txt about calculation gpio value and PIN.
+
 
 
 Documentation
