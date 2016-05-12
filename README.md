@@ -59,20 +59,7 @@ Every driver tries to implement a single topic.
 
 Nearly all drivers in this repository have the same structure:
 
-|-- char_driver
-|   |-- driver
-|   |   |-- char_driver.c
-|   |   |-- ...
-|   |   `-- Makefile
-|   |-- ...
-|   |-- TODO
-|   `-- usage
-|       |-- usage.c
-|       |-- ...
-|       `-- Makefile
-|
-...
-
+![Alt text](pics/driver_dir_tree.png?raw=true "Driver tree structure")
 
 Below the usage directory you can find one or more examples on how to access the driver.
 
@@ -165,6 +152,10 @@ This is a simple demonstration about the usage of sysfs-gpio interface. This scr
 
 
 ![Alt text](pics/gpio_led_01.jpg?raw=true "GPIO-LED")
+
+![Alt text](pics/gpio_led_02.jpg?raw=true "GPIO-LED")
+
+![Alt text](pics/gpio_led_03.jpg?raw=true "GPIO-LED")
 
 State (gpio_script): finished
 
