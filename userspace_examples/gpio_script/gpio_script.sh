@@ -28,7 +28,7 @@
 #
 # Version     :    V0.01
 #
-# Milestones  :    V0.01 (may 2016) -> initial checkin
+# Milestones  :    V0.01 (may 2016) -> initial version
 #
 # Requires    :    ...
 #                 
@@ -57,14 +57,16 @@ trap "echo \"275\" > /sys/class/gpio/unexport" EXIT
 # see http://linux-sunxi.org/GPIO 
 # PI19 -> (9 - 1) * 32 + 19 = 275 
 # 
-echo "activate Pin 11 for output"
+echo "Try to activate Pin 11 for output"
 echo "275" >/sys/class/gpio/export
 echo "out" >/sys/class/gpio/gpio275/direction 
-echo "activated Pin"
+echo "Activated Pin"
 
 while true; do
-   echo "1" >/sys/class/gpio/gpio275/value
-   sleep 1
-   echo "0" >/sys/class/gpio/gpio275/value
-   sleep 1
+    echo "set 3.3 Volt"
+    echo "1" >/sys/class/gpio/gpio275/value
+    sleep 1
+    echo "set 0 Volt"
+    echo "0" >/sys/class/gpio/gpio275/value
+    sleep 1
 done
