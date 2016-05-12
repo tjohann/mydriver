@@ -14,7 +14,7 @@ To do that you need the processor pin of the IO-0 (see http://www.bananapi.org/p
 IO-0 == PI19
 
 P = Port (32 Pins)
-I = Connector-Line 9 (A = 1, B = 2, C = 3, ... H = 9, I = 9)
+I = Connector-Line 9 (A = 1, B = 2, C = 3, ... H = 8, I = 9)
 19 = Pin 19 of 32
 
 Number = (I - 1) * 32 + PIN 
