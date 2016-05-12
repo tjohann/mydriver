@@ -51,20 +51,20 @@
 VER='0.01'
 
 # catch ctrl-c
-trap "echo \"275" > /sys/class/gpio/unexport" EXIT 
+trap "echo \"275\" > /sys/class/gpio/unexport" EXIT 
 
 #
 # see http://linux-sunxi.org/GPIO 
 # PI19 -> (9 - 1) * 32 + 19 = 275 
 # 
 echo "activate Pin 11 for output"
-echo "275" > /sys/class/gpio/export
-echo "out" > /sys/class/gpio/gpio275/direction 
+echo "275" >/sys/class/gpio/export
+echo "out" >/sys/class/gpio/gpio275/direction 
 echo "activated Pin"
 
 while true; do
-   echo "1" > /sys/class/gpio/gpio275/value
+   echo "1" >/sys/class/gpio/gpio275/value
    sleep 1
-   echo "0" > /sys/class/gpio/gpio275/value
+   echo "0" >/sys/class/gpio/gpio275/value
    sleep 1
 done
