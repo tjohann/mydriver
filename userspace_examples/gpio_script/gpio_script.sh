@@ -55,7 +55,7 @@ VER='0.02'
 # catch ctrl-c and ...
 function cleanup {
     echo "0" >/sys/class/gpio/gpio275/value
-    echo \"275\" >/sys/class/gpio/unexport
+    echo "275" >/sys/class/gpio/unexport
 }
 trap cleanup EXIT
 
