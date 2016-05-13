@@ -51,8 +51,13 @@
 # VERSION-NUMBER
 VER='0.01'
 
-# catch ctrl-c
-trap "{ echo \"275\" > /sys/class/gpio/unexport ; echo \"274\" > /sys/class/gpio/unexport }" EXIT 
+# catch ctrl-c and ...
+function cleanup {
+    echo "0" >/sys/class/gpio/gpio275/value
+    echo \"275\" >/sys/class/gpio/unexport
+    echo \"274\" >/sys/class/gpio/unexport
+}
+trap cleanup EXIT
 
 #
 # see http://linux-sunxi.org/GPIO 
@@ -71,6 +76,9 @@ echo "274" >/sys/class/gpio/export
 echo "in" >/sys/class/gpio/gpio274/direction 
 echo "Activated Pin"
 
+#
+# main loop
+#
 while true; do
     echo "read switch value and set pin (every second)"
     cat /sys/class/gpio/gpio274/value >/sys/class/gpio/gpio275/value

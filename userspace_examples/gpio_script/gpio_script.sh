@@ -24,11 +24,13 @@
 #
 ################################################################################
 #
-# Date/Beginn :    12.05.2016/12.05.2016
+# Date/Beginn :    13.05.2016/12.05.2016
 #
-# Version     :    V0.01
+# Version     :    V0.02
 #
-# Milestones  :    V0.01 (may 2016) -> initial version
+# Milestones  :    V0.02 (may 2016) -> use a function for trap
+#                                      write 0 to output pin
+#                  V0.01 (may 2016) -> initial version
 #
 # Requires    :    ...
 #                 
@@ -48,10 +50,14 @@
 #
 
 # VERSION-NUMBER
-VER='0.01'
+VER='0.02'
 
-# catch ctrl-c
-trap "echo \"275\" > /sys/class/gpio/unexport" EXIT 
+# catch ctrl-c and ...
+function cleanup {
+    echo "0" >/sys/class/gpio/gpio275/value
+    echo \"275\" >/sys/class/gpio/unexport
+}
+trap cleanup EXIT
 
 #
 # see http://linux-sunxi.org/GPIO 
