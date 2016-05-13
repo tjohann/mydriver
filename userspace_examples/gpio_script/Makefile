@@ -2,18 +2,21 @@
 # gpio_script
 #
 
-PROG = gpio_script.sh
+SCRIPT1 = gpio_script.sh
+SCRIPT2 = gpio_swt_led_script.sh
 
 all:
 	@echo "+-----------------------------------------+"
 	@echo "| Nothing to build -> it's a shell script |"
 	@echo "+-----------------------------------------+"
 
-install: $(PROG)
-	install $(PROG) $(HOME)/bin/$(PROG)
+install: $(SCRIPT1) $(SCRIPT2)
+	install $(SCRIPT1) $(HOME)/bin/$(SCRIPT1)
+	install $(SCRIPT2) $(HOME)/bin/$(SCRIPT2)
 
 uninstall:
-	rm -rf $(HOME)/bin/$(PROG)
+	rm -rf $(HOME)/bin/$(SCRIPT1)
+	rm -rf $(HOME)/bin/$(SCRIPT2)
 
 clean:
 	rm -rf *~

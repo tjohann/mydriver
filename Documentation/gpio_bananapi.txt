@@ -25,13 +25,33 @@ PI19   = (9 - 1) * 32 + 19  = 275
 # sysfs 
 #
 
-Activate PI19 for output
-echo "275" > /sys/class/gpio/export
-echo "out" > /sys/class/gpio/gpio275/direction 
+# Activate IO-0/PI19 for output
+echo "275" >/sys/class/gpio/export
+echo "out" >/sys/class/gpio/gpio275/direction 
 
-Set 3.3 Volt to PI19
-echo "1" > /sys/class/gpio/gpio275/value
+# Set 3.3 Volt to IO-0/PI19
+echo "1" >/sys/class/gpio/gpio275/value
 
-Set 0 Volt to PI19
-echo "0" > /sys/class/gpio/gpio275/value
+# Set 0 Volt to IO-0/PI19
+echo "0" >/sys/class/gpio/gpio275/value
 
+#
+# -------------------------------------------
+#
+
+#
+# PIN13(IO-0/PI18)
+#
+
+PI18 = (9 - 1) * 32 + 18  = 274
+
+#
+# sysfs 
+#
+
+# Activate IO-2/PI18 for output (no pullup)
+echo "274" >/sys/class/gpio/export
+echo "in" >/sys/class/gpio/gpio274/direction 
+
+# Read value
+cat /sys/class/gpio/gpio274/value

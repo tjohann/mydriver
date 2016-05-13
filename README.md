@@ -133,7 +133,7 @@ State: not started
 The userspace examples
 ----------------------
 
-Below the directory userspace_examples you find my basic userspace playground. 
+Below the directory userspace_examples you find my basic userspace playground. In most cases the userspace parts are the starting point for the driver develpment and the functionality provided by "normal" userspace will be implemented within a special driver(s). They are the basic for my blog entrys about embedded linux (https://tjohann.wordpress.com/category/embedded-realtime/) and linux realtime topics (https://github.com/tjohann/time_triggert_env.git).
 
 
 The userspace examples (pcf8574_usage)
@@ -148,7 +148,7 @@ State (pcf8574_usage): started
 The userspace examples (gpio_script)
 ------------------------------------
 
-This is a simple demonstration about the usage of sysfs-gpio interface. This scripts toogle PIN11(IO-0/PI19) of a bananapi. See ./Documentation/gpio_bananapi.txt about calculation gpio value and PIN.
+This is a simple demonstration about the usage of sysfs-gpio interface. This scripts toogle PIN11(IO-0/PI19) of a bananapi. See ./Documentation/gpio_bananapi.txt about calculation gpio value and PIN. 
 
 
 ![Alt text](pics/gpio_led_01.jpg?raw=true "GPIO-LED")
@@ -156,6 +156,9 @@ This is a simple demonstration about the usage of sysfs-gpio interface. This scr
 ![Alt text](pics/gpio_led_02.jpg?raw=true "GPIO-LED")
 
 ![Alt text](pics/gpio_led_03.jpg?raw=true "GPIO-LED")
+
+
+Another script reads PIN13(IO-2/PI18) and switch PIN11(IO-0/PI19) on/off.
 
 State (gpio_script): finished
 
