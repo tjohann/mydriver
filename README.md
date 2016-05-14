@@ -7,6 +7,7 @@ This is a collection of different linux kernel driver templates:
   char driver
   i2c-gpio driver
   gpio irq driver
+  gpio driver
   spi driver
 
 It's an playground for different topics like I2C. Therefore i implement a userspace example based on what is already available within the kernel/userspace (like i2ctools) and a driver with a specialized interface (and a example of how to use it). You find also schematics and pics about my test setup.
@@ -64,7 +65,6 @@ Nearly all drivers in this repository have the same structure:
 Below the usage directory you can find one or more examples on how to access the driver.
 
 
-
 The minimal driver
 ------------------
 
@@ -106,20 +106,31 @@ The i2c-gpio driver
 Basic for drivers like https://github.com/tjohann/pcf8574_gpio.git and https://github.com/tjohann/lcd160x_driver.git
 
 Feartures:
-	dts config for intr, id and more
-	intr handler for pin 13 (intr line of pcf8574)
-	read/write all pins (8 bit)
-	using offset to read/write a bit position
+	Dts config for intr, id and more
+	Intr handler for PIN13/IO-0/PI18 (IRQ line of pcf8574)
+	Read/write all pins (8 bit)
+	Using offset to read/write a bit position
 
-State: started
+State: not started
 
 
 The gpio irq driver
 -------------------
 
-Simple driver to show the usage of an irq connected pin. I use a bananapi-m1 and olimex-a20-som/evb as hardware.
+Simple driver to show the usage of an IRQ connected PIN (PIN13/IO-0/PI18). I use a bananapi-m1 and olimex-a20-som/evb as hardware.
 
-State: not started
+State: started
+
+
+The gpio driver
+---------------
+
+Simple driver to show the usage of gpio for read and write from a PIN. I use a bananapi-m1 and olimex-a20-som/evb as hardware.
+
+1. PIN11 (IO-0/PI19) for output
+2. PIN13 (IO-0/PI18) for input
+
+State: started
 
 
 The spi driver
