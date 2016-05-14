@@ -1,10 +1,10 @@
-# Makefile for gpio_driver.c
+# Makefile for gpio_irq_driver.c
 #
 # GPL
 # (c) 2016, thorsten.johannvorderbrueggen@t-online.de
 #
 
-DRIVER=gpio_driver
+DRIVER=gpio_irq_driver
 
 ifneq ($(KERNELRELEASE),)
 obj-m	:= $(DRIVER).o

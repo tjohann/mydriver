@@ -4,7 +4,7 @@
 # (c) 2016, thorsten.johannvorderbrueggen@t-online.de
 #
 
-DRIVER=gpio_irq_driver
+DRIVER=gpio_driver
 
 ifneq ($(KERNELRELEASE),)
 obj-m	:= $(DRIVER).o

@@ -35,12 +35,40 @@ static struct cdev *dev_object;
 struct class *dev_class;
 static struct device *drv_dev;
 
+struct _gpio_pin {
+	int pin;
+	char *name;
+	bool used;
+};
+
+/* LED -> IN11(IO-0/PI19) -> 275 */
+struct _gpio_pin pin_write = {
+	.pin = 275,
+	.name = "gpio_write",
+	.used = false
+};
+
+/* SWT -> PIN13(IO-2/PI18) -> 274 */
+struct _gpio_pin pin_read = {
+	.pin = 274,
+	.name = "gpio_read",
+	.used = false
+};
 
 static ssize_t
 gpio_driver_read(struct file *instance,
-		 char __user *user, size_t count, loff_t *offset)
+		char __user *user, size_t count, loff_t *offset)
 {
-	dev_info(drv_dev, "gpio_driver_open finished open\n");
+	dev_info(drv_dev, "gpio_driver_read finished open\n");
+
+	return 0;
+}
+
+static ssize_t
+gpio_driver_write(struct file *instance,
+		const char __user *user, size_t count, loff_t *offset)
+{
+	dev_info(drv_dev, "gpio_driver_write finished open\n");
 
 	return 0;
 }
@@ -48,7 +76,51 @@ gpio_driver_read(struct file *instance,
 static int
 gpio_driver_open(struct inode *dev_node, struct file *instance)
 {
-	dev_info(drv_dev, "gpio_driver_open finished open\n");
+	int err;
+
+	if (instance->f_flags & O_WRONLY) {
+		if (pin_write.used) {
+			dev_info(drv_dev, "pin already in use\n");
+			return -1;
+		}
+
+		err = gpio_request(pin_write.pin, pin_write.name);
+		if (err) {
+			pr_err("gpio_request failed %d\n", err);
+			return -1;
+		}
+		err = gpio_direction_output(pin_write.pin, 0);
+		if (err) {
+			pr_err("gpio_direction_output failed %d\n", err);
+			gpio_free(pin_write.pin);
+			return -1;
+		}
+
+		pin_write.used = true;
+		dev_info(drv_dev, "gpio_driver_open O_WRONLY\n");
+	}
+
+	if (instance->f_flags & O_RDONLY) {
+		if (pin_read.used) {
+			dev_info(drv_dev, "pin already in use\n");
+			return -1;
+		}
+
+		err = gpio_request(pin_read.pin, pin_read.name);
+		if (err) {
+			pr_err("gpio_request failed %d\n", err);
+			return -1;
+		}
+		err = gpio_direction_input(pin_read.pin);
+		if (err) {
+			pr_err("gpio_direction_input failed %d\n", err);
+			gpio_free(pin_read.pin);
+			return -1;
+		}
+
+		pin_read.used = true;
+		dev_info(drv_dev, "gpio_driver_open O_RDONLY\n");
+	}
 
 	return 0;
 }
@@ -65,10 +137,10 @@ gpio_driver_close(struct inode *dev_node, struct file *instance)
 static struct file_operations fops = {
 	.owner = THIS_MODULE,
 	.read = gpio_driver_read,
+	.write = gpio_driver_write,
 	.open = gpio_driver_open,
 	.release = gpio_driver_close,
 };
-
 
 static int __init
 gpio_driver_init(void)
@@ -123,6 +195,12 @@ static void __exit
 gpio_driver_exit(void)
 {
 	dev_info(drv_dev, "gpio_driver_exit called\n");
+
+	if (pin_write.used)
+		gpio_free(pin_write.pin);
+
+	if (pin_read.used)
+		gpio_free(pin_read.pin);
 
 	device_destroy(dev_class, dev_number);
 	class_destroy(dev_class);
