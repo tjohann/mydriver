@@ -162,11 +162,9 @@ The userspace examples (gpio_script)
 This is a simple demonstration about the usage of sysfs-gpio interface. This scripts toogle PIN11(IO-0/PI19) of a bananapi. See ./Documentation/gpio_bananapi.txt about calculation gpio value and PIN. 
 
 
-![Alt text](pics/gpio_led_01.jpg?raw=true "GPIO-LED")
+![Alt text](pics/overview_05.jpg?raw=true "Overview of GPIO-Environment")
 
-![Alt text](pics/gpio_led_02.jpg?raw=true "GPIO-LED")
-
-![Alt text](pics/gpio_led_03.jpg?raw=true "GPIO-LED")
+![Alt text](pics/gpio_led_04.jpg?raw=true "GPIO-LED")
 
 
 Another script reads PIN13(IO-2/PI18) and switch PIN11(IO-0/PI19) on/off.
