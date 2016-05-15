@@ -77,14 +77,17 @@ gpio_driver_open(struct inode *dev_node, struct file *instance)
 {
 	int err;
 
-	if ((instance->f_flags & O_WRONLY) || (instance->f_flags & O_RDONLY)) {
-		dev_info(drv_dev, "correct open mode\n");
-	} else {
+	int accmode = (instance->f_flags & O_ACCMODE);
+	
+	bool read_mode  = (accmode == O_RDONLY);
+	bool write_mode = (accmode == O_WRONLY);
+	
+	if (!read_mode && !write_mode) {
 		dev_err(drv_dev, "only O_RDONLY and O_WRONLY allowed\n");
 		return -EIO;
-	}
+	} 
 			
-	if (instance->f_flags & O_WRONLY) {
+	if (write_mode) {
 		if (pin_write.used) {
 			dev_info(drv_dev, "pin already in use\n");
 			return -1;
@@ -106,7 +109,7 @@ gpio_driver_open(struct inode *dev_node, struct file *instance)
 		dev_info(drv_dev, "gpio_driver_open O_WRONLY\n");
 	}
 
-	if (instance->f_flags & O_RDONLY) {
+	if (read_mode) {
 		if (pin_read.used) {
 			dev_info(drv_dev, "pin already in use\n");
 			return -1;
