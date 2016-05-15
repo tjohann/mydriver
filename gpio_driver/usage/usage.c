@@ -28,44 +28,130 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <stdbool.h>
+#include <time.h>
 
 /* common defines for driver and usage */
 #include "../common.h"
 
 
+#define DEV_NAME "/dev/gpio_driver"
 #define MAX_LINE 256
 
 static void
 __attribute__((noreturn)) usage(void)
 {
 	fprintf(stdout, "Usage: ./usage -[rwa]     \n");
-	fprintf(stdout, "       -r -> only read    \n");
-	fprintf(stdout, "       -w -> only write   \n");
-	fprintf(stdout, "       -i -> only ioctl   \n");
-	fprintf(stdout, "       -a -> all          \n");
+	fprintf(stdout, "       -r -> read PIN     \n");
+	fprintf(stdout, "       -w -> toogle PIN   \n");
 	putchar('\n');
 	fprintf(stdout, "Examples:                 \n");
 	fprintf(stdout, "       ./usage -r         \n");
 	fprintf(stdout, "       ./usage -w         \n");
-	fprintf(stdout, "       ./usage -a         \n");
 
 	exit(EXIT_FAILURE);
 }
 
+static int
+open_device(char *mode)
+{
+	int fd = -1;
+	
+	switch (*mode) {
+	case 'w':
+		fd = open(DEV_NAME, O_WRONLY);
+		if (fd == -1) {
+			perror("open");
+			return -1;
+		}
+		break;
+	case 'r':
+		fd = open(DEV_NAME, O_RDONLY | O_EXCL);
+		if (fd == -1) {
+			perror("open");
+			return -1;
+		}
+		break;
+	default:
+		fprintf(stderr, "mode not supported\n");
+		usage();
+	}
+	
+	return fd;
+}
 
+
+static void
+work_mode(int fd, char *mode)
+{
+	struct timespec t;
+
+	memset(&t, 0, sizeof(struct timespec));
+
+	/* sleep time 0.5 sec */
+	t.tv_sec = 0;
+	t.tv_nsec = 500000000; 
+
+	int value = 0;
+	size_t len = sizeof(value);
+	ssize_t n = 0;
+	
+	switch (*mode) {
+	case 'w':
+		/* toogle pin */
+		for (;;) {
+			n = write(fd, &value, len);
+			if (n == -1)
+				perror("write");
+			clock_nanosleep(CLOCK_MONOTONIC, 0, &t, NULL);
+
+			value = 1;
+			n = write(fd, &value, len);
+			if (n == -1)
+				perror("write");
+			clock_nanosleep(CLOCK_MONOTONIC, 0, &t, NULL);
+			value = 0;
+		}
+		break;
+	case 'r':
+		/* read pin*/
+		for (;;) {
+			n = read(fd, &value, len);
+			if (n == -1)
+				perror("read");
+			printf("read %d from %s\n", value, DEV_NAME);
+			clock_nanosleep(CLOCK_MONOTONIC, 0, &t, NULL);
+
+			value = 1;
+			n = read(fd, &value, len);
+			if (n == -1)
+				perror("read");
+			printf("read %d from %s\n", value, DEV_NAME);
+			clock_nanosleep(CLOCK_MONOTONIC, 0, &t, NULL);
+			value = 0;
+		}
+		break;
+	default:
+		fprintf(stderr, "mode not supported\n");
+		usage();
+	}
+}
+		
 int
 main(int argc, char *argv[])
 {
+	int fd;
+	
 	if (argc != 2)
 		usage();
 
-	char buf[MAX_LINE];
-	memset(buf, 0, MAX_LINE);
+	char *mode = ++argv[1];
+	
+	fd = open_device(mode);
+	if (fd == -1)
+		usage();
 
+	work_mode(fd, mode);
 
-
-
-
-
+	close(fd);
 	return EXIT_SUCCESS;
 }

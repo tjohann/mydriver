@@ -29,9 +29,6 @@
 #include <sys/ioctl.h>
 #include <stdbool.h>
 
-/* common defines for driver and usage */
-#include "../common.h"
-
 
 #define MAX_LINE 256
 

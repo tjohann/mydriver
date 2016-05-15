@@ -22,6 +22,7 @@
 #ifndef _COMMON_H_
 #define _COMMON_H_
 
+
 struct _gpio_pin {
 	int pin;
 	char *name;

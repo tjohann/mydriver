@@ -40,20 +40,36 @@ static struct device *drv_dev;
 
 static ssize_t
 gpio_driver_read(struct file *instance,
-		char __user *user, size_t count, loff_t *offset)
+		 char __user *user, size_t count, loff_t *offset)
 {
-	dev_info(drv_dev, "gpio_driver_read finished open\n");
+	unsigned long not_copied;
+        unsigned long to_copy;
 
-	return 0;
+	u32 value = 0;
+
+	value = gpio_get_value(pin_read.pin);
+	
+        to_copy = min(count, sizeof(value));
+        not_copied = copy_to_user(user, &value, to_copy);
+
+        return to_copy - not_copied;
 }
 
 static ssize_t
 gpio_driver_write(struct file *instance,
-		const char __user *user, size_t count, loff_t *offset)
+		  const char __user *user, size_t count, loff_t *offset)
 {
-	dev_info(drv_dev, "gpio_driver_write finished open\n");
+	unsigned long not_copied;
+        unsigned long to_copy;
 
-	return 0;
+	u32 value = 0;
+	
+        to_copy = min(count, sizeof(value));
+        not_copied = copy_from_user(&value, user, to_copy);
+
+	gpio_set_value(pin_write.pin, value ? 1 : 0);
+
+        return to_copy - not_copied;
 }
 
 static int
@@ -61,6 +77,13 @@ gpio_driver_open(struct inode *dev_node, struct file *instance)
 {
 	int err;
 
+	if ((instance->f_flags & O_WRONLY) || (instance->f_flags & O_RDONLY)) {
+		dev_info(drv_dev, "correct open mode\n");
+	} else {
+		dev_err(drv_dev, "only O_RDONLY and O_WRONLY allowed\n");
+		return -EIO;
+	}
+			
 	if (instance->f_flags & O_WRONLY) {
 		if (pin_write.used) {
 			dev_info(drv_dev, "pin already in use\n");
@@ -113,6 +136,16 @@ gpio_driver_close(struct inode *dev_node, struct file *instance)
 {
 	dev_info(drv_dev, "gpio_driver_closed finished cleanup\n");
 
+	if (pin_write.used) {
+		gpio_free(pin_write.pin);
+		pin_write.used = false;
+	}
+
+	if (pin_read.used) {
+		gpio_free(pin_read.pin);
+		pin_read.used = false;
+	}
+	
 	return 0;
 }
 
@@ -128,7 +161,7 @@ static struct file_operations fops = {
 static int __init
 gpio_driver_init(void)
 {
-	pr_info("char_driver_init called\n");
+	pr_info("gpio_driver_init called\n");
 
 	/* get a device number */
 	if (alloc_chrdev_region(&dev_number, 0, 1, DRIVER_NAME) < 0)
@@ -178,12 +211,6 @@ static void __exit
 gpio_driver_exit(void)
 {
 	dev_info(drv_dev, "gpio_driver_exit called\n");
-
-	if (pin_write.used)
-		gpio_free(pin_write.pin);
-
-	if (pin_read.used)
-		gpio_free(pin_read.pin);
 
 	device_destroy(dev_class, dev_number);
 	class_destroy(dev_class);
