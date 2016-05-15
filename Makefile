@@ -3,7 +3,14 @@
 #
 
 CLEAN = $(shell ls -d */ | cut -f1 -d'/')
-BUILD = char_driver i2c_gpio_driver gpio_driver gpio_irq_driver spi_driver userspace_examples
+BUILD = char_driver 		\
+	i2c_gpio_driver 	\
+	gpio_driver 		\
+	gpio_driver_new		\
+	gpio_irq_driver 	\
+	gpio_irq_driver_new 	\
+	spi_driver 		\
+	userspace_examples
 
 all:
 	@echo "  +----------------------------------------------------------+"

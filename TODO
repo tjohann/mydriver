@@ -8,8 +8,9 @@
 #
 
 ## gpio_driver
-- working gpio_driver
+- working gpio_driver                                      [2016-05-15 -> done] 
 - add dts support for gpio_driver (in + out PIN)
+- move to descriptor based gpio functions
 
 ## gpio_irq_driver
 - working gpio_irq_driver
@@ -26,7 +27,7 @@
 #
 
 ## char_driver
-- add support for ioctl in char_driver (Idea switch        [2016-05-xx -> done]  
+- add support for ioctl in char_driver (Idea switch        [2016-05-xx -> done] 
   between different strings for read)
 
 ## i2c_gpio_driver

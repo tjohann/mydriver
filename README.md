@@ -6,8 +6,10 @@ This is a collection of different linux kernel driver templates:
   an absolute minimal driver
   char driver
   i2c-gpio driver
-  gpio irq driver
-  gpio driver
+  gpio irq driver (int based)
+  gpio irq driver (fd based)
+  gpio driver (int based)
+  gpio driver (fd based)
   spi driver
 
 It's an playground for different topics like I2C. Therefore i implement a userspace example based on what is already available within the kernel/userspace (like i2ctools) and a driver with a specialized interface (and a example of how to use it). You find also schematics and pics about my test setup.
@@ -117,20 +119,38 @@ State: not started
 The gpio irq driver
 -------------------
 
-Simple driver to show the usage of an IRQ connected PIN (PIN13/IO-0/PI18). I use a bananapi-m1 and olimex-a20-som/evb as hardware.
+Simple (int based) driver to show the usage of an IRQ connected PIN (PIN13/IO-0/PI18). I use a bananapi-m1 and olimex-a20-som/evb as hardware.
 
 State: started
+
+
+The gpio irq driver (new)
+-------------------------
+
+Simple (fd based) driver to show the usage of an IRQ connected PIN (PIN13/IO-0/PI18). It behaves in the same way like gpio_irq_driver, but it uses the new file descriptor gpio framework of the kernel
+
+State: not started
 
 
 The gpio driver
 ---------------
 
-Simple driver to show the usage of gpio for read and write from a PIN. I use a bananapi-m1 and olimex-a20-som/evb as hardware.
+Simple (int based) driver to show the usage of gpio for read and write from a PIN. I use a bananapi-m1 and olimex-a20-som/evb as hardware.
 
 1. PIN11 (IO-0/PI19) for output
 2. PIN13 (IO-0/PI18) for input
 
+Via ioctl syscall you can change the PIN for in/output. 
+
 State: started
+
+
+The gpio driver (new)
+---------------------
+
+Simple (fd based) driver to show the usage of gpio for read and write from a PIN. It behaves in the same way like gpio_driver, but it uses the new file descriptor gpio framework of the kernel
+
+State: not started
 
 
 The spi driver
