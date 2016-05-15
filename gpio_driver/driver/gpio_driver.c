@@ -28,6 +28,8 @@
 #include <linux/interrupt.h>
 #include <linux/sched.h>
 
+#include "../common.h"
+
 #define DRIVER_NAME "gpio_driver"
 
 static dev_t dev_number;
@@ -35,25 +37,6 @@ static struct cdev *dev_object;
 struct class *dev_class;
 static struct device *drv_dev;
 
-struct _gpio_pin {
-	int pin;
-	char *name;
-	bool used;
-};
-
-/* LED -> IN11(IO-0/PI19) -> 275 */
-struct _gpio_pin pin_write = {
-	.pin = 275,
-	.name = "gpio_write",
-	.used = false
-};
-
-/* SWT -> PIN13(IO-2/PI18) -> 274 */
-struct _gpio_pin pin_read = {
-	.pin = 274,
-	.name = "gpio_read",
-	.used = false
-};
 
 static ssize_t
 gpio_driver_read(struct file *instance,
