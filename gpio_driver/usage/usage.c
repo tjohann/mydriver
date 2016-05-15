@@ -65,7 +65,7 @@ open_device(char *mode)
 		}
 		break;
 	case 'r':
-		fd = open(DEV_NAME, O_RDONLY | O_EXCL);
+		fd = open(DEV_NAME, O_RDONLY);
 		if (fd == -1) {
 			perror("open");
 			return -1;
