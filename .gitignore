@@ -39,5 +39,5 @@
 .tmp_versions
 
 # build applications
-usage
-pcf8574
+#usage
+#pcf8574
