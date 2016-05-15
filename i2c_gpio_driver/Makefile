@@ -5,7 +5,7 @@
 MODULES = $(shell ls -d */ | cut -f1 -d '/')
 PWD=$(shell pwd)
 
-all: driver
+all: driver usage
 
 driver:
 	@echo "+------------------------------------------------------------+"

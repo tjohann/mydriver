@@ -2,6 +2,17 @@
 # NEWS
 #
 
+2016-05-15
+- simple userpace examples for gpio (swt and led)
+- first schematic of gpio hardware
+
+
+2016-05-xx
+- working char_driver with open/close/read/write/ioctl
+- working usage example of char_driver
+- add skeletons for the other driver examples
+
+
 2016-04-29
 - removed "old school" char_driver -> makes no sense
 - remove i2c driver skeleton

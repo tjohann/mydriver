@@ -2,13 +2,32 @@
 # TODO
 #
 
+
+#
+# -------------- 2016-05-15 ----------------------------------------------------
+#
+
+## gpio_driver
+- working gpio_driver
+- add dts support for gpio_driver (in + out PIN)
+
+## gpio_irq_driver
+- working gpio_irq_driver
+
+## i2c_gpio_driver
+- working i2c_irq_driver (PCF8574 based)
+
+## schematic
+- finish gpio test pcb (swt and leds)
+
+
 #
 # -------------- 2016-04-29 ----------------------------------------------------
 #
 
 ## char_driver
-- add support for ioctl in char_driver (Idea switch between
-  different strings for read)
+- add support for ioctl in char_driver (Idea switch        [2016-05-xx -> done]  
+  between different strings for read)
 
 ## i2c_gpio_driver
 driver part:
@@ -19,8 +38,7 @@ driver part:
   - add offset handling for read/write -> offset for bit position
 - add /dev entry for every bit on P0...P7
 userspace example:
-- add userspace example code
-
+- add userspace example code                                [2016-05-xx -> done]
 
 
 #

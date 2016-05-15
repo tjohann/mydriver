@@ -37,7 +37,7 @@
 *.symvers
 *.order
 .tmp_versions
+*.mod.c
 
 # build applications
-#usage
-#pcf8574
+pcf8574
