@@ -55,7 +55,7 @@ static int
 open_device(char *mode)
 {
 	int fd = -1;
-	
+
 	switch (*mode) {
 	case 'w':
 		fd = open(DEV_NAME, O_WRONLY);
@@ -75,7 +75,7 @@ open_device(char *mode)
 		fprintf(stderr, "mode not supported\n");
 		usage();
 	}
-	
+
 	return fd;
 }
 
@@ -89,12 +89,12 @@ work_mode(int fd, char *mode)
 
 	/* sleep time 0.5 sec */
 	t.tv_sec = 0;
-	t.tv_nsec = 500000000; 
+	t.tv_nsec = 500000000;
 
 	int value = 0;
 	size_t len = sizeof(value);
 	ssize_t n = 0;
-	
+
 	switch (*mode) {
 	case 'w':
 		/* toogle pin */
@@ -135,17 +135,17 @@ work_mode(int fd, char *mode)
 		usage();
 	}
 }
-		
+
 int
 main(int argc, char *argv[])
 {
 	int fd;
-	
+
 	if (argc != 2)
 		usage();
 
 	char *mode = ++argv[1];
-	
+
 	fd = open_device(mode);
 	if (fd == -1)
 		usage();

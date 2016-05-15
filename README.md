@@ -140,7 +140,7 @@ Simple (int based) driver to show the usage of gpio for read and write from a PI
 1. PIN11 (IO-0/PI19) for output
 2. PIN13 (IO-0/PI18) for input
 
-Via ioctl syscall you can change the PIN for in/output. 
+Via ioctl syscall you can change the PIN for in/output.
 
 State: started
 
@@ -179,7 +179,7 @@ State (pcf8574_usage): started
 The userspace examples (gpio_script)
 ------------------------------------
 
-This is a simple demonstration about the usage of sysfs-gpio interface. This scripts toogle PIN11(IO-0/PI19) of a bananapi. See ./Documentation/gpio_bananapi.txt about calculation gpio value and PIN. 
+This is a simple demonstration about the usage of sysfs-gpio interface. This scripts toogle PIN11(IO-0/PI19) of a bananapi. See ./Documentation/gpio_bananapi.txt about calculation gpio value and PIN.
 
 
 ![Alt text](pics/overview_05.jpg?raw=true "Overview of GPIO-Environment")

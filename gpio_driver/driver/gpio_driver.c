@@ -48,7 +48,7 @@ gpio_driver_read(struct file *instance,
 	u32 value = 0;
 
 	value = gpio_get_value(pin_read.pin);
-	
+
         to_copy = min(count, sizeof(value));
         not_copied = copy_to_user(user, &value, to_copy);
 
@@ -63,7 +63,7 @@ gpio_driver_write(struct file *instance,
         unsigned long to_copy;
 
 	u32 value = 0;
-	
+
         to_copy = min(count, sizeof(value));
         not_copied = copy_from_user(&value, user, to_copy);
 
@@ -78,15 +78,15 @@ gpio_driver_open(struct inode *dev_node, struct file *instance)
 	int err;
 
 	int accmode = (instance->f_flags & O_ACCMODE);
-	
+
 	bool read_mode  = (accmode == O_RDONLY);
 	bool write_mode = (accmode == O_WRONLY);
-	
+
 	if (!read_mode && !write_mode) {
 		dev_err(drv_dev, "only O_RDONLY and O_WRONLY allowed\n");
 		return -EIO;
-	} 
-			
+	}
+
 	if (write_mode) {
 		if (pin_write.used) {
 			dev_info(drv_dev, "pin already in use\n");
@@ -148,7 +148,7 @@ gpio_driver_close(struct inode *dev_node, struct file *instance)
 		gpio_free(pin_read.pin);
 		pin_read.used = false;
 	}
-	
+
 	return 0;
 }
 
