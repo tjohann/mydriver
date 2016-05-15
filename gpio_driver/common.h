@@ -22,6 +22,8 @@
 #ifndef _COMMON_H_
 #define _COMMON_H_
 
+#define IOCTL_SET_WRITE_PIN 0x0001
+#define IOCTL_SET_READ_PIN  0x0002
 
 struct _gpio_pin {
 	int pin;

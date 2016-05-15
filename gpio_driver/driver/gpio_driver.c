@@ -152,12 +152,31 @@ gpio_driver_close(struct inode *dev_node, struct file *instance)
 	return 0;
 }
 
+static long
+gpio_driver_ioctl(struct file *instance, unsigned int cmd, unsigned long arg)
+{
+	switch(cmd) {
+	case IOCTL_SET_WRITE_PIN:
+		pr_info("IOCTL_SET_WRITE_PIN ... \n");
+		break;
+	case IOCTL_SET_READ_PIN:
+		pr_info("IOCTL_SET_READ_PIN ... \n");
+		break;
+	default:
+		pr_err("unknown ioctl 0x%x\n", cmd);
+		return -EINVAL;
+	}
+
+	dev_info(drv_dev, "gpio_driver_ioctl finished\n");
+	return 0;
+}
 
 static struct file_operations fops = {
 	.owner = THIS_MODULE,
 	.read = gpio_driver_read,
 	.write = gpio_driver_write,
 	.open = gpio_driver_open,
+	.unlocked_ioctl = gpio_driver_ioctl,
 	.release = gpio_driver_close,
 };
 

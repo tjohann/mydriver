@@ -53,7 +53,6 @@ __attribute__((noreturn)) usage(void)
 	exit(EXIT_FAILURE);
 }
 
-
 /*
  * ./usage -a
  * ----------------------
@@ -99,7 +98,8 @@ main(int argc, char *argv[])
 
 	/* 3. write TO_WRITE to driver */
 	if ((strcmp(argv[1], "-w") == 0) || (strcmp(argv[1], "-a") == 0)) {
-		fprintf(stdout, "try to write \"%s\" from %s\n", TO_WRITE, DEV_NAME);
+		fprintf(stdout, "try to write \"%s\" from %s\n",
+			TO_WRITE, DEV_NAME);
 
 		n = write(fd, TO_WRITE, strlen(TO_WRITE));
 		if (n == -1) {
