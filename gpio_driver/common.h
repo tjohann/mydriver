@@ -25,6 +25,9 @@
 #define IOCTL_SET_WRITE_PIN 0x0001
 #define IOCTL_SET_READ_PIN  0x0002
 
+#define DEF_PIN_WRITE 275
+#define DEF_PIN_READ 274
+
 struct _gpio_pin {
 	int pin;
 	char *name;

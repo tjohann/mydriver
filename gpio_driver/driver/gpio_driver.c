@@ -37,6 +37,10 @@ static struct cdev *dev_object;
 struct class *dev_class;
 static struct device *drv_dev;
 
+struct _instance_data {
+	struct _gpio_pin pin_conf;
+};
+#define SD struct _instance_data
 
 static ssize_t
 gpio_driver_read(struct file *instance,
