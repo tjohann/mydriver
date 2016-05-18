@@ -71,6 +71,8 @@ config_pin(int pin, bool write_pin, SD **data)
 
 	memcpy(name, tmp_name, len);
 	name[len] = '\0';
+
+	pr_info("name %s and pin %d", name, pin);
 	
 	err = gpio_request(pin, name);
 	if (err) {
@@ -121,6 +123,8 @@ gpio_driver_read(struct file *instance,
 	u32 value = 0;
 
 	SD *data = (SD*) instance->private_data;
+
+	pr_info("%p\n", data);
 	
 	value = gpio_get_value(data->pin);
 
@@ -176,6 +180,8 @@ gpio_driver_open(struct inode *dev_node, struct file *instance)
 		dev_info(drv_dev, "gpio_driver_open O_RDONLY\n");
 	}
 
+	pr_info("%p\n", data);
+	
 	instance->private_data = (void *) data;
 
 	pr_debug("gpio_driver_open values:\n");
