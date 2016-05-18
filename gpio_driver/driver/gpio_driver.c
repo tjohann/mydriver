@@ -94,7 +94,7 @@ config_pin(int pin, bool write_pin, SD **data)
 	}
 
 	*data = (SD *) kmalloc(sizeof(SD), GFP_USER);
-	if (tmp_data == NULL) {
+	if (*data == NULL) {
 		pr_err("kmalloc in config_pin\n");
 		goto free_pin;
 	}
