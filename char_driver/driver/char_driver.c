@@ -136,7 +136,7 @@ char_driver_open(struct inode *dev_node, struct file *instance)
 static int
 char_driver_close(struct inode *dev_node, struct file *instance)
 {
-	SD *data_p;
+	SD *data_p = NULL;
 
 	if (instance->private_data) {
 		data_p = (SD *) instance->private_data;

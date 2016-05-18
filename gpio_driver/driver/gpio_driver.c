@@ -96,12 +96,10 @@ config_pin(int pin, bool write_pin, SD **data)
 
 	tmp_data->name = name;
 	tmp_data->pin = pin;
-	tmp_data->used = true;
 
 	pr_debug("config_pin values:\n");
 	pr_debug("name = %s\n", tmp_data->name);
 	pr_debug("pin = %d\n", tmp_data->pin);
-	pr_debug("used = %d\n", tmp_data->used);
 
 	return 0;
 
@@ -120,10 +118,11 @@ gpio_driver_read(struct file *instance,
 {
 	unsigned long not_copied;
         unsigned long to_copy;
-
 	u32 value = 0;
 
-	value = gpio_get_value(pin_read.pin);
+	SD *data = (SD*) instance->private_data;
+	
+	value = gpio_get_value(data->pin);
 
         to_copy = min(count, sizeof(value));
         not_copied = copy_to_user(user, &value, to_copy);
@@ -137,13 +136,14 @@ gpio_driver_write(struct file *instance,
 {
 	unsigned long not_copied;
         unsigned long to_copy;
-
 	u32 value = 0;
 
+	SD *data = (SD*) instance->private_data;
+	
         to_copy = min(count, sizeof(value));
         not_copied = copy_from_user(&value, user, to_copy);
 
-	gpio_set_value(pin_write.pin, value ? 1 : 0);
+	gpio_set_value(data->pin, value ? 1 : 0);
 
         return to_copy - not_copied;
 }
@@ -166,14 +166,14 @@ gpio_driver_open(struct inode *dev_node, struct file *instance)
 		if (config_pin(DEF_PIN_WRITE, true, &data) == -1)
 			return -EIO;
 		
-		dev_debug(drv_dev, "gpio_driver_open O_WRONLY\n");
+		dev_info(drv_dev, "gpio_driver_open O_WRONLY\n");
 	}
 
 	if (read_mode) {
 		if (config_pin(DEF_PIN_READ, false, &data) == -1)
 			return -EIO;
 		
-		dev_debug(drv_dev, "gpio_driver_open O_RDONLY\n");
+		dev_info(drv_dev, "gpio_driver_open O_RDONLY\n");
 	}
 
 	instance->private_data = (void *) data;
@@ -181,7 +181,6 @@ gpio_driver_open(struct inode *dev_node, struct file *instance)
 	pr_debug("gpio_driver_open values:\n");
 	pr_debug("name = %s\n", data->name);
 	pr_debug("pin = %d\n", data->pin);
-	pr_debug("used = %d\n", data->used);
 	
 	return 0;
 }
@@ -189,18 +188,19 @@ gpio_driver_open(struct inode *dev_node, struct file *instance)
 static int
 gpio_driver_close(struct inode *dev_node, struct file *instance)
 {
+	SD *data = NULL;
+	
+	if (instance->private_data) {
+		data = (SD *) instance->private_data;
+
+		if (data->name != NULL)
+			kfree(data->name);
+
+		kfree(instance->private_data);
+	}
+
 	dev_info(drv_dev, "gpio_driver_closed finished cleanup\n");
-
-	if (pin_write.used) {
-		gpio_free(pin_write.pin);
-		pin_write.used = false;
-	}
-
-	if (pin_read.used) {
-		gpio_free(pin_read.pin);
-		pin_read.used = false;
-	}
-
+	
 	return 0;
 }
 
