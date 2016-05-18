@@ -4,13 +4,22 @@
 
 
 #
+# -------------- 2016-05-18 ----------------------------------------------------
+#
+
+## gpio driver
+- prepare pin config via ioctl (use instance specifc
+  config)						    [2016-05-18 -> done]
+  
+
+#
 # -------------- 2016-05-15 ----------------------------------------------------
 #
 
 ## gpio_driver
 - working gpio_driver                                      [2016-05-15 -> done]
 - add dts support for gpio_driver (in + out PIN)
-- move to descriptor based gpio functions
+- add descriptor based gpio driver
 
 ## gpio_irq_driver
 - working gpio_irq_driver

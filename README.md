@@ -135,14 +135,16 @@ State: not started
 The gpio driver
 ---------------
 
-Simple (int based) driver to show the usage of gpio for read and write from a PIN. I use a bananapi-m1 and olimex-a20-som/evb as hardware.
+Simple (int based) driver to show the usage of gpio for read and write from a PIN. I use a bananapi-m1 and olimex-a20-som/evb as hardware. 
+
+Used default values:
 
 1. PIN11 (IO-0/PI19) for output
 2. PIN13 (IO-0/PI18) for input
 
 Via ioctl syscall you can change the PIN for in/output.
 
-State: started
+State: nearly finished
 
 
 The gpio driver (new)
@@ -181,12 +183,6 @@ The userspace examples (gpio_script)
 
 This is a simple demonstration about the usage of sysfs-gpio interface. This scripts toogle PIN11(IO-0/PI19) of a bananapi. See ./Documentation/gpio_bananapi.txt about calculation gpio value and PIN.
 
-
-![Alt text](pics/overview_05.jpg?raw=true "Overview of GPIO-Environment")
-
-![Alt text](pics/gpio_led_04.jpg?raw=true "GPIO-LED")
-
-
 Another script reads PIN13(IO-2/PI18) and switch PIN11(IO-0/PI19) on/off.
 
 State (gpio_script): finished
@@ -202,6 +198,12 @@ Pictures/Test-environment
 -------------------------
 
 Here you find some pictures of the wiring and my test setup.
+
+The gpio test environment:
+
+![Alt text](pics/overview_05.jpg?raw=true "Overview of GPIO-Environment")
+
+![Alt text](pics/gpio_led_04.jpg?raw=true "GPIO-LED")
 
 
 Schematics
