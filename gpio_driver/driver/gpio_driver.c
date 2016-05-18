@@ -38,9 +38,18 @@ struct class *dev_class;
 static struct device *drv_dev;
 
 struct _instance_data {
-	struct _gpio_pin pin_conf;
+	int pin;
+	char *name;
+	bool used;
 };
 #define SD struct _instance_data
+
+static int
+config_write_pin(int pin)
+{
+
+
+}
 
 static ssize_t
 gpio_driver_read(struct file *instance,
@@ -80,46 +89,74 @@ static int
 gpio_driver_open(struct inode *dev_node, struct file *instance)
 {
 	int err;
-
+	char name[15];
+	
 	int accmode = (instance->f_flags & O_ACCMODE);
-
 	bool read_mode  = (accmode == O_RDONLY);
 	bool write_mode = (accmode == O_WRONLY);
 
+	memset(name, 0, sizeof(name));
+	
 	if (!read_mode && !write_mode) {
 		dev_err(drv_dev, "only O_RDONLY and O_WRONLY allowed\n");
 		return -EIO;
 	}
 
 	if (write_mode) {
-		if (pin_write.used) {
-			dev_info(drv_dev, "pin already in use\n");
-			return -1;
-		}
-
-		err = gpio_request(pin_write.pin, pin_write.name);
+		snprintf(name, sizeof(name), "gpio-write-%d", gpionr );
+		
+		err = gpio_request(DEF_PIN_WRITE, name.name);
 		if (err) {
 			pr_err("gpio_request failed %d\n", err);
+			kfree(name);
 			return -1;
 		}
-		err = gpio_direction_output(pin_write.pin, 0);
+		err = gpio_direction_output(DEF_PIN_WRITE, 0);
 		if (err) {
 			pr_err("gpio_direction_output failed %d\n", err);
-			gpio_free(pin_write.pin);
+			gpio_free(DEF_PIN_WRITE);
+			kfree(name);
 			return -1;
 		}
 
+		SD *data_p = (SD *) kmalloc(sizeof(SD), GFP_USER);
+		if (data_p == NULL) {
+			pr_err("kmalloc in *_driver_open\n");
+			return -ENOMEM;
+		}
+		
 		pin_write.used = true;
+
+
+
+
+		
+
+	SD *data_p = (SD *) kmalloc(sizeof(SD), GFP_USER);
+	if (data_p == NULL) {
+		pr_err("kmalloc in *_driver_open\n");
+		return -ENOMEM;
+	}
+
+	data_p->data_s = (char *) kmalloc(len, GFP_USER);
+	if (data_p->data_s == NULL) {
+		pr_err("kmalloc in *_driver_open\n");
+		return -ENOMEM;
+	}
+
+	memcpy(data_p->data_s, data_s, len);
+	data_p->data_s[len] = '\0';
+
+
+
+		
 		dev_info(drv_dev, "gpio_driver_open O_WRONLY\n");
 	}
 
 	if (read_mode) {
-		if (pin_read.used) {
-			dev_info(drv_dev, "pin already in use\n");
-			return -1;
-		}
+		snprintf(name, sizeof(name), "gpio-read-%d", gpionr );
 
-		err = gpio_request(pin_read.pin, pin_read.name);
+		err = gpio_request(DEF_PIN_READ, name);
 		if (err) {
 			pr_err("gpio_request failed %d\n", err);
 			return -1;
