@@ -50,8 +50,8 @@ config_pin(int pin, bool write_pin, SD **data)
 {
 	int err = -1;
 	size_t len = 0;
-	SD *tmp_data = NULL;
 	char *name = NULL;
+	
 	char tmp_name[15];
 	memset(tmp_name, 0, sizeof(tmp_name));
 
@@ -72,8 +72,6 @@ config_pin(int pin, bool write_pin, SD **data)
 	memcpy(name, tmp_name, len);
 	name[len] = '\0';
 
-	pr_info("name %s and pin %d", name, pin);
-	
 	err = gpio_request(pin, name);
 	if (err) {
 		pr_err("gpio_request failed %d\n", err);
@@ -96,18 +94,8 @@ config_pin(int pin, bool write_pin, SD **data)
 		goto free_pin;
 	}
 
-	tmp_data = *data;
-	tmp_data->name = name;
-	tmp_data->pin = pin;
-
-	
-	pr_info("tmp_data -> %p\n", tmp_data);
-	pr_info("data -> %p\n", data);
-	pr_info("*data -> %p\n", *data);
-	
-	pr_debug("config_pin values:\n");
-	pr_debug("name = %s\n", tmp_data->name);
-	pr_debug("pin = %d\n", tmp_data->pin);
+	(*data)->name = name;
+	(*data)->pin = pin;
 
 	return 0;
 
@@ -194,13 +182,12 @@ gpio_driver_open(struct inode *dev_node, struct file *instance)
 		dev_info(drv_dev, "gpio_driver_open O_RDONLY\n");
 	}
 
-	pr_info("gpio_driver open -> %p\n", data);
-	
 	instance->private_data = (void *) data;
 
-	pr_debug("gpio_driver_open values:\n");
-	pr_debug("name = %s\n", data->name);
-	pr_debug("pin = %d\n", data->pin);
+	/* some useful info messages */
+	pr_info("gpio_driver_open values:\n");
+	pr_info("name = %s\n", data->name);
+	pr_info("pin = %d\n", data->pin);
 	
 	return 0;
 }
