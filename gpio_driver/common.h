@@ -27,6 +27,8 @@
 
 #define DEF_PIN_WRITE 275
 #define DEF_PIN_READ 274
+#define DIR_WRITE 0
+#define DIR_READ 1
 
 struct _gpio_pin {
 	int pin;

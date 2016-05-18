@@ -45,10 +45,60 @@ struct _instance_data {
 #define SD struct _instance_data
 
 static int
-config_write_pin(int pin)
+config_pin(int pin, bool write_pin)
 {
+/*	snprintf(name, sizeof(name), "gpio-write-%d", gpionr );
+		
+	err = gpio_request(DEF_PIN_WRITE, name.name);
+	if (err) {
+		pr_err("gpio_request failed %d\n", err);
+		kfree(name);
+		return -1;
+	}
+	err = gpio_direction_output(DEF_PIN_WRITE, 0);
+	if (err) {
+		pr_err("gpio_direction_output failed %d\n", err);
+		gpio_free(DEF_PIN_WRITE);
+		kfree(name);
+		return -1;
+	}
+	
+	SD *data_p = (SD *) kmalloc(sizeof(SD), GFP_USER);
+	if (data_p == NULL) {
+		pr_err("kmalloc in *_driver_open\n");
+		return -ENOMEM;
+	}
+	
+	pin_write.used = true;
+	
 
 
+	snprintf(name, sizeof(name), "gpio-write-%d", gpionr );
+		
+		err = gpio_request(DEF_PIN_WRITE, name.name);
+		if (err) {
+			pr_err("gpio_request failed %d\n", err);
+			kfree(name);
+			return -1;
+		}
+		err = gpio_direction_output(DEF_PIN_WRITE, 0);
+		if (err) {
+			pr_err("gpio_direction_output failed %d\n", err);
+			gpio_free(DEF_PIN_WRITE);
+			kfree(name);
+			return -1;
+		}
+
+		SD *data_p = (SD *) kmalloc(sizeof(SD), GFP_USER);
+		if (data_p == NULL) {
+			pr_err("kmalloc in *_driver_open\n");
+			return -ENOMEM;
+		}
+		
+		pin_write.used = true;
+*/
+	
+	return 0;
 }
 
 static ssize_t
@@ -103,72 +153,16 @@ gpio_driver_open(struct inode *dev_node, struct file *instance)
 	}
 
 	if (write_mode) {
-		snprintf(name, sizeof(name), "gpio-write-%d", gpionr );
-		
-		err = gpio_request(DEF_PIN_WRITE, name.name);
-		if (err) {
-			pr_err("gpio_request failed %d\n", err);
-			kfree(name);
-			return -1;
-		}
-		err = gpio_direction_output(DEF_PIN_WRITE, 0);
-		if (err) {
-			pr_err("gpio_direction_output failed %d\n", err);
-			gpio_free(DEF_PIN_WRITE);
-			kfree(name);
-			return -1;
-		}
-
-		SD *data_p = (SD *) kmalloc(sizeof(SD), GFP_USER);
-		if (data_p == NULL) {
-			pr_err("kmalloc in *_driver_open\n");
-			return -ENOMEM;
-		}
-		
-		pin_write.used = true;
-
-
-
-
-		
-
-	SD *data_p = (SD *) kmalloc(sizeof(SD), GFP_USER);
-	if (data_p == NULL) {
-		pr_err("kmalloc in *_driver_open\n");
-		return -ENOMEM;
-	}
-
-	data_p->data_s = (char *) kmalloc(len, GFP_USER);
-	if (data_p->data_s == NULL) {
-		pr_err("kmalloc in *_driver_open\n");
-		return -ENOMEM;
-	}
-
-	memcpy(data_p->data_s, data_s, len);
-	data_p->data_s[len] = '\0';
-
-
-
+		if (config_pin(DEF_PIN_WRITE, true) == -1)
+			return -EIO;
 		
 		dev_info(drv_dev, "gpio_driver_open O_WRONLY\n");
 	}
 
 	if (read_mode) {
-		snprintf(name, sizeof(name), "gpio-read-%d", gpionr );
-
-		err = gpio_request(DEF_PIN_READ, name);
-		if (err) {
-			pr_err("gpio_request failed %d\n", err);
-			return -1;
-		}
-		err = gpio_direction_input(pin_read.pin);
-		if (err) {
-			pr_err("gpio_direction_input failed %d\n", err);
-			gpio_free(pin_read.pin);
-			return -1;
-		}
-
-		pin_read.used = true;
+		if (config_pin(DEF_PIN_READ, false) == -1)
+			return -EIO;
+		
 		dev_info(drv_dev, "gpio_driver_open O_RDONLY\n");
 	}
 
