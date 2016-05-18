@@ -50,14 +50,11 @@ config_pin(int pin, bool write_pin, SD **data)
 {
 	int err = -1;
 	size_t len = 0;
-	SD *tmp_data = *data;
+	SD *tmp_data = NULL;
 	char *name = NULL;
 	char tmp_name[15];
 	memset(tmp_name, 0, sizeof(tmp_name));
 
-	pr_info("tmp_data -> %p\n", tmp_data);
-	pr_info("data -> %p\n", data);
-	
 	if (write_pin) {
 		snprintf(tmp_name, sizeof(tmp_name), "gpio-write-%d", pin);
 		len = strlen(tmp_name) + 1;
@@ -99,13 +96,14 @@ config_pin(int pin, bool write_pin, SD **data)
 		goto free_pin;
 	}
 
+	tmp_data = *data;
 	tmp_data->name = name;
 	tmp_data->pin = pin;
 
 	
 	pr_info("tmp_data -> %p\n", tmp_data);
 	pr_info("data -> %p\n", data);
-
+	pr_info("*data -> %p\n", *data);
 	
 	pr_debug("config_pin values:\n");
 	pr_debug("name = %s\n", tmp_data->name);
