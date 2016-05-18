@@ -128,16 +128,19 @@ gpio_driver_read(struct file *instance,
         unsigned long to_copy;
 	u32 value = 0;
 
-	SD *data = (SD*) instance->private_data;
+	if (instance->private_data) {
+		SD *data = (SD*) instance->private_data;
+	       
+		value = gpio_get_value(data->pin);
 
-	pr_info("%p\n", data);
-	
-	value = gpio_get_value(data->pin);
-
-        to_copy = min(count, sizeof(value));
-        not_copied = copy_to_user(user, &value, to_copy);
-
-        return to_copy - not_copied;
+		to_copy = min(count, sizeof(value));
+		not_copied = copy_to_user(user, &value, to_copy);
+		
+		return to_copy - not_copied;
+	} else {
+		pr_err("instance->private_data == NULL");
+		return -1;
+	}
 }
 
 static ssize_t
@@ -148,14 +151,19 @@ gpio_driver_write(struct file *instance,
         unsigned long to_copy;
 	u32 value = 0;
 
-	SD *data = (SD*) instance->private_data;
+	if (instance->private_data) {
+		SD *data = (SD*) instance->private_data;
 	
-        to_copy = min(count, sizeof(value));
-        not_copied = copy_from_user(&value, user, to_copy);
-
-	gpio_set_value(data->pin, value ? 1 : 0);
-
-        return to_copy - not_copied;
+		to_copy = min(count, sizeof(value));
+		not_copied = copy_from_user(&value, user, to_copy);
+		
+		gpio_set_value(data->pin, value ? 1 : 0);
+		
+		return to_copy - not_copied;
+	} else {
+		pr_err("instance->private_data == NULL");	
+		return -1;
+	}
 }
 
 static int
@@ -204,11 +212,13 @@ gpio_driver_close(struct inode *dev_node, struct file *instance)
 	
 	if (instance->private_data) {
 		data = (SD *) instance->private_data;
-
-		if (data->name != NULL)
-			kfree(data->name);
-
+		
+		gpio_free(data->pin);
+		
+		kfree(data->name);
 		kfree(instance->private_data);
+	} else {
+		pr_err("instance->private_data == NULL");
 	}
 
 	dev_info(drv_dev, "gpio_driver_closed finished cleanup\n");
