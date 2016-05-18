@@ -69,8 +69,8 @@ char_driver_read(struct file *instance,
 }
 
 static ssize_t
-char_driver_write( struct file *instance,
-		   const char __user *user, size_t count, loff_t *offset)
+char_driver_write(struct file *instance,
+		  const char __user *user, size_t count, loff_t *offset)
 {
 	unsigned long not_copied;
 	unsigned long to_copy;

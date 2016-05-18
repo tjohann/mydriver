@@ -27,6 +27,7 @@
 #include <linux/gpio.h>
 #include <linux/interrupt.h>
 #include <linux/sched.h>
+#include <linux/slab.h>
 
 #include "../common.h"
 
@@ -45,60 +46,72 @@ struct _instance_data {
 #define SD struct _instance_data
 
 static int
-config_pin(int pin, bool write_pin)
+config_pin(int pin, bool write_pin, SD **data)
 {
-/*	snprintf(name, sizeof(name), "gpio-write-%d", gpionr );
-		
-	err = gpio_request(DEF_PIN_WRITE, name.name);
+	int err = -1;
+	size_t len = 0;
+	SD *tmp_data = *data;
+	char *name = NULL;
+	char tmp_name[15];
+	memset(tmp_name, 0, sizeof(tmp_name));
+	
+	if (write_pin) {
+		snprintf(tmp_name, sizeof(tmp_name), "gpio-write-%d", pin);
+		len = strlen(tmp_name) + 1;
+	} else {
+		snprintf(tmp_name, sizeof(tmp_name), "gpio-read-%d", pin);
+		len = strlen(tmp_name) + 1;
+	}
+	
+	name = (char *) kmalloc(len, GFP_USER);
+	if (name == NULL) {
+		pr_err("kmalloc in config_pin\n");
+		return -1;
+	}
+
+	memcpy(name, tmp_name, len);
+	name[len] = '\0';
+	
+	err = gpio_request(pin, name);
 	if (err) {
 		pr_err("gpio_request failed %d\n", err);
-		kfree(name);
-		return -1;
+		goto free_name;
 	}
-	err = gpio_direction_output(DEF_PIN_WRITE, 0);
+
+	if (write_pin) 
+		err = gpio_direction_output(pin, 0);
+	else
+		err = gpio_direction_input(pin);
+	
 	if (err) {
-		pr_err("gpio_direction_output failed %d\n", err);
-		gpio_free(DEF_PIN_WRITE);
-		kfree(name);
-		return -1;
+		pr_err("gpio_direction failed %d\n", err);
+		goto free_pin;
 	}
-	
-	SD *data_p = (SD *) kmalloc(sizeof(SD), GFP_USER);
-	if (data_p == NULL) {
-		pr_err("kmalloc in *_driver_open\n");
-		return -ENOMEM;
+
+	tmp_data = (SD *) kmalloc(sizeof(SD), GFP_USER);
+	if (tmp_data == NULL) {
+		pr_err("kmalloc in config_pin\n");
+		goto free_pin;
 	}
-	
-	pin_write.used = true;
-	
 
+	tmp_data->name = name;
+	tmp_data->pin = pin;
+	tmp_data->used = true;
 
-	snprintf(name, sizeof(name), "gpio-write-%d", gpionr );
-		
-		err = gpio_request(DEF_PIN_WRITE, name.name);
-		if (err) {
-			pr_err("gpio_request failed %d\n", err);
-			kfree(name);
-			return -1;
-		}
-		err = gpio_direction_output(DEF_PIN_WRITE, 0);
-		if (err) {
-			pr_err("gpio_direction_output failed %d\n", err);
-			gpio_free(DEF_PIN_WRITE);
-			kfree(name);
-			return -1;
-		}
+	pr_debug("config_pin values:\n");
+	pr_debug("name = %s\n", tmp_data->name);
+	pr_debug("pin = %d\n", tmp_data->pin);
+	pr_debug("used = %d\n", tmp_data->used);
 
-		SD *data_p = (SD *) kmalloc(sizeof(SD), GFP_USER);
-		if (data_p == NULL) {
-			pr_err("kmalloc in *_driver_open\n");
-			return -ENOMEM;
-		}
-		
-		pin_write.used = true;
-*/
-	
 	return 0;
+
+free_pin:
+	gpio_free(pin);
+	
+free_name:
+	kfree(name);
+	
+	return -1;
 }
 
 static ssize_t
@@ -138,34 +151,38 @@ gpio_driver_write(struct file *instance,
 static int
 gpio_driver_open(struct inode *dev_node, struct file *instance)
 {
-	int err;
-	char name[15];
+	SD *data = NULL;
 	
 	int accmode = (instance->f_flags & O_ACCMODE);
 	bool read_mode  = (accmode == O_RDONLY);
 	bool write_mode = (accmode == O_WRONLY);
 
-	memset(name, 0, sizeof(name));
-	
 	if (!read_mode && !write_mode) {
 		dev_err(drv_dev, "only O_RDONLY and O_WRONLY allowed\n");
 		return -EIO;
 	}
 
 	if (write_mode) {
-		if (config_pin(DEF_PIN_WRITE, true) == -1)
+		if (config_pin(DEF_PIN_WRITE, true, &data) == -1)
 			return -EIO;
 		
-		dev_info(drv_dev, "gpio_driver_open O_WRONLY\n");
+		dev_debug(drv_dev, "gpio_driver_open O_WRONLY\n");
 	}
 
 	if (read_mode) {
-		if (config_pin(DEF_PIN_READ, false) == -1)
+		if (config_pin(DEF_PIN_READ, false, &data) == -1)
 			return -EIO;
 		
-		dev_info(drv_dev, "gpio_driver_open O_RDONLY\n");
+		dev_debug(drv_dev, "gpio_driver_open O_RDONLY\n");
 	}
 
+	instance->private_data = (void *) data;
+
+	pr_debug("gpio_driver_open values:\n");
+	pr_debug("name = %s\n", data->name);
+	pr_debug("pin = %d\n", data->pin);
+	pr_debug("used = %d\n", data->used);
+	
 	return 0;
 }
 
