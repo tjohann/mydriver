@@ -54,6 +54,9 @@ config_pin(int pin, bool write_pin, SD **data)
 	char *name = NULL;
 	char tmp_name[15];
 	memset(tmp_name, 0, sizeof(tmp_name));
+
+	pr_info("tmp_data -> %p\n", tmp_data);
+	pr_info("data -> %p\n", data);
 	
 	if (write_pin) {
 		snprintf(tmp_name, sizeof(tmp_name), "gpio-write-%d", pin);
@@ -180,7 +183,7 @@ gpio_driver_open(struct inode *dev_node, struct file *instance)
 		dev_info(drv_dev, "gpio_driver_open O_RDONLY\n");
 	}
 
-	pr_info("%p\n", data);
+	pr_info("gpio_driver open -> %p\n", data);
 	
 	instance->private_data = (void *) data;
 
