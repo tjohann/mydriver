@@ -93,7 +93,7 @@ config_pin(int pin, bool write_pin, SD **data)
 		goto free_pin;
 	}
 
-	tmp_data = (SD *) kmalloc(sizeof(SD), GFP_USER);
+	*data = (SD *) kmalloc(sizeof(SD), GFP_USER);
 	if (tmp_data == NULL) {
 		pr_err("kmalloc in config_pin\n");
 		goto free_pin;
@@ -102,6 +102,11 @@ config_pin(int pin, bool write_pin, SD **data)
 	tmp_data->name = name;
 	tmp_data->pin = pin;
 
+	
+	pr_info("tmp_data -> %p\n", tmp_data);
+	pr_info("data -> %p\n", data);
+
+	
 	pr_debug("config_pin values:\n");
 	pr_debug("name = %s\n", tmp_data->name);
 	pr_debug("pin = %d\n", tmp_data->pin);
