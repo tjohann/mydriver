@@ -37,51 +37,58 @@
 #define DEV_NAME "/dev/gpio_driver"
 #define MAX_LINE 256
 
+/* 
+   #define IOCTL_SET_WRITE_PIN 0x0001  <-> MODE_WRITE
+   #define IOCTL_SET_READ_PIN  0x0002  <-> MODE_READ
+ */
+#define MODE_WRITE 0x0001
+#define MODE_READ  0x0002
+
 static void
 __attribute__((noreturn)) usage(void)
 {
-	fprintf(stdout, "Usage: ./usage -[rwa]     \n");
-	fprintf(stdout, "       -r -> read PIN     \n");
-	fprintf(stdout, "       -w -> toogle PIN   \n");
+	fprintf(stdout, "Usage: ./usage -[rwi] [PIN]                   \n");
+	fprintf(stdout, "       -r -> read PIN                         \n");
+	fprintf(stdout, "       -w -> toogle PIN                       \n");
+	fprintf(stdout, "       -[rw] - [PIN] -> use PIN for write    \n");
 	putchar('\n');
-	fprintf(stdout, "Examples:                 \n");
-	fprintf(stdout, "       ./usage -r         \n");
-	fprintf(stdout, "       ./usage -w         \n");
+	fprintf(stdout, "Examples:                                     \n");
+	fprintf(stdout, "       ./usage -r (read from default pin)     \n");
+	fprintf(stdout, "       ./usage -w (write to default pin)      \n");
+	fprintf(stdout, "       ./usage -w - 123 (write to pin 123)   \n");
+	fprintf(stdout, "       ./usage -rp 321 (read from pin 321)    \n");
 
 	exit(EXIT_FAILURE);
 }
 
 static int
-open_device(char *mode)
+open_device(unsigned char mode)
 {
 	int fd = -1;
 
-	switch (*mode) {
-	case 'w':
-		fd = open(DEV_NAME, O_WRONLY);
-		if (fd == -1) {
-			perror("open");
-			return -1;
-		}
-		break;
-	case 'r':
+	if (mode && MODE_READ) {
 		fd = open(DEV_NAME, O_RDONLY);
-		if (fd == -1) {
-			perror("open");
-			return -1;
-		}
-		break;
-	default:
-		fprintf(stderr, "mode not supported\n");
-		usage();
+		if (fd == -1)
+			goto error;
+
+		return fd;
 	}
 
-	return fd;
+	if (mode && MODE_WRITE) {
+		fd = open(DEV_NAME, O_WRONLY);
+		if (fd == -1)
+			goto error;
+
+		return fd;
+	}
+
+error:
+	return -1;
 }
 
 
-static void
-work_mode(int fd, char *mode)
+static int
+work_mode(int fd, unsigned char mode, signed int pin)
 {
 	struct timespec t;
 
@@ -95,15 +102,20 @@ work_mode(int fd, char *mode)
 	size_t len = sizeof(value);
 	ssize_t n = 0;
 
-	switch (*mode) {
-	case 'w':
+	if (pin != -1) {
+		int ret = ioctl(fd, mode, pin);		
+		if (ret == -1)
+			goto error;
+	}
+
+	if (mode == MODE_WRITE) {
 		/* toogle pin */
 		for (;;) {
 			n = write(fd, &value, len);
 			if (n == -1)
 				perror("write");
 			clock_nanosleep(CLOCK_MONOTONIC, 0, &t, NULL);
-
+			
 			value = 1;
 			n = write(fd, &value, len);
 			if (n == -1)
@@ -111,8 +123,11 @@ work_mode(int fd, char *mode)
 			clock_nanosleep(CLOCK_MONOTONIC, 0, &t, NULL);
 			value = 0;
 		}
-		break;
-	case 'r':
+
+		return 0; /* should never reached */
+	}
+	
+	if (mode == MODE_READ) {
 		/* read pin*/
 		for (;;) {
 			n = read(fd, &value, len);
@@ -129,28 +144,49 @@ work_mode(int fd, char *mode)
 			clock_nanosleep(CLOCK_MONOTONIC, 0, &t, NULL);
 			value = 0;
 		}
-		break;
-	default:
-		fprintf(stderr, "mode not supported\n");
-		usage();
+
+		return 0;  /* should never reached */
 	}
+
+error:
+	return -1;
 }
 
 int
 main(int argc, char *argv[])
 {
-	int fd;
+	unsigned char mode = 0;
+	signed int pin = -1;
+	
+	int c;	
+	while ((c = getopt(argc, argv, "rwp:h")) != -1) {
+		switch (c) {
+		case 'r':
+			mode |= MODE_READ;
+			break;
+		case 'w':
+			mode |= MODE_WRITE;
+			break;
+		case 'p':
+			pin = atoi(optarg);
+			break;
+		case 'h':
+			usage();
+			break;
+		default:
+			fprintf(stderr, "ERROR: no valid argument\n");
+			usage();
+		}
+	}
 
-	if (argc != 2)
-		usage();
-
-	char *mode = ++argv[1];
-
-	fd = open_device(mode);
+	printf("Used mode %d and pin %d\n", mode, pin);
+	
+	int fd = open_device(mode);
 	if (fd == -1)
 		usage();
 
-	work_mode(fd, mode);
+	if (work_mode(fd, mode, pin) == -1)
+		usage();
 
 	close(fd);
 	return EXIT_SUCCESS;
