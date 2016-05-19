@@ -204,7 +204,7 @@ gpio_driver_close(struct inode *dev_node, struct file *instance)
 		kfree(data->name);
 		kfree(instance->private_data);
 	} else {
-		pr_err("instance->private_data == NULL");
+		pr_err("instance->private_data == NULL\n");
 	}
 
 	dev_info(drv_dev, "gpio_driver_closed finished cleanup\n");
@@ -223,13 +223,19 @@ gpio_driver_ioctl(struct file *instance, unsigned int cmd, unsigned long arg)
 	
 	not_copied = copy_from_user((void *) &value, (void *) arg,
 				    sizeof(value));
-	       
+	
 	switch(cmd) {
 	case IOCTL_SET_WRITE_PIN:
+
+		pr_info("in ioctl WRITE PIN value %d\n", value);
+		
 		if (config_pin(value, true, &data) == -1)
 			return -EIO;
 		break;
 	case IOCTL_SET_READ_PIN:
+
+		pr_info("in ioctl READ PIN value %d\n", value);
+		
 		if (config_pin(value, false, &data) == -1)
 			return -EIO;
 		break;
@@ -247,7 +253,7 @@ gpio_driver_ioctl(struct file *instance, unsigned int cmd, unsigned long arg)
 		kfree(instance->private_data);
 		
 	} else {
-		pr_err("instance->private_data == NULL");
+		pr_err("instance->private_data == NULL\n");
 	}	
 
 	instance->private_data = (void *) data;
