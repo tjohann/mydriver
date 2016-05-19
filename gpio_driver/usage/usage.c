@@ -66,7 +66,7 @@ open_device(unsigned char mode)
 {
 	int fd = -1;
 
-	if (mode && MODE_READ) {
+	if (mode & MODE_READ) {
 		fd = open(DEV_NAME, O_RDONLY);
 		if (fd == -1)
 			goto error;
@@ -74,7 +74,7 @@ open_device(unsigned char mode)
 		return fd;
 	}
 
-	if (mode && MODE_WRITE) {
+	if (mode & MODE_WRITE) {
 		fd = open(DEV_NAME, O_WRONLY);
 		if (fd == -1)
 			goto error;
