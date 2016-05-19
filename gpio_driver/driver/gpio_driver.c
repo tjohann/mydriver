@@ -216,13 +216,22 @@ static long
 gpio_driver_ioctl(struct file *instance, unsigned int cmd, unsigned long arg)
 {
 	unsigned long not_copied;
-	u32 value = 0;
+	unsigned int value = 0;
 
 	SD *data = NULL;	
 	SD *tmp_data = NULL;
 	
 	not_copied = copy_from_user((void *) &value, (void *) arg,
 				    sizeof(value));
+
+	pr_info("not_copied %d\n", (int) not_copied);
+	
+	if (value == 0) {
+		pr_err("value 0 makes no sense\n");
+		return -EINVAL;
+	} else {
+		pr_info("value from userspace is %d", value);
+	}
 	
 	switch(cmd) {
 	case IOCTL_SET_WRITE_PIN:
