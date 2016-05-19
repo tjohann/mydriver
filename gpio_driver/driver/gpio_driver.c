@@ -215,17 +215,17 @@ gpio_driver_close(struct inode *dev_node, struct file *instance)
 static long
 gpio_driver_ioctl(struct file *instance, unsigned int cmd, unsigned long arg)
 {
-	unsigned long not_copied;
 	unsigned int value = 0;
-
+	unsigned int __user *pin = (unsigned int __user *)arg;
+	
 	SD *data = NULL;	
 	SD *tmp_data = NULL;
 	
-	not_copied = copy_from_user((void *) &value, (void *) arg,
-				    sizeof(value));
+	if (get_user(value, pin)) {
+		pr_err("could not copy from userspace");
+		return -EFAULT;
+	}
 
-	pr_info("not_copied %d\n", (int) not_copied);
-	
 	if (value == 0) {
 		pr_err("value 0 makes no sense\n");
 		return -EINVAL;
@@ -234,17 +234,11 @@ gpio_driver_ioctl(struct file *instance, unsigned int cmd, unsigned long arg)
 	}
 	
 	switch(cmd) {
-	case IOCTL_SET_WRITE_PIN:
-
-		pr_info("in ioctl WRITE PIN value %d\n", value);
-		
+	case IOCTL_SET_WRITE_PIN:		
 		if (config_pin(value, true, &data) == -1)
 			return -EIO;
 		break;
 	case IOCTL_SET_READ_PIN:
-
-		pr_info("in ioctl READ PIN value %d\n", value);
-		
 		if (config_pin(value, false, &data) == -1)
 			return -EIO;
 		break;

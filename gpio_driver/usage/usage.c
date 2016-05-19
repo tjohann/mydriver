@@ -102,6 +102,8 @@ work_mode(int fd, unsigned char mode, unsigned int pin)
 	size_t len = sizeof(value);
 	ssize_t n = 0;
 
+	printf("in %s with mode %d and pin=%d", __FUNCTION__, mode, pin);
+	
 	if (pin != 0) {
 		int ret = ioctl(fd, mode, pin);		
 		if (ret == -1)
