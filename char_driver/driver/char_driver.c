@@ -159,7 +159,7 @@ char_driver_ioctl(struct file *instance, unsigned int cmd, unsigned long arg)
 	unsigned long to_copy;
 	unsigned long copied;
 
-	SD *data_p = (SD*) instance->private_data;
+	SD *data_p = (SD *) instance->private_data;
 	char *data;
 	char *tmp_data;
 

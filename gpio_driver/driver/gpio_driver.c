@@ -41,7 +41,6 @@ static struct device *drv_dev;
 struct _instance_data {
 	int pin;
 	char *name;
-	bool used;
 };
 #define SD struct _instance_data
 
@@ -184,7 +183,7 @@ gpio_driver_open(struct inode *dev_node, struct file *instance)
 
 	instance->private_data = (void *) data;
 
-	/* some useful info messages */
+	/* some useful info */
 	pr_info("gpio_driver_open values:\n");
 	pr_info("name = %s\n", data->name);
 	pr_info("pin = %d\n", data->pin);
@@ -216,19 +215,48 @@ gpio_driver_close(struct inode *dev_node, struct file *instance)
 static long
 gpio_driver_ioctl(struct file *instance, unsigned int cmd, unsigned long arg)
 {
+	unsigned long not_copied;
+	u32 value = 0;
+
+	SD *data = NULL;	
+	SD *tmp_data = NULL;
+	
+	not_copied = copy_from_user((void *) &value, (void *) arg,
+				    sizeof(value));
+	       
 	switch(cmd) {
 	case IOCTL_SET_WRITE_PIN:
-		pr_info("IOCTL_SET_WRITE_PIN ... \n");
+		if (config_pin(value, true, &data) == -1)
+			return -EIO;
 		break;
 	case IOCTL_SET_READ_PIN:
-		pr_info("IOCTL_SET_READ_PIN ... \n");
+		if (config_pin(value, false, &data) == -1)
+			return -EIO;
 		break;
 	default:
 		pr_err("unknown ioctl 0x%x\n", cmd);
 		return -EINVAL;
 	}
+	
+	if (instance->private_data) {
+		tmp_data = (SD *) instance->private_data;
+		
+		gpio_free(tmp_data->pin);
+		
+		kfree(tmp_data->name);
+		kfree(instance->private_data);
+		
+	} else {
+		pr_err("instance->private_data == NULL");
+	}	
 
-	dev_info(drv_dev, "gpio_driver_ioctl finished\n");
+	instance->private_data = (void *) data;
+
+	/* some useful info  */
+	pr_info("gpio_driver_ioctl values:\n");
+	pr_info("name = %s\n", data->name);
+	pr_info("pin = %d\n", data->pin);
+	
 	return 0;
 }
 
