@@ -139,14 +139,6 @@ work_mode(int fd, unsigned char mode, int pin)
 				perror("read");
 			printf("read %d from %s\n", value, DEV_NAME);
 			clock_nanosleep(CLOCK_MONOTONIC, 0, &t, NULL);
-
-			value = 1;
-			n = read(fd, &value, len);
-			if (n == -1)
-				perror("read");
-			printf("read %d from %s\n", value, DEV_NAME);
-			clock_nanosleep(CLOCK_MONOTONIC, 0, &t, NULL);
-			value = 0;
 		}
 
 		return 0;  /* should never reached */
