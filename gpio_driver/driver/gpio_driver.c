@@ -216,7 +216,7 @@ static long
 gpio_driver_ioctl(struct file *instance, unsigned int cmd, unsigned long arg)
 {
 	unsigned int value = 0;
-	unsigned int __user *pin = (unsigned int __user *)arg;
+	int __user *pin = (int __user *) arg;
 	
 	SD *data = NULL;	
 	SD *tmp_data = NULL;
@@ -226,8 +226,8 @@ gpio_driver_ioctl(struct file *instance, unsigned int cmd, unsigned long arg)
 		return -EFAULT;
 	}
 
-	if (value == 0) {
-		pr_err("value 0 makes no sense\n");
+	if (value <= 0) {
+		pr_err("a value below <=0 makes no sense\n");
 		return -EINVAL;
 	} else {
 		pr_info("value from userspace is %d", value);

@@ -88,7 +88,7 @@ error:
 
 
 static int
-work_mode(int fd, unsigned char mode, unsigned int pin)
+work_mode(int fd, unsigned char mode, int pin)
 {
 	struct timespec t;
 
@@ -102,9 +102,11 @@ work_mode(int fd, unsigned char mode, unsigned int pin)
 	size_t len = sizeof(value);
 	ssize_t n = 0;
 
-	printf("in %s with mode %d and pin=%d", __FUNCTION__, mode, pin);
+	printf("In %s with mode %d and pin=%d\n", __FUNCTION__, mode, pin);
 	
-	if (pin != 0) {
+	if (pin <= 0) {
+		printf("a value below <=0 makes no sense\n");
+	} else {
 		int ret = ioctl(fd, mode, pin);		
 		if (ret == -1)
 			goto error;
@@ -158,7 +160,7 @@ int
 main(int argc, char *argv[])
 {
 	unsigned char mode = 0;
-	unsigned int pin = 0;
+	int pin = -1;
 	
 	int c;	
 	while ((c = getopt(argc, argv, "rwp:h")) != -1) {
