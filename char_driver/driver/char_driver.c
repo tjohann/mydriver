@@ -153,7 +153,7 @@ char_driver_close(struct inode *dev_node, struct file *instance)
 }
 
 static long
-char_driver_ioctl(struct file *instance, unsigned int cmd, unsigned long arg)
+char_driver_ioctl(struct file *instance, unsigned int cmd, unsigned long __user arg)
 {
 	unsigned long not_copied;
 	unsigned long to_copy;

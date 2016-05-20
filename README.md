@@ -205,6 +205,8 @@ The gpio test environment:
 
 ![Alt text](pics/gpio_led_04.jpg?raw=true "GPIO-LED")
 
+![Alt text](pics/gpio_driver_02.png?raw=true "Gpio-driver in action")
+
 
 Schematics
 ----------
