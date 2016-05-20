@@ -37,7 +37,7 @@
 #define DEV_NAME "/dev/gpio_driver"
 #define MAX_LINE 256
 
-/* 
+/*
    #define IOCTL_SET_WRITE_PIN 0x0001  <-> MODE_WRITE
    #define IOCTL_SET_READ_PIN  0x0002  <-> MODE_READ
  */
@@ -103,11 +103,11 @@ work_mode(int fd, unsigned char mode, int pin)
 	ssize_t n = 0;
 
 	printf("In %s with mode %d and pin=%d\n", __FUNCTION__, mode, pin);
-	
+
 	if (pin <= 0) {
 		printf("a value below <=0 makes no sense\n");
 	} else {
-		int ret = ioctl(fd, mode, pin);		
+		int ret = ioctl(fd, mode, &pin);
 		if (ret == -1)
 			goto error;
 	}
@@ -119,7 +119,7 @@ work_mode(int fd, unsigned char mode, int pin)
 			if (n == -1)
 				perror("write");
 			clock_nanosleep(CLOCK_MONOTONIC, 0, &t, NULL);
-			
+
 			value = 1;
 			n = write(fd, &value, len);
 			if (n == -1)
@@ -130,7 +130,7 @@ work_mode(int fd, unsigned char mode, int pin)
 
 		return 0; /* should never reached */
 	}
-	
+
 	if (mode == MODE_READ) {
 		/* read pin*/
 		for (;;) {
@@ -153,8 +153,8 @@ main(int argc, char *argv[])
 {
 	unsigned char mode = 0;
 	int pin = -1;
-	
-	int c;	
+
+	int c;
 	while ((c = getopt(argc, argv, "rwp:h")) != -1) {
 		switch (c) {
 		case 'r':
@@ -176,7 +176,7 @@ main(int argc, char *argv[])
 	}
 
 	printf("Used mode %d and pin %d\n", mode, pin);
-	
+
 	int fd = open_device(mode);
 	if (fd == -1)
 		usage();
