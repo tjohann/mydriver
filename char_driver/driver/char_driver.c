@@ -120,7 +120,7 @@ char_driver_open(struct inode *dev_node, struct file *instance)
 	}
 
 	memset(data_p, 0, sizeof(SD));
-	
+
 	data_p->data_s = (char *) kmalloc(len, GFP_USER);
 	if (data_p->data_s == NULL) {
 		pr_err("kmalloc in *_driver_open\n");

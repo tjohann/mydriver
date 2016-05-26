@@ -22,24 +22,8 @@
 #ifndef _COMMON_H_
 #define _COMMON_H_
 
-struct _gpio_pin {
-	int pin;
-	char *name;
-	bool used;
-};
+#define IOCTL_SET_READ_PIN  0x0002
 
-/* LED -> IN11(IO-0/PI19) -> 275 */
-struct _gpio_pin pin_write = {
-	.pin = 275,
-	.name = "gpio_write",
-	.used = false
-};
-
-/* SWT -> PIN13(IO-2/PI18) -> 274 */
-struct _gpio_pin pin_read = {
-	.pin = 274,
-	.name = "gpio_read",
-	.used = false
-};
+#define DEF_PIN_READ  274
 
 #endif

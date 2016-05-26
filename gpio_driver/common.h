@@ -28,4 +28,7 @@
 #define DEF_PIN_WRITE 275
 #define DEF_PIN_READ  274
 
+#define WRITE_PIN 0x01
+#define READ_PIN  0x02
+
 #endif

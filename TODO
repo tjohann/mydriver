@@ -17,7 +17,7 @@
 ## gpio driver
 - prepare pin config via ioctl (use instance specifc
   config)						    [2016-05-18 -> done]
-  
+
 
 #
 # -------------- 2016-05-15 ----------------------------------------------------

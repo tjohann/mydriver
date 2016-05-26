@@ -27,6 +27,9 @@
 #include <linux/gpio.h>
 #include <linux/interrupt.h>
 #include <linux/sched.h>
+#include <linux/slab.h>
+
+#include "../common.h"
 
 #define DRIVER_NAME "gpio_irq_driver"
 
@@ -35,9 +38,14 @@ static struct cdev *dev_object;
 struct class *dev_class;
 static struct device *drv_dev;
 
-static int gpio_irq;
 static wait_queue_head_t sleep_wq;
 static int irq_event;
+
+struct _instance_data {
+	int gpio_irq;
+	char *name;
+};
+#define SD struct _instance_data
 
 
 static irqreturn_t
@@ -59,20 +67,117 @@ hard_irq_driver_isr(int irq, void *dev_id)
 }
 
 
+static int
+config_pin(int pin, SD **data)
+{
+	int err = -1, gpio_irq = 0;
+	size_t len = 0;
+	char *name = NULL;
+
+	char tmp_name[15];
+	memset(tmp_name, 0, sizeof(tmp_name));
+
+	snprintf(tmp_name, sizeof(tmp_name), "gpio-read-%d", pin);
+	len = strlen(tmp_name) + 1;
+
+	name = (char *) kmalloc(len, GFP_USER);
+	if (name == NULL) {
+		pr_err("kmalloc in config_pin\n");
+		return -1;
+	}
+
+	memcpy(name, tmp_name, len);
+	name[len] = '\0';
+
+	err = gpio_request(pin, name);
+	if (err) {
+		pr_err("gpio_request failed %d\n", err);
+		goto free_name;
+	}
+
+	err = gpio_direction_input(pin);
+	if (err) {
+		pr_err("gpio_direction failed %d\n", err);
+		goto free_pin;
+	}
+
+	*data = (SD *) kmalloc(sizeof(SD), GFP_USER);
+	if (*data == NULL) {
+		pr_err("kmalloc in config_pin\n");
+		goto free_pin;
+	}
+
+	gpio_irq = gpio_to_irq(pin);
+	if (gpio_irq < 0)
+		goto free_pin;
+
+	err = request_threaded_irq(gpio_irq, hard_irq_driver_isr,
+				   gpio_irq_driver_isr,
+				   IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
+				   DRIVER_NAME, dev_object);
+	if (err < 0) {
+		dev_err(drv_dev, "irq %d busy? error %d\n", pin, err);
+		goto free_pin;
+	}
+
+	(*data)->name = name;
+	(*data)->gpio_irq = gpio_irq;
+
+	return 0;
+
+free_pin:
+	gpio_free(pin);
+
+free_name:
+	kfree(name);
+
+	return -1;
+}
+
 static ssize_t
 gpio_irq_driver_read(struct file *instance,
 		 char __user *user, size_t count, loff_t *offset)
 {
-	dev_info(drv_dev, "gpio_irq_driver_open finished open\n");
+	unsigned long not_copied;
+        unsigned long to_copy;
+	u32 value = 0;
 
-	return 0;
+	irq_event = 0;
+	wait_event_interruptible(sleep_wq, irq_event);
+
+	value = irq_event;
+
+	to_copy = min(count, sizeof(value));
+	not_copied = copy_to_user(user, &value, to_copy);
+
+	return to_copy - not_copied;
 }
 
 
 static int
 gpio_irq_driver_open(struct inode *dev_node, struct file *instance)
 {
-	dev_info(drv_dev, "gpio_irq_driver_open finished open\n");
+	SD *data = NULL;
+
+	int accmode = (instance->f_flags & O_ACCMODE);
+	bool read_mode  = (accmode == O_RDONLY);
+
+	if (!read_mode) {
+		dev_err(drv_dev, "only O_RDONLY allowed\n");
+		return -EIO;
+	}
+
+	if (config_pin(DEF_PIN_READ, &data) == -1)
+		return -EIO;
+
+	dev_info(drv_dev, "gpio_driver_open O_RDONLY\n");
+
+	instance->private_data = (void *) data;
+
+	/* some useful info */
+	pr_info("gpio_irq_driver_open values:\n");
+	pr_info("name = %s\n", data->name);
+	pr_info("pin/irq = %d\n", data->gpio_irq);
 
 	return 0;
 }
@@ -80,11 +185,23 @@ gpio_irq_driver_open(struct inode *dev_node, struct file *instance)
 static int
 gpio_irq_driver_close(struct inode *dev_node, struct file *instance)
 {
+	SD *data = NULL;
+
+	if (instance->private_data) {
+		data = (SD *) instance->private_data;
+
+		gpio_free(data->gpio_irq);
+
+		kfree(data->name);
+		kfree(instance->private_data);
+	} else {
+		pr_err("instance->private_data == NULL\n");
+	}
+
 	dev_info(drv_dev, "gpio_irq_driver_closed finished cleanup\n");
 
 	return 0;
 }
-
 
 static struct file_operations fops = {
 	.owner = THIS_MODULE,
@@ -92,46 +209,6 @@ static struct file_operations fops = {
 	.open = gpio_irq_driver_open,
 	.release = gpio_irq_driver_close,
 };
-
-static int
-conf_gpio_pin(int gpio_pin)
-{
-	int pin, err;
-	char pin_s[20];
-	size_t len = sizeof(pin_s);
-
-	memset(pin_s, 0, len);
-	snprintf(pin_s, len, "gpio-%d", gpio_pin);
-
-	err = gpio_request(gpio_pin, pin_s);
-	if (err) {
-		return -1;
-	}
-
-	err = gpio_direction_input(gpio_pin);
-	if (err < 0) {
-		gpio_free(gpio_pin);
-		return -1;
-	}
-
-	pin = gpio_to_irq(gpio_pin);
-	if (pin < 0) {
-		gpio_free(gpio_pin);
-		return -1;
-	}
-
-	err = request_threaded_irq(pin, hard_irq_driver_isr, gpio_irq_driver_isr,
-				IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
-				DRIVER_NAME, dev_object);
-	if (err < 0) {
-		dev_err(drv_dev, "irq %d busy? error %d\n", gpio_pin, err);
-		return -1;
-	}
-
-	pr_info("conf_gpio_pin finished\n");
-
-	return pin;
-}
 
 static int __init
 gpio_irq_driver_init(void)
@@ -154,29 +231,20 @@ gpio_irq_driver_init(void)
 		goto free_cdev;
 	}
 
-	/* add sysfs/udev entry */
+        /* add sysfs entry */
 	dev_class = class_create(THIS_MODULE, DRIVER_NAME);
 	if (IS_ERR(dev_class)) {
 		pr_err("an error occured -> class_create()\n");
 		goto free_cdev;
 	}
 
+	/* add udev entry */
 	drv_dev = device_create(dev_class, NULL, dev_number, NULL, "%s",
 				DRIVER_NAME);
 	if (IS_ERR(drv_dev)) {
 		pr_err("an error occured -> device_create()\n");
 		goto free_class;
 	}
-
-	/* TODO: not fixed */
-	gpio_irq = conf_gpio_pin(0);
-	if (gpio_irq == -1)
-		goto free_device;
-
-	return 0;
-
-free_device:
-	device_destroy(dev_class, dev_number);
 
 free_class:
 	class_destroy(dev_class);

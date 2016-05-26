@@ -40,6 +40,7 @@ static struct device *drv_dev;
 
 struct _instance_data {
 	int pin;
+	int direction;
 	char *name;
 };
 #define SD struct _instance_data
@@ -95,6 +96,10 @@ config_pin(int pin, bool write_pin, SD **data)
 
 	(*data)->name = name;
 	(*data)->pin = pin;
+	if (write_pin)
+		(*data)->direction = WRITE_PIN;
+	else
+		(*data)->direction = READ_PIN;
 
 	return 0;
 
@@ -200,8 +205,9 @@ gpio_driver_close(struct inode *dev_node, struct file *instance)
 		data = (SD *) instance->private_data;
 
 		/* clear pin */
-		gpio_set_value(data->pin, 0);
-		
+		if (data->direction == WRITE_PIN)
+			gpio_set_value(data->pin, 0);
+
 		gpio_free(data->pin);
 
 		kfree(data->name);
@@ -301,13 +307,14 @@ gpio_driver_init(void)
 		goto free_cdev;
 	}
 
-	/* add sysfs/udev entry */
+	/* add sysfs entry */
 	dev_class = class_create(THIS_MODULE, DRIVER_NAME);
 	if (IS_ERR(dev_class)) {
 		pr_err("an error occured -> class_create()\n");
 		goto free_cdev;
 	}
 
+	/* add udev entry */
 	drv_dev = device_create(dev_class, NULL, dev_number, NULL, "%s",
 				DRIVER_NAME);
 	if (IS_ERR(drv_dev)) {

@@ -135,7 +135,7 @@ State: not started
 The gpio driver
 ---------------
 
-Simple (int based) driver to show the usage of gpio for read and write from a PIN. I use a bananapi-m1 and olimex-a20-som/evb as hardware. 
+Simple (int based) driver to show the usage of gpio for read and write from a PIN. I use a bananapi-m1 and olimex-a20-som/evb as hardware.
 
 Used default values:
 
