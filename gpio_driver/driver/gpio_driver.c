@@ -199,6 +199,9 @@ gpio_driver_close(struct inode *dev_node, struct file *instance)
 	if (instance->private_data) {
 		data = (SD *) instance->private_data;
 
+		/* clear pin */
+		gpio_set_value(data->pin, 0);
+		
 		gpio_free(data->pin);
 
 		kfree(data->name);

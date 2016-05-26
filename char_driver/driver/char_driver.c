@@ -40,6 +40,7 @@ char data_s[] = "char_driver says hello crude world!";
 
 struct _instance_data {
 	int count;
+	unsigned long offset;
 	char *data_s;
 };
 #define SD struct _instance_data
@@ -60,6 +61,7 @@ char_driver_read(struct file *instance,
 
 	copied = to_copy - not_copied;
 	data_p->count -= copied;
+	data_p->offset += copied;
 	*offset += copied;
 
 	dev_info(drv_dev, "copied %d bytes in *_driver_read to user \"%s\"\n",
@@ -102,6 +104,7 @@ char_driver_write(struct file *instance,
 	memcpy(data_p->data_s, data, copied);
 	data_p->data_s[copied] = '\0';
 	data_p->count = copied;
+	data_p->offset += copied;
 
 	return copied;
 }
@@ -116,6 +119,8 @@ char_driver_open(struct inode *dev_node, struct file *instance)
 		return -ENOMEM;
 	}
 
+	memset(data_p, 0, sizeof(SD));
+	
 	data_p->data_s = (char *) kmalloc(len, GFP_USER);
 	if (data_p->data_s == NULL) {
 		pr_err("kmalloc in *_driver_open\n");

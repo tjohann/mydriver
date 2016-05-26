@@ -144,7 +144,7 @@ Used default values:
 
 Via ioctl syscall you can change the PIN for in/output.
 
-State: nearly finished
+State: finished
 
 
 The gpio driver (new)
