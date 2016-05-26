@@ -9,6 +9,9 @@
 ## char driver
 - be aware of offset
 
+## gpio_irq_driver
+- implement release of irq after init new one via ioctl
+
 
 #
 # -------------- 2016-05-18 ----------------------------------------------------

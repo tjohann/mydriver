@@ -93,7 +93,7 @@ config_pin(int pin, bool write_pin, SD **data)
 		pr_err("kmalloc in config_pin\n");
 		goto free_pin;
 	}
-
+	
 	(*data)->name = name;
 	(*data)->pin = pin;
 	if (write_pin)
@@ -222,7 +222,8 @@ gpio_driver_close(struct inode *dev_node, struct file *instance)
 }
 
 static long
-gpio_driver_ioctl(struct file *instance, unsigned int cmd, unsigned long  __user arg)
+gpio_driver_ioctl(struct file *instance, unsigned int cmd,
+		  unsigned long __user arg)
 {
 	unsigned int value = 0;
 

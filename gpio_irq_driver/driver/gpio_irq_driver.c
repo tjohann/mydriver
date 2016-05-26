@@ -59,13 +59,11 @@ gpio_irq_driver_isr(int irq, void *data)
 	return IRQ_HANDLED;
 }
 
-
 static irqreturn_t
 hard_irq_driver_isr(int irq, void *dev_id)
 {
     return IRQ_WAKE_THREAD;
 }
-
 
 static int
 config_pin(int pin, SD **data)
@@ -153,7 +151,6 @@ gpio_irq_driver_read(struct file *instance,
 	return to_copy - not_copied;
 }
 
-
 static int
 gpio_irq_driver_open(struct inode *dev_node, struct file *instance)
 {
@@ -203,10 +200,64 @@ gpio_irq_driver_close(struct inode *dev_node, struct file *instance)
 	return 0;
 }
 
+static long
+gpio_irq_driver_ioctl(struct file *instance, unsigned int cmd,
+		  unsigned long __user arg)
+{
+	unsigned int value = 0;
+
+	SD *data = NULL;
+	SD *tmp_data = NULL;
+
+	if (get_user(value, (int __user *) arg)) {
+		pr_err("could not copy from userspace");
+		return -EFAULT;
+	}
+
+	if (value <= 0) {
+		pr_err("a value below <=0 makes no sense\n");
+		return -EINVAL;
+	} else {
+		pr_info("value from userspace is %d", value);
+	}
+
+	switch(cmd) {
+	case IOCTL_SET_READ_PIN:
+		if (config_pin(value, &data) == -1)
+			return -EIO;
+		break;
+	default:
+		pr_err("unknown ioctl 0x%x\n", cmd);
+		return -EINVAL;
+	}
+
+	if (instance->private_data) {
+		tmp_data = (SD *) instance->private_data;
+
+		gpio_free(tmp_data->gpio_irq);
+
+		kfree(tmp_data->name);
+		kfree(instance->private_data);
+
+	} else {
+		pr_err("instance->private_data == NULL\n");
+	}
+
+	instance->private_data = (void *) data;
+
+	/* some useful info  */
+	pr_info("gpio_irq_driver_ioctl values:\n");
+	pr_info("name = %s\n", data->name);
+	pr_info("pin/irq = %d\n", data->gpio_irq);
+
+	return 0;
+}
+
 static struct file_operations fops = {
 	.owner = THIS_MODULE,
 	.read = gpio_irq_driver_read,
 	.open = gpio_irq_driver_open,
+	.unlocked_ioctl = gpio_irq_driver_ioctl,
 	.release = gpio_irq_driver_close,
 };
 

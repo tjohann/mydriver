@@ -121,6 +121,12 @@ The gpio irq driver
 
 Simple (int based) driver to show the usage of an IRQ connected PIN (PIN13/IO-0/PI18). I use a bananapi-m1 and olimex-a20-som/evb as hardware.
 
+Used default values:
+
+1. PIN13 (IO-0/PI18) for input
+
+Via ioctl syscall you can change the PIN for input.
+
 State: started
 
 

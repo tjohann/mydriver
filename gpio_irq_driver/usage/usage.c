@@ -1,5 +1,5 @@
 /*
- * usage.c -> show usage of char_driver
+ * usage.c -> show usage of gpio_irq_driver
  *
  * GPL
  * (c) 2016, thorsten.johannvorderbrueggen@t-online.de
@@ -28,44 +28,97 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <stdbool.h>
+#include <time.h>
 
 /* common defines for driver and usage */
 #include "../common.h"
 
-
+#define DEV_NAME "/dev/gpio_irq_driver"
 #define MAX_LINE 256
+
 
 static void
 __attribute__((noreturn)) usage(void)
 {
-	fprintf(stdout, "Usage: ./usage -[rwa]     \n");
-	fprintf(stdout, "       -r -> only read    \n");
-	fprintf(stdout, "       -w -> only write   \n");
-	fprintf(stdout, "       -i -> only ioctl   \n");
-	fprintf(stdout, "       -a -> all          \n");
+	fprintf(stdout, "Usage: ./usage -[r] [PIN]                     \n");
+	fprintf(stdout, "       -r -> read PIN                         \n");
+	fprintf(stdout, "       -[rp] [PIN] -> use PIN for read        \n");
 	putchar('\n');
-	fprintf(stdout, "Examples:                 \n");
-	fprintf(stdout, "       ./usage -r         \n");
-	fprintf(stdout, "       ./usage -w         \n");
-	fprintf(stdout, "       ./usage -a         \n");
+	fprintf(stdout, "Examples:                                     \n");
+	fprintf(stdout, "       ./usage -r (read from default pin)     \n");
+	fprintf(stdout, "       ./usage -r -p 123 (read from to pin 123)\n");
+	fprintf(stdout, "       ./usage -rp 321 (read from pin 321)    \n");
 
 	exit(EXIT_FAILURE);
 }
 
+static int
+open_device(void)
+{
+	int fd = -1;
+	
+	fd = open(DEV_NAME, O_RDONLY);
+	if (fd == -1)
+		return -1;
+
+	return fd;
+}
+
+
+static int
+work_mode(int fd, int pin)
+{
+	int value = 0;
+        size_t len = sizeof(value);
+        ssize_t n = 0;
+	
+	if (pin <= 0) {
+		printf("a value below <=0 makes no sense\n");
+	} else {
+		int ret = ioctl(fd, IOCTL_SET_READ_PIN, &pin);
+		if (ret == -1)
+			return -1;
+	}
+
+	for (;;) {
+		n = read(fd, &value, len);
+		if (n == -1)
+			perror("read");
+		printf("read %d from %s\n", value, DEV_NAME);
+	}
+	
+	return 0;  /* should never reached */
+}
 
 int
 main(int argc, char *argv[])
 {
-	if (argc != 2)
+	int pin = -1;
+
+	int c;
+	while ((c = getopt(argc, argv, "rp:h")) != -1) {
+		switch (c) {
+		case 'p':
+			pin = atoi(optarg);
+			break;
+		case 'h':
+			usage();
+			break;
+		default:
+			fprintf(stderr, "ERROR: no valid argument\n");
+			usage();
+		}
+	}
+
+	printf("Used pin %d\n", pin);
+
+	int fd = open_device();
+	if (fd == -1)
 		usage();
 
-	char buf[MAX_LINE];
-	memset(buf, 0, MAX_LINE);
+	if (work_mode(fd, pin) == -1)
+		usage();
 
-
-
-
-
-
+	close(fd);
 	return EXIT_SUCCESS;
 }

@@ -1,5 +1,5 @@
 /*
- * usage.c -> show usage of char_driver
+ * usage.c -> show usage of gpio_driver
  *
  * GPL
  * (c) 2016, thorsten.johannvorderbrueggen@t-online.de
