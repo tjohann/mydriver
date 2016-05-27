@@ -12,7 +12,7 @@ This is a collection of different linux kernel driver templates:
   gpio driver (fd based)
   spi driver
 
-It's an playground for different topics like I2C. Therefore i implement a userspace example based on what is already available within the kernel/userspace (like i2ctools) and a driver with a specialized interface (and a example of how to use it). You find also schematics and pics about my test setup.
+It's an playground for different topics like I2C. Therefore i implement a userspace example based on what is already available within the kernel/userspace (like i2c-tools) and a driver with a specialized interface (and a example of how to use it). You find also schematics and pics about my test setup.
 
 But be aware: this is work in progress! Don't expect things to be complete in any dimension! See the State info below to get an idea of what is working.
 
@@ -175,13 +175,21 @@ The userspace examples
 Below the directory userspace_examples you find my basic userspace playground. In most cases the userspace parts are the starting point for the driver develpment and the functionality provided by "normal" userspace will be implemented within a special driver(s). They are the basic for my blog entrys about embedded linux (https://tjohann.wordpress.com/category/embedded-realtime/) and linux realtime topics (https://github.com/tjohann/time_triggert_env.git).
 
 
-The userspace examples (pcf8574_usage)
+The userspace examples (pcf8574)
 --------------------------------------
 
 To implement an I2C driver you normally also have to implement the protocol which is specific to the IC and it's functionlity. As example think of the LCD1602 connected via PCF8574 portexpander with the I2C bus.
 All example use the i2c-dev driver (http://lxr.free-electrons.com/source/Documentation/i2c/dev-interface) and i2c-tools (www.lm-sensors.org).
 
-State (pcf8574_usage): started
+State (pcf8574): started
+
+
+The userspace examples (pcf8574_hd44780)
+----------------------------------------
+
+Based on the pcf8574 this example shows the usage with an LCD1602 display.
+
+State (pcf8574_hd44780): not started
 
 
 The userspace examples (gpio_script)
