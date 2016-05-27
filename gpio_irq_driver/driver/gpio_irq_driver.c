@@ -38,9 +38,6 @@ static struct cdev *dev_object;
 struct class *dev_class;
 static struct device *drv_dev;
 
-//static wait_queue_head_t sleep_wq;
-//static int irq_event;
-
 struct _instance_data {
 	wait_queue_head_t sleep_wq;
 	int gpio_irq;
@@ -55,7 +52,7 @@ gpio_irq_driver_isr(int irq, void *tmp_data)
 {
 	SD *data = (SD*) tmp_data;
 	
-	pr_info("gpio_irq_driver_isr irq %d with data %p)\n", irq, data );
+	pr_info("gpio_irq_driver_isr irq %d with data %p)\n", irq, tmp_data );
 
 	data->irq_event += 1;
 	wake_up(&data->sleep_wq);
@@ -66,6 +63,7 @@ gpio_irq_driver_isr(int irq, void *tmp_data)
 static irqreturn_t
 hard_irq_driver_isr(int irq, void *dev_id)
 {
+	/* not really needed, but it's a template */
 	return IRQ_WAKE_THREAD;
 }
 
@@ -114,7 +112,7 @@ config_pin(int pin, SD **data)
 		goto free_pin;
 
 	err = request_threaded_irq(gpio_irq, hard_irq_driver_isr,
-				   gpio_irq_driver_isr,
+			 	   gpio_irq_driver_isr,
 				   IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
 				   DRIVER_NAME, *data);
 	if (err < 0) {
