@@ -10,7 +10,7 @@
 - be aware of offset
 
 ## gpio_irq_driver
-- implement release of irq after init new one via ioctl
+- implement release of irq after init new one via ioctl     [2016-05-27 -> done]
 
 
 #
@@ -27,12 +27,12 @@
 #
 
 ## gpio_driver
-- working gpio_driver                                      [2016-05-15 -> done]
+- working gpio_driver                                       [2016-05-15 -> done]
 - add dts support for gpio_driver (in + out PIN)
 - add descriptor based gpio driver
 
 ## gpio_irq_driver
-- working gpio_irq_driver
+- working gpio_irq_driver                                   [2016-05-27 -> done]
 
 ## i2c_gpio_driver
 - working i2c_irq_driver (PCF8574 based)

@@ -127,7 +127,7 @@ Used default values:
 
 Via ioctl syscall you can change the PIN for input.
 
-State: started
+State: nearly finished
 
 
 The gpio irq driver (new)
