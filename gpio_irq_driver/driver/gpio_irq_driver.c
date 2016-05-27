@@ -38,23 +38,27 @@ static struct cdev *dev_object;
 struct class *dev_class;
 static struct device *drv_dev;
 
-static wait_queue_head_t sleep_wq;
-static int irq_event;
+//static wait_queue_head_t sleep_wq;
+//static int irq_event;
 
 struct _instance_data {
+	wait_queue_head_t sleep_wq;
 	int gpio_irq;
+	int irq_event;
 	char *name;
 };
 #define SD struct _instance_data
 
 
 static irqreturn_t
-gpio_irq_driver_isr(int irq, void *data)
+gpio_irq_driver_isr(int irq, void *tmp_data)
 {
+	SD *data = (SD*) tmp_data;
+	
 	pr_info("gpio_irq_driver_isr irq %d with data %p)\n", irq, data );
 
-	irq_event += 1;
-	wake_up(&sleep_wq);
+	data->irq_event += 1;
+	wake_up(&data->sleep_wq);
 
 	return IRQ_HANDLED;
 }
@@ -62,7 +66,7 @@ gpio_irq_driver_isr(int irq, void *data)
 static irqreturn_t
 hard_irq_driver_isr(int irq, void *dev_id)
 {
-    return IRQ_WAKE_THREAD;
+	return IRQ_WAKE_THREAD;
 }
 
 static int
@@ -112,7 +116,7 @@ config_pin(int pin, SD **data)
 	err = request_threaded_irq(gpio_irq, hard_irq_driver_isr,
 				   gpio_irq_driver_isr,
 				   IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
-				   DRIVER_NAME, dev_object);
+				   DRIVER_NAME, *data);
 	if (err < 0) {
 		dev_err(drv_dev, "irq %d busy? error %d\n", pin, err);
 		goto free_pin;
@@ -140,15 +144,21 @@ gpio_irq_driver_read(struct file *instance,
         unsigned long to_copy;
 	u32 value = 0;
 
-	irq_event = 0;
-	wait_event_interruptible(sleep_wq, irq_event);
+	if (instance->private_data) {
+		SD *data = (SD*) instance->private_data;
 
-	value = irq_event;
+		data->irq_event = 0;
+		wait_event_interruptible(data->sleep_wq, data->irq_event);
+		value = data->irq_event;
 
-	to_copy = min(count, sizeof(value));
-	not_copied = copy_to_user(user, &value, to_copy);
+		to_copy = min(count, sizeof(value));
+		not_copied = copy_to_user(user, &value, to_copy);
 
-	return to_copy - not_copied;
+		return to_copy - not_copied;
+	} else {
+		pr_err("instance->private_data == NULL");
+		return -1;
+	}	
 }
 
 static int
