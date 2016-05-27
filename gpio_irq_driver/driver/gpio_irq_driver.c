@@ -195,6 +195,7 @@ gpio_irq_driver_close(struct inode *dev_node, struct file *instance)
 	if (instance->private_data) {
 		data = (SD *) instance->private_data;
 
+		free_irq(data->gpio_irq, data);
 		gpio_free(data->gpio_irq);
 
 		kfree(data->name);
@@ -210,7 +211,7 @@ gpio_irq_driver_close(struct inode *dev_node, struct file *instance)
 
 static long
 gpio_irq_driver_ioctl(struct file *instance, unsigned int cmd,
-		  unsigned long __user arg)
+		      unsigned long __user arg)
 {
 	unsigned int value = 0;
 
@@ -242,6 +243,7 @@ gpio_irq_driver_ioctl(struct file *instance, unsigned int cmd,
 	if (instance->private_data) {
 		tmp_data = (SD *) instance->private_data;
 
+		free_irq(tmp_data->gpio_irq, tmp_data);
 		gpio_free(tmp_data->gpio_irq);
 
 		kfree(tmp_data->name);
