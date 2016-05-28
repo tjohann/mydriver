@@ -274,7 +274,7 @@ static struct file_operations fops = {
 static int __init
 gpio_irq_driver_init(void)
 {
-	pr_info("char_driver_init called\n");
+	pr_info("gpio_irq_driver_init called\n");
 
 	/* get a device number */
 	if (alloc_chrdev_region(&dev_number, 0, 1, DRIVER_NAME) < 0)
@@ -307,6 +307,8 @@ gpio_irq_driver_init(void)
 		goto free_class;
 	}
 
+	return 0;
+	
 free_class:
 	class_destroy(dev_class);
 
