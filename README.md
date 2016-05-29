@@ -122,7 +122,7 @@ The gpio irq driver (simple)
 
 Simple(st) driver to show the usage of an IRQ connected PIN (PIN13/IO-0/PI18 -> bananapi-m1). Used default value:
 
-1. PIN13 (IO-0/PI18) for input
+1. PIN16 (IO-4/PH20) for input
 
 State: nearly finished
 
@@ -132,7 +132,7 @@ The gpio irq driver
 
 An int based driver to show the usage of an IRQ connected PIN (PIN13/IO-0/PI18 -> bananapi-m1). Used default value:
 
-1. PIN13 (IO-0/PI18) for input
+1. PIN16 (IO-4/PH20) for input
 
 Via ioctl syscall you can change the PIN for input.
 

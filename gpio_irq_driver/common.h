@@ -24,6 +24,6 @@
 
 #define IOCTL_SET_READ_PIN  0x0002
 
-#define DEF_PIN_READ  274
+#define DEF_PIN_READ  244
 
 #endif
