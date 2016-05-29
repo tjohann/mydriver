@@ -30,7 +30,8 @@
 #include <linux/slab.h>
 
 #define DRIVER_NAME "gpio_irq_driver_simple"
-#define DEF_PIN_READ  274
+/* Pin16/IO-4/PH20 */
+#define DEF_PIN_READ  244
 
 static dev_t dev_number;
 static struct cdev *dev_object;
