@@ -6,6 +6,7 @@ This is a collection of different linux kernel driver templates:
   an absolute minimal driver
   char driver
   i2c-gpio driver
+  gpio irq driver_simple (int based)
   gpio irq driver (int based)
   gpio irq driver (fd based)
   gpio driver (int based)
@@ -116,12 +117,20 @@ Feartures:
 State: not started
 
 
+The gpio irq driver (simple)
+----------------------------
+
+Simple(st) driver to show the usage of an IRQ connected PIN (PIN13/IO-0/PI18 -> bananapi-m1). Used default value:
+
+1. PIN13 (IO-0/PI18) for input
+
+State: nearly finished
+
+
 The gpio irq driver
 -------------------
 
-Simple (int based) driver to show the usage of an IRQ connected PIN (PIN13/IO-0/PI18). I use a bananapi-m1 and olimex-a20-som/evb as hardware.
-
-Used default values:
+An int based driver to show the usage of an IRQ connected PIN (PIN13/IO-0/PI18 -> bananapi-m1). Used default value:
 
 1. PIN13 (IO-0/PI18) for input
 
@@ -141,7 +150,7 @@ State: not started
 The gpio driver
 ---------------
 
-Simple (int based) driver to show the usage of gpio for read and write from a PIN. I use a bananapi-m1 and olimex-a20-som/evb as hardware.
+Simple (int based) driver to show the usage of gpio for read and write from a PIN. I use a bananapi-m1 as test hardware.
 
 Used default values:
 

@@ -38,6 +38,3 @@
 *.order
 .tmp_versions
 *.mod.c
-
-# build applications
-pcf8574
