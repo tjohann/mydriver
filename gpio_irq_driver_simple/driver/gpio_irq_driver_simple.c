@@ -46,8 +46,6 @@ wait_queue_head_t sleep_wq;
 static irqreturn_t
 hard_irq_driver_isr(int irq, void *data)
 {
-	pr_err("hard_irq_driver_isr irq %d with data %p )\n", irq, data );
-
 	irq_event += 1;
 	wake_up(&sleep_wq);
 	
@@ -178,7 +176,8 @@ gpio_irq_driver_init(void)
 		goto free_device;
 	}
 	
-	pr_info("gpio_irq_driver_init finished\n");
+	pr_info("gpio_irq_driver_init with IRQ %d on PIN %d\n",
+		gpio_irq, DEF_PIN_READ);
 	
 	return 0;
 

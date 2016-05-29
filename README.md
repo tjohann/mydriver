@@ -124,7 +124,7 @@ Simple(st) driver to show the usage of an IRQ connected PIN (PIN13/IO-0/PI18 -> 
 
 1. PIN16 (IO-4/PH20) for input
 
-State: nearly finished
+State: finished
 
 
 The gpio irq driver
