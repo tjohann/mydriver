@@ -63,7 +63,7 @@ work_mode(int fd)
 		n = read(fd, &value, len);
 		if (n == -1)
 			perror("read");
-		printf("read %d from %s\n", value, DEV_NAME);
+		printf("%s: %d IRQ's occured\n", DEV_NAME, value);
 	}
 	
 	return 0;  /* should never reached */
