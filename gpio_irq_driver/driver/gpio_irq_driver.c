@@ -175,6 +175,8 @@ gpio_irq_driver_open(struct inode *dev_node, struct file *instance)
 	if (config_pin(DEF_PIN_READ, &data) == -1)
 		return -EIO;
 
+	init_waitqueue_head(&data->sleep_wq);
+	
 	dev_info(drv_dev, "gpio_driver_open O_RDONLY\n");
 
 	instance->private_data = (void *) data;
