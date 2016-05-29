@@ -45,7 +45,7 @@ wait_queue_head_t sleep_wq;
 static irqreturn_t
 hard_irq_driver_isr(int irq, void *data)
 {
-	printk("hard_irq_driver_isr irq %d with data %p )\n", irq, data );
+	pr_err("hard_irq_driver_isr irq %d with data %p )\n", irq, data );
 
 	irq_event += 1;
 	wake_up(&sleep_wq);
@@ -137,7 +137,7 @@ static struct file_operations fops = {
 static int __init
 gpio_irq_driver_init(void)
 {
-	init_waitqueue_head( &sleep_wq );
+	init_waitqueue_head(&sleep_wq);
 	
 	/* get a device number */
 	if (alloc_chrdev_region(&dev_number, 0, 1, DRIVER_NAME) < 0)
@@ -170,7 +170,9 @@ gpio_irq_driver_init(void)
 		goto free_class;
 	}
 
-	if (config_pin(DEF_PIN_READ) == -1){
+	/* setup gpio for irq */
+	gpio_irq = config_pin(DEF_PIN_READ);
+	if (gpio_irq == -1) {
 		pr_err("an config_pin error occured\n");
 		goto free_device;
 	}
