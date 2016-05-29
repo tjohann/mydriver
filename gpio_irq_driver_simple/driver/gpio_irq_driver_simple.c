@@ -204,7 +204,10 @@ gpio_irq_driver_exit(void)
 
 	cdev_del(dev_object);
 	unregister_chrdev_region(dev_number, 1);
-
+	
+	free_irq(gpio_irq, dev_object);
+	gpio_free( DEF_PIN_READ);
+	
 	return;
 }
 
