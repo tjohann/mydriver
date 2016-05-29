@@ -284,7 +284,7 @@ static struct file_operations fops = {
 	.owner = THIS_MODULE,
 	.read = gpio_irq_driver_read,
 	.open = gpio_irq_driver_open,
-	.unlocked_ioctl = gpio_irq_driver_ioctl,
+	.compat_ioctl = gpio_irq_driver_ioctl,
 	.release = gpio_irq_driver_close,
 };
 
