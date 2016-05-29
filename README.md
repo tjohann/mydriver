@@ -136,7 +136,7 @@ An int based driver to show the usage of an IRQ connected PIN (PIN13/IO-0/PI18 -
 
 Via ioctl syscall you can change the PIN for input.
 
-State: finished
+State: debugging/testing (finished)
 
 
 The gpio irq driver (new)
