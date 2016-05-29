@@ -114,16 +114,13 @@ config_pin(int pin, SD **data)
 	if (gpio_irq < 0)
 		goto free_pin;
 
-/*	err = request_threaded_irq(gpio_irq, hard_irq_driver_isr,
+	err = request_threaded_irq(gpio_irq, hard_irq_driver_isr,
 			 	   gpio_irq_driver_isr,
 				   IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
 				   DRIVER_NAME, *data);
-*/
-	err = request_irq(gpio_irq, hard_irq_driver_isr,
-			  IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
-			  DRIVER_NAME, *data);
+
 	if (err < 0) {
-		dev_err(drv_dev, "irq %d busy? error %d\n", pin, err);
+		dev_err(drv_dev, "IRQ %d busy? error %d\n", pin, err);
 		goto free_pin;
 	}
 
