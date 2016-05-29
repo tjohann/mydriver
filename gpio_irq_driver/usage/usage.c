@@ -75,6 +75,7 @@ work_mode(int fd, int pin)
 		int ret = ioctl(fd, IOCTL_SET_READ_PIN, &pin);
 		if (ret == -1)
 			return -1;
+		printf("retval of ioctl %d", (int) n);
 	}
 
 	sleep(1);

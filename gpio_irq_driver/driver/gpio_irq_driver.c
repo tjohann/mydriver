@@ -230,7 +230,9 @@ gpio_irq_driver_ioctl(struct file *instance, unsigned int cmd,
 	SD *data = NULL;
 	SD *tmp_data = NULL;
 
-	pr_info("in gpio_irq_driver_ioctl\n");
+	int err = -1;
+
+	pr_err("in gpio_irq_driver_ioctl\n");
 
 	if (get_user(value, (int __user *) arg)) {
 		pr_err("could not copy from userspace");
@@ -250,6 +252,18 @@ gpio_irq_driver_ioctl(struct file *instance, unsigned int cmd,
 	case IOCTL_SET_READ_PIN:
 		if (config_pin(value, &data) == -1)
 			return -EIO;
+
+		init_waitqueue_head(&data->sleep_wq);
+
+		err = request_threaded_irq(data->gpio_irq, hard_irq_driver_isr,
+					gpio_irq_driver_isr,
+					IRQF_TRIGGER_FALLING,
+					DRIVER_NAME, data);
+		if (err < 0) {
+			pr_err("request_threaded_irq for IRQ %d with error %d\n",
+				data->gpio_irq, err);
+			return -EIO;
+		}
 		break;
 	default:
 		pr_err("unknown ioctl 0x%x\n", cmd);
@@ -284,7 +298,7 @@ static struct file_operations fops = {
 	.owner = THIS_MODULE,
 	.read = gpio_irq_driver_read,
 	.open = gpio_irq_driver_open,
-	.compat_ioctl = gpio_irq_driver_ioctl,
+	.unlocked_ioctl = gpio_irq_driver_ioctl,
 	.release = gpio_irq_driver_close,
 };
 
