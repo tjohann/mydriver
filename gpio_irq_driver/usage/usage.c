@@ -53,7 +53,7 @@ static int
 open_device(void)
 {
 	int fd = -1;
-	
+
 	fd = open(DEV_NAME, O_RDONLY);
 	if (fd == -1)
 		return -1;
@@ -67,7 +67,7 @@ work_mode(int fd, int pin)
 	int value = 0;
         size_t len = sizeof(value);
         ssize_t n = 0;
-	
+
 	if (pin <= 0) {
 		printf("a value below <=0 makes no sense\n");
 	} else {
@@ -82,7 +82,7 @@ work_mode(int fd, int pin)
 			perror("read");
 		printf("read %d from %s\n", value, DEV_NAME);
 	}
-	
+
 	return 0;  /* should never reached */
 }
 

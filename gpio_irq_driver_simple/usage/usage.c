@@ -44,7 +44,7 @@ static int
 open_device(void)
 {
 	int fd = -1;
-	
+
 	fd = open(DEV_NAME, O_RDONLY);
 	if (fd == -1)
 		return -1;
@@ -58,14 +58,14 @@ work_mode(int fd)
 	int value = 0;
         size_t len = sizeof(value);
         ssize_t n = 0;
-	
+
 	for (;;) {
 		n = read(fd, &value, len);
 		if (n == -1)
 			perror("read");
 		printf("%s: %d IRQ's occured\n", DEV_NAME, value);
 	}
-	
+
 	return 0;  /* should never reached */
 }
 

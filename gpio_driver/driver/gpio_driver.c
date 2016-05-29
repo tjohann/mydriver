@@ -93,7 +93,7 @@ config_pin(int pin, bool write_pin, SD **data)
 		pr_err("kmalloc in config_pin\n");
 		goto free_pin;
 	}
-	
+
 	(*data)->name = name;
 	(*data)->pin = pin;
 	if (write_pin)

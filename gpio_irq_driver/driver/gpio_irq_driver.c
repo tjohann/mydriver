@@ -52,7 +52,7 @@ static irqreturn_t
 gpio_irq_driver_isr(int irq, void *tmp_data)
 {
 	SD *data = (SD*) tmp_data;
-	
+
 	data->irq_event += 1;
 	wake_up(&data->sleep_wq);
 
@@ -78,7 +78,7 @@ config_pin(int pin, SD **data)
 
 	snprintf(tmp_name, sizeof(tmp_name), "gpio-read-%d", pin);
 	len = strlen(tmp_name) + 1;
-	
+
 	name = (char *) kmalloc(len, GFP_USER);
 	if (name == NULL) {
 		pr_err("kmalloc in config_pin\n");
@@ -157,7 +157,7 @@ gpio_irq_driver_read(struct file *instance,
 	} else {
 		pr_err("instance->private_data == NULL");
 		return -1;
-	}	
+	}
 }
 
 static int
@@ -177,7 +177,7 @@ gpio_irq_driver_open(struct inode *dev_node, struct file *instance)
 		return -EIO;
 
 	init_waitqueue_head(&data->sleep_wq);
-	
+
 	dev_info(drv_dev, "gpio_driver_open O_RDONLY\n");
 
 	instance->private_data = (void *) data;
@@ -311,9 +311,9 @@ gpio_irq_driver_init(void)
 	}
 
 	pr_info("gpio_irq_driver_init finished\n");
-	
+
 	return 0;
-	
+
 free_class:
 	class_destroy(dev_class);
 

@@ -48,7 +48,7 @@ hard_irq_driver_isr(int irq, void *data)
 {
 	irq_event += 1;
 	wake_up(&sleep_wq);
-	
+
 	return IRQ_HANDLED;
 }
 
@@ -61,7 +61,7 @@ config_pin(int pin)
 	memset(name, 0, sizeof(name));
 
 	snprintf(name, sizeof(name), "gpio-read-%d", pin);
-	
+
 	err = gpio_request(pin, name);
 	if (err) {
 		pr_err("gpio_request failed %d\n", err);
@@ -77,7 +77,7 @@ config_pin(int pin)
 	gpio_irq = gpio_to_irq(pin);
 	if (gpio_irq < 0)
 		goto free_pin;
-	
+
 	err = request_irq(gpio_irq, hard_irq_driver_isr,
 			  IRQF_TRIGGER_FALLING,
 			  DRIVER_NAME, dev_object);
@@ -100,12 +100,12 @@ gpio_irq_driver_read(struct file *instance,
 {
 	unsigned long not_copied;
         unsigned long to_copy;
-	
+
 	irq_event = 0;
-	wait_event_interruptible(sleep_wq, irq_event);	
+	wait_event_interruptible(sleep_wq, irq_event);
 	to_copy = min(count, sizeof(irq_event));
 	not_copied = copy_to_user(user, &irq_event, to_copy);
-	
+
 	return to_copy - not_copied;
 }
 
@@ -137,7 +137,7 @@ static int __init
 gpio_irq_driver_init(void)
 {
 	init_waitqueue_head(&sleep_wq);
-	
+
 	/* get a device number */
 	if (alloc_chrdev_region(&dev_number, 0, 1, DRIVER_NAME) < 0)
 		return -EIO;
@@ -175,15 +175,15 @@ gpio_irq_driver_init(void)
 		pr_err("an config_pin error occured\n");
 		goto free_device;
 	}
-	
+
 	pr_info("gpio_irq_driver_init with IRQ %d on PIN %d\n",
 		gpio_irq, DEF_PIN_READ);
-	
+
 	return 0;
 
 free_device:
 	device_destroy(dev_class, dev_number);
-	
+
 free_class:
 	class_destroy(dev_class);
 
@@ -206,10 +206,10 @@ gpio_irq_driver_exit(void)
 
 	cdev_del(dev_object);
 	unregister_chrdev_region(dev_number, 1);
-	
+
 	free_irq(gpio_irq, dev_object);
 	gpio_free( DEF_PIN_READ);
-	
+
 	return;
 }
 
