@@ -168,8 +168,6 @@ gpio_irq_driver_open(struct inode *dev_node, struct file *instance)
 
 	int err = -1;
 
-	init_waitqueue_head(&data->sleep_wq);
-
 	if (!read_mode) {
 		dev_err(drv_dev, "only O_RDONLY allowed\n");
 		return -EIO;
@@ -177,6 +175,8 @@ gpio_irq_driver_open(struct inode *dev_node, struct file *instance)
 
 	if (config_pin(DEF_PIN_READ, &data) == -1)
 		return -EIO;
+
+	init_waitqueue_head(&data->sleep_wq);
 
 	err = request_threaded_irq(data->gpio_irq, hard_irq_driver_isr,
 				gpio_irq_driver_isr,
