@@ -53,8 +53,6 @@ gpio_irq_driver_isr(int irq, void *tmp_data)
 {
 	SD *data = (SD*) tmp_data;
 	
-	pr_info("gpio_irq_driver_isr irq %d with data %p)\n", irq, tmp_data );
-
 	data->irq_event += 1;
 	wake_up(&data->sleep_wq);
 
@@ -64,8 +62,6 @@ gpio_irq_driver_isr(int irq, void *tmp_data)
 static irqreturn_t
 hard_irq_driver_isr(int irq, void *data)
 {
-	printk("hard_irq_driver_isr irq %d with data %p )\n", irq, data );
-	
 	/* not really needed, but it's a template */
 	return IRQ_WAKE_THREAD;
 }
@@ -116,7 +112,7 @@ config_pin(int pin, SD **data)
 
 	err = request_threaded_irq(gpio_irq, hard_irq_driver_isr,
 			 	   gpio_irq_driver_isr,
-				   IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
+				   IRQF_TRIGGER_FALLING,
 				   DRIVER_NAME, *data);
 
 	if (err < 0) {
