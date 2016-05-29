@@ -80,7 +80,7 @@ config_pin(int pin)
 		goto free_pin;
 	
 	err = request_irq(gpio_irq, hard_irq_driver_isr,
-			  IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
+			  IRQF_TRIGGER_HIGH | IRQF_SHARED,
 			  DRIVER_NAME, dev_object);
 	if (err < 0) {
 		dev_err(drv_dev, "irq %d busy? error %d\n", pin, err);
