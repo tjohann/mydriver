@@ -76,6 +76,8 @@ work_mode(int fd, int pin)
 			return -1;
 	}
 
+	sleep(1);
+
 	for (;;) {
 		n = read(fd, &value, len);
 		if (n == -1)

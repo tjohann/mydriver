@@ -53,6 +53,8 @@ gpio_irq_driver_isr(int irq, void *tmp_data)
 {
 	SD *data = (SD*) tmp_data;
 
+	pr_info("gpio_irq_driver_isr with IRQ %d and data %p )\n", irq, tmp_data);
+
 	data->irq_event += 1;
 	wake_up(&data->sleep_wq);
 
@@ -62,6 +64,8 @@ gpio_irq_driver_isr(int irq, void *tmp_data)
 static irqreturn_t
 hard_irq_driver_isr(int irq, void *data)
 {
+	pr_info("hard_irq_driver_isr with IRQ %d and data %p )\n", irq, data);
+
 	/* not really needed, but it's a template */
 	return IRQ_WAKE_THREAD;
 }
@@ -108,23 +112,17 @@ config_pin(int pin, SD **data)
 
 	gpio_irq = gpio_to_irq(pin);
 	if (gpio_irq < 0)
-		goto free_pin;
-
-	err = request_threaded_irq(gpio_irq, hard_irq_driver_isr,
-			 	   gpio_irq_driver_isr,
-				   IRQF_TRIGGER_FALLING,
-				   DRIVER_NAME, *data);
-
-	if (err < 0) {
-		dev_err(drv_dev, "IRQ %d busy? error %d\n", pin, err);
-		goto free_pin;
-	}
+		goto free_instance;
 
 	(*data)->name = name;
 	(*data)->gpio_irq = gpio_irq;
 	(*data)->pin = pin;
 
 	return 0;
+
+free_instance:
+	kfree(*data);
+	*data = NULL;
 
 free_pin:
 	gpio_free(pin);
@@ -168,6 +166,10 @@ gpio_irq_driver_open(struct inode *dev_node, struct file *instance)
 	int accmode = (instance->f_flags & O_ACCMODE);
 	bool read_mode  = (accmode == O_RDONLY);
 
+	int err = -1;
+
+	init_waitqueue_head(&data->sleep_wq);
+
 	if (!read_mode) {
 		dev_err(drv_dev, "only O_RDONLY allowed\n");
 		return -EIO;
@@ -176,9 +178,15 @@ gpio_irq_driver_open(struct inode *dev_node, struct file *instance)
 	if (config_pin(DEF_PIN_READ, &data) == -1)
 		return -EIO;
 
-	init_waitqueue_head(&data->sleep_wq);
-
-	dev_info(drv_dev, "gpio_driver_open O_RDONLY\n");
+	err = request_threaded_irq(data->gpio_irq, hard_irq_driver_isr,
+				gpio_irq_driver_isr,
+				IRQF_TRIGGER_FALLING,
+				DRIVER_NAME, data);
+	if (err < 0) {
+		pr_err("request_threaded_irq for IRQ %d with error %d\n",
+			data->gpio_irq, err);
+		return -EIO;
+	}
 
 	instance->private_data = (void *) data;
 
