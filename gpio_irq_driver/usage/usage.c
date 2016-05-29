@@ -71,6 +71,7 @@ work_mode(int fd, int pin)
 	if (pin <= 0) {
 		printf("a value below <=0 makes no sense\n");
 	} else {
+		printf("ioctl with pin: %d\n", pin);
 		int ret = ioctl(fd, IOCTL_SET_READ_PIN, &pin);
 		if (ret == -1)
 			return -1;

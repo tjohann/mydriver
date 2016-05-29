@@ -230,6 +230,8 @@ gpio_irq_driver_ioctl(struct file *instance, unsigned int cmd,
 	SD *data = NULL;
 	SD *tmp_data = NULL;
 
+	pr_info("in gpio_irq_driver_ioctl\n");
+
 	if (get_user(value, (int __user *) arg)) {
 		pr_err("could not copy from userspace");
 		return -EFAULT;
@@ -241,6 +243,8 @@ gpio_irq_driver_ioctl(struct file *instance, unsigned int cmd,
 	} else {
 		pr_info("value from userspace is %d", value);
 	}
+
+	pr_info("value from userspace %d", value);
 
 	switch(cmd) {
 	case IOCTL_SET_READ_PIN:
