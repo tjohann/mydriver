@@ -40,6 +40,7 @@ static struct device *drv_dev;
 
 struct _instance_data {
 	wait_queue_head_t sleep_wq;
+	int pin;
 	int gpio_irq;
 	int irq_event;
 	char *name;
@@ -79,7 +80,7 @@ config_pin(int pin, SD **data)
 
 	snprintf(tmp_name, sizeof(tmp_name), "gpio-read-%d", pin);
 	len = strlen(tmp_name) + 1;
-
+	
 	name = (char *) kmalloc(len, GFP_USER);
 	if (name == NULL) {
 		pr_err("kmalloc in config_pin\n");
@@ -122,6 +123,7 @@ config_pin(int pin, SD **data)
 
 	(*data)->name = name;
 	(*data)->gpio_irq = gpio_irq;
+	(*data)->pin = pin;
 
 	return 0;
 
@@ -184,7 +186,8 @@ gpio_irq_driver_open(struct inode *dev_node, struct file *instance)
 	/* some useful info */
 	pr_info("gpio_irq_driver_open values:\n");
 	pr_info("name = %s\n", data->name);
-	pr_info("pin/irq = %d\n", data->gpio_irq);
+	pr_info("pin = %d\n", data->pin);
+	pr_info("irq = %d\n", data->gpio_irq);
 
 	return 0;
 }
@@ -198,7 +201,7 @@ gpio_irq_driver_close(struct inode *dev_node, struct file *instance)
 		data = (SD *) instance->private_data;
 
 		free_irq(data->gpio_irq, data);
-		gpio_free(data->gpio_irq);
+		gpio_free(data->pin);
 
 		kfree(data->name);
 		kfree(instance->private_data);
@@ -206,7 +209,7 @@ gpio_irq_driver_close(struct inode *dev_node, struct file *instance)
 		pr_err("instance->private_data == NULL\n");
 	}
 
-	dev_info(drv_dev, "gpio_irq_driver_closed finished cleanup\n");
+	pr_info("gpio_irq_driver_closed finished cleanup\n");
 
 	return 0;
 }
@@ -246,7 +249,7 @@ gpio_irq_driver_ioctl(struct file *instance, unsigned int cmd,
 		tmp_data = (SD *) instance->private_data;
 
 		free_irq(tmp_data->gpio_irq, tmp_data);
-		gpio_free(tmp_data->gpio_irq);
+		gpio_free(tmp_data->pin);
 
 		kfree(tmp_data->name);
 		kfree(instance->private_data);
@@ -260,7 +263,8 @@ gpio_irq_driver_ioctl(struct file *instance, unsigned int cmd,
 	/* some useful info  */
 	pr_info("gpio_irq_driver_ioctl values:\n");
 	pr_info("name = %s\n", data->name);
-	pr_info("pin/irq = %d\n", data->gpio_irq);
+	pr_info("pin = %d\n", data->pin);
+	pr_info("irq = %d\n", data->gpio_irq);
 
 	return 0;
 }
@@ -276,8 +280,6 @@ static struct file_operations fops = {
 static int __init
 gpio_irq_driver_init(void)
 {
-	pr_info("gpio_irq_driver_init called\n");
-
 	/* get a device number */
 	if (alloc_chrdev_region(&dev_number, 0, 1, DRIVER_NAME) < 0)
 		return -EIO;
@@ -309,6 +311,8 @@ gpio_irq_driver_init(void)
 		goto free_class;
 	}
 
+	pr_info("gpio_irq_driver_init finished\n");
+	
 	return 0;
 	
 free_class:

@@ -40,14 +40,11 @@
 static void
 __attribute__((noreturn)) usage(void)
 {
-	fprintf(stdout, "Usage: ./usage -[r] [PIN]                     \n");
-	fprintf(stdout, "       -r -> read PIN                         \n");
-	fprintf(stdout, "       -[rp] [PIN] -> use PIN for read        \n");
+	fprintf(stdout, "Usage: ./usage -[p] [PIN]                     \n");
+	fprintf(stdout, "       -[p] [PIN] -> use PIN for read         \n");
 	putchar('\n');
 	fprintf(stdout, "Examples:                                     \n");
-	fprintf(stdout, "       ./usage -r (read from default pin)     \n");
-	fprintf(stdout, "       ./usage -r -p 123 (read from to pin 123)\n");
-	fprintf(stdout, "       ./usage -rp 321 (read from pin 321)    \n");
+	fprintf(stdout, "       ./usage -p 123 (read from to pin 123)  \n");
 
 	exit(EXIT_FAILURE);
 }
@@ -63,7 +60,6 @@ open_device(void)
 
 	return fd;
 }
-
 
 static int
 work_mode(int fd, int pin)
@@ -96,7 +92,7 @@ main(int argc, char *argv[])
 	int pin = -1;
 
 	int c;
-	while ((c = getopt(argc, argv, "rp:h")) != -1) {
+	while ((c = getopt(argc, argv, "p:h")) != -1) {
 		switch (c) {
 		case 'p':
 			pin = atoi(optarg);
