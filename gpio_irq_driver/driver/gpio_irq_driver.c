@@ -62,8 +62,10 @@ gpio_irq_driver_isr(int irq, void *tmp_data)
 }
 
 static irqreturn_t
-hard_irq_driver_isr(int irq, void *dev_id)
+hard_irq_driver_isr(int irq, void *data)
 {
+	printk("hard_irq_driver_isr irq %d with data %p )\n", irq, data );
+	
 	/* not really needed, but it's a template */
 	return IRQ_WAKE_THREAD;
 }
