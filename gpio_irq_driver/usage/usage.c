@@ -54,7 +54,7 @@ open_device(void)
 {
 	int fd = -1;
 
-	fd = open(DEV_NAME, O_RDONLY);
+	fd = open(DEV_NAME, O_RDWR);
 	if (fd == -1)
 		return -1;
 
@@ -62,20 +62,18 @@ open_device(void)
 }
 
 static int
-work_mode(int fd, int pin)
+work_mode(int fd, unsigned int pin)
 {
 	int value = 0;
         size_t len = sizeof(value);
         ssize_t n = 0;
 
-	if (pin <= 0) {
-		printf("a value below <=0 makes no sense\n");
-	} else {
-		printf("ioctl with pin: %d\n", pin);
-		int ret = ioctl(fd, IOCTL_SET_READ_PIN, &pin);
-		if (ret == -1)
+	if (pin != 0) {
+		n = write(fd, &pin, sizeof(unsigned int));
+		if (n == -1) {
+			perror("write");
 			return -1;
-		printf("retval of ioctl %d", (int) n);
+		}
 	}
 
 	sleep(1);
@@ -93,7 +91,7 @@ work_mode(int fd, int pin)
 int
 main(int argc, char *argv[])
 {
-	int pin = -1;
+	unsigned int pin = 0;
 
 	int c;
 	while ((c = getopt(argc, argv, "p:h")) != -1) {

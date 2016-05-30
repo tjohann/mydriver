@@ -96,6 +96,7 @@ config_pin(int pin, bool write_pin, SD **data)
 
 	(*data)->name = name;
 	(*data)->pin = pin;
+
 	if (write_pin)
 		(*data)->direction = WRITE_PIN;
 	else
