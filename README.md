@@ -142,10 +142,13 @@ Usage:
 
 Example usage of the driver (with 3/4 instance) using PH8, PH16, PH20 and PH21:
 
-![Alt text](Documentation/gpio_irq_driver_usage_01.png?raw=true "Usage of driver -> start 4 instance")
-![Alt text](Documentation/gpio_irq_driver_usage_02.png?raw=true "Usage of driver -> 4 instance in action")
-![Alt text](Documentation/gpio_irq_driver_usage_03.png?raw=true "Usage of driver -> 3 instance with /proc/interrupts")
-![Alt text](Documentation/gpio_irq_driver_usage_04.png?raw=true "Usage of driver -> 3 instance with ps aux")
+![Alt text](pics/gpio_irq_driver_usage_01.png?raw=true "Usage of driver -> start 4 instance")
+
+![Alt text](pics/gpio_irq_driver_usage_02.png?raw=true "Usage of driver -> 4 instance in action")
+
+![Alt text](pics/gpio_irq_driver_usage_03.png?raw=true "Usage of driver -> 3 instance with /proc/interrupts")
+
+![Alt text](pics/gpio_irq_driver_usage_04.png?raw=true "Usage of driver -> 3 instance with ps aux")
 
 State: finished
 
