@@ -23,14 +23,14 @@
 
 int init_module(void)
 {
-	printk("you're in init_module\n");
+	printk("init_module called\n");
 
 	return 0;
 }
 
 void cleanup_module(void)
 {
-	printk("you're in cleanup_module\n");
+	printk("cleanup_module called\n");
 }
 
 MODULE_LICENSE("GPL");

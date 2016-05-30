@@ -65,7 +65,7 @@ config_pin(int pin, bool write_pin, SD **data)
 
 	name = (char *) kmalloc(len, GFP_USER);
 	if (name == NULL) {
-		pr_err("kmalloc in config_pin\n");
+		dev_err(drv_dev, "kmalloc in config_pin\n");
 		return -1;
 	}
 
@@ -74,7 +74,7 @@ config_pin(int pin, bool write_pin, SD **data)
 
 	err = gpio_request(pin, name);
 	if (err) {
-		pr_err("gpio_request failed %d\n", err);
+		dev_err(drv_dev, "gpio_request failed with %d\n", err);
 		goto free_name;
 	}
 
@@ -84,13 +84,13 @@ config_pin(int pin, bool write_pin, SD **data)
 		err = gpio_direction_input(pin);
 
 	if (err) {
-		pr_err("gpio_direction failed %d\n", err);
+		dev_err(drv_dev, "gpio_direction failed %d\n", err);
 		goto free_pin;
 	}
 
 	*data = (SD *) kmalloc(sizeof(SD), GFP_USER);
 	if (*data == NULL) {
-		pr_err("kmalloc in config_pin\n");
+		dev_err(drv_dev, "kmalloc in config_pin\n");
 		goto free_pin;
 	}
 
@@ -131,7 +131,7 @@ gpio_driver_read(struct file *instance,
 
 		return to_copy - not_copied;
 	} else {
-		pr_err("instance->private_data == NULL");
+		dev_err(drv_dev, "read: instance->private_data == NULL");
 		return -1;
 	}
 }
@@ -154,7 +154,7 @@ gpio_driver_write(struct file *instance,
 
 		return to_copy - not_copied;
 	} else {
-		pr_err("instance->private_data == NULL");
+		dev_err(drv_dev, "write: instance->private_data == NULL");
 		return -1;
 	}
 }
@@ -169,30 +169,24 @@ gpio_driver_open(struct inode *dev_node, struct file *instance)
 	bool write_mode = (accmode == O_WRONLY);
 
 	if (!read_mode && !write_mode) {
-		dev_err(drv_dev, "only O_RDONLY and O_WRONLY allowed\n");
+		dev_err(drv_dev, "only O_RDONLY or O_WRONLY allowed\n");
 		return -EIO;
 	}
 
-	if (write_mode) {
+	if (write_mode)
 		if (config_pin(DEF_PIN_WRITE, true, &data) == -1)
 			return -EIO;
 
-		dev_info(drv_dev, "gpio_driver_open O_WRONLY\n");
-	}
-
-	if (read_mode) {
+	if (read_mode)
 		if (config_pin(DEF_PIN_READ, false, &data) == -1)
 			return -EIO;
-
-		dev_info(drv_dev, "gpio_driver_open O_RDONLY\n");
-	}
 
 	instance->private_data = (void *) data;
 
 	/* some useful info */
-	pr_info("gpio_driver_open values:\n");
-	pr_info("name = %s\n", data->name);
-	pr_info("pin = %d\n", data->pin);
+	dev_info(drv_dev, "open values:\n");
+	dev_info(drv_dev, "name = %s\n", data->name);
+	dev_info(drv_dev, "pin = %d\n", data->pin);
 
 	return 0;
 }
@@ -205,7 +199,7 @@ gpio_driver_close(struct inode *dev_node, struct file *instance)
 	if (instance->private_data) {
 		data = (SD *) instance->private_data;
 
-		/* clear pin */
+		/* set valid default value to pin */
 		if (data->direction == WRITE_PIN)
 			gpio_set_value(data->pin, 0);
 
@@ -214,10 +208,10 @@ gpio_driver_close(struct inode *dev_node, struct file *instance)
 		kfree(data->name);
 		kfree(instance->private_data);
 	} else {
-		pr_err("instance->private_data == NULL\n");
+		dev_err(drv_dev, "close: instance->private_data == NULL\n");
 	}
 
-	dev_info(drv_dev, "gpio_driver_closed finished cleanup\n");
+	dev_info(drv_dev, "closed finished\n");
 
 	return 0;
 }
@@ -232,15 +226,15 @@ gpio_driver_ioctl(struct file *instance, unsigned int cmd,
 	SD *tmp_data = NULL;
 
 	if (get_user(value, (int __user *) arg)) {
-		pr_err("could not copy from userspace");
+		dev_err(drv_dev, "could not copy from userspace\n");
 		return -EFAULT;
 	}
 
 	if (value <= 0) {
-		pr_err("a value below <=0 makes no sense\n");
+		dev_err(drv_dev, "a value below <=0 makes no sense\n");
 		return -EINVAL;
 	} else {
-		pr_info("value from userspace is %d", value);
+		dev_info(drv_dev, "value from userspace is %d\n", value);
 	}
 
 	switch(cmd) {
@@ -253,7 +247,7 @@ gpio_driver_ioctl(struct file *instance, unsigned int cmd,
 			return -EIO;
 		break;
 	default:
-		pr_err("unknown ioctl 0x%x\n", cmd);
+		dev_err(drv_dev, "unknown ioctl 0x%x\n", cmd);
 		return -EINVAL;
 	}
 
@@ -266,15 +260,15 @@ gpio_driver_ioctl(struct file *instance, unsigned int cmd,
 		kfree(instance->private_data);
 
 	} else {
-		pr_err("instance->private_data == NULL\n");
+		dev_err(drv_dev, "ioctl: instance->private_data == NULL\n");
 	}
 
 	instance->private_data = (void *) data;
 
 	/* some useful info  */
-	pr_info("gpio_driver_ioctl values:\n");
-	pr_info("name = %s\n", data->name);
-	pr_info("pin = %d\n", data->pin);
+	dev_info(drv_dev, "ioctl values:\n");
+	dev_info(drv_dev, "name = %s\n", data->name);
+	dev_info(drv_dev, "pin = %d\n", data->pin);
 
 	return 0;
 }
@@ -291,8 +285,6 @@ static struct file_operations fops = {
 static int __init
 gpio_driver_init(void)
 {
-	pr_info("gpio_driver_init called\n");
-
 	/* get a device number */
 	if (alloc_chrdev_region(&dev_number, 0, 1, DRIVER_NAME) < 0)
 		return -EIO;
@@ -312,7 +304,7 @@ gpio_driver_init(void)
 	/* add sysfs entry */
 	dev_class = class_create(THIS_MODULE, DRIVER_NAME);
 	if (IS_ERR(dev_class)) {
-		pr_err("an error occured -> class_create()\n");
+		dev_err(drv_dev, "class_create\n");
 		goto free_cdev;
 	}
 
@@ -320,7 +312,7 @@ gpio_driver_init(void)
 	drv_dev = device_create(dev_class, NULL, dev_number, NULL, "%s",
 				DRIVER_NAME);
 	if (IS_ERR(drv_dev)) {
-		pr_err("an error occured -> device_create()\n");
+		dev_err(drv_dev, "device_create\n");
 		goto free_class;
 	}
 
@@ -341,8 +333,6 @@ free_dev_number:
 static void __exit
 gpio_driver_exit(void)
 {
-	dev_info(drv_dev, "gpio_driver_exit called\n");
-
 	device_destroy(dev_class, dev_number);
 	class_destroy(dev_class);
 

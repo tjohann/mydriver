@@ -89,15 +89,15 @@ char_driver_write(struct file *instance,
 	copied = to_copy - not_copied;
 	*offset += copied;
 
-	dev_info(drv_dev, "copied %d bytes in *_driver_write from user \"%s\"\n",
-		(int) copied, data);
+	dev_info(drv_dev, "write: copied %d bytes in *_driver_write from user \"%s\"\n",
+		 (int) copied, data);
 
 	if(data_p->data_s != NULL)
 		kfree(data_p->data_s);
 
 	data_p->data_s = (char *) kmalloc(copied + 1, GFP_USER);
 	if (data_p->data_s == NULL) {
-		pr_err("kmalloc in *_driver_write\n");
+		dev_err(drv_dev, "write: kmalloc\n");
 		return  -ENOMEM;
 	}
 
@@ -115,7 +115,7 @@ char_driver_open(struct inode *dev_node, struct file *instance)
 	size_t len = strlen(data_s) + 1;
 	SD *data_p = (SD *) kmalloc(sizeof(SD), GFP_USER);
 	if (data_p == NULL) {
-		pr_err("kmalloc in *_driver_open\n");
+		dev_err(drv_dev, "open: kmalloc\n");
 		return -ENOMEM;
 	}
 
@@ -123,7 +123,7 @@ char_driver_open(struct inode *dev_node, struct file *instance)
 
 	data_p->data_s = (char *) kmalloc(len, GFP_USER);
 	if (data_p->data_s == NULL) {
-		pr_err("kmalloc in *_driver_open\n");
+		dev_err(drv_dev, "open: kmalloc\n");
 		return -ENOMEM;
 	}
 
@@ -133,7 +133,7 @@ char_driver_open(struct inode *dev_node, struct file *instance)
 	data_p->count = len;
 	instance->private_data = (void *) data_p;
 
-	dev_info(drv_dev, "char_driver_open finished open\n");
+	dev_info(drv_dev, "open finished\n");
 
 	return 0;
 }
@@ -152,7 +152,7 @@ char_driver_close(struct inode *dev_node, struct file *instance)
 		kfree(instance->private_data);
 	}
 
-	dev_info(drv_dev, "char_driver_closed finished cleanup\n");
+	dev_info(drv_dev, "close finished\n");
 
 	return 0;
 }
@@ -175,7 +175,7 @@ char_driver_ioctl(struct file *instance, unsigned int cmd, unsigned long __user 
 
 		tmp_data = (char *) kmalloc(to_copy + 1, GFP_USER);
 		if (data_p->data_s == NULL) {
-			pr_err("kmalloc in *_driver_ioctl\n");
+			dev_err(drv_dev, "ioctl: kmalloc\n");
 			return  -ENOMEM;
 		}
 
@@ -191,11 +191,11 @@ char_driver_ioctl(struct file *instance, unsigned int cmd, unsigned long __user 
 
 		break;
 	default:
-		pr_err("unknown ioctl 0x%x\n", cmd);
+		dev_err(drv_dev, "unknown ioctl 0x%x\n", cmd);
 		return -EINVAL;
 	}
 
-	dev_info(drv_dev, "char_driver_ioctl finished\n");
+	dev_info(drv_dev, "ioctl finished\n");
 
 	return 0;
 }
@@ -216,23 +216,23 @@ char_driver_suspend(struct device *dev, pm_message_t state)
 {
 	switch (state.event) {
 	case PM_EVENT_ON:
-		dev_dbg(dev, "on event\n");
+		dev_dbg(drv_dev, "on event\n");
 		break;
 	case PM_EVENT_FREEZE:
-		dev_dbg(dev, "freeze event\n");
+		dev_dbg(drv_dev, "freeze event\n");
 		break;
 	case PM_EVENT_SUSPEND:
-		dev_dbg(dev, "suspend event\n");
+		dev_dbg(drv_dev, "suspend event\n");
 	        break;
 	case PM_EVENT_HIBERNATE:
-		dev_dbg(dev,"hibernate...\n");
+		dev_dbg(drv_dev, "hibernate...\n");
 		break;
 	default:
-		dev_dbg(dev,"no valid pm event: 0x%x\n", state.event);
+		dev_dbg(drv_dev,"no valid pm event: 0x%x\n", state.event);
 		break;
 	}
 
-	dev_info(dev,"char_driver_suspend(%p) finished \n", dev );
+	dev_info(drv_dev,"suspend finished\n");
 
 	return 0;
 }
@@ -240,7 +240,7 @@ char_driver_suspend(struct device *dev, pm_message_t state)
 static int
 char_driver_resume(struct device *dev)
 {
-	dev_info(dev, "char_driver_resume(%p) finished \n",dev);
+	dev_info(drv_dev, "resume(%p) finished\n", dev);
 
 	return 0;
 }
@@ -250,19 +250,10 @@ static int __init
 char_driver_init(void)
 {
 /*
- * - first get a device number
- * - alloc a driver object
- * - init driver object
- * - add driver object to kernel
- *
  * - create sysfs entry (/sys/devices/virtual/char_driver/char_driver)
  * - create /dev entry via udev (/etc/udev/rules/90-<modulename>.rules)
  *   entry -> KERNEL=="char_driver", MODE="0666"
- * -> see mydriver.git/udev
  */
-	pr_info("char_driver_init called\n");
-
-	/* get a device number */
 	if (alloc_chrdev_region(&dev_number, 0, 1, DRIVER_NAME) < 0)
 		return -EIO;
 
@@ -274,14 +265,14 @@ char_driver_init(void)
 	dev_object->ops = &fops;
 
 	if (cdev_add(dev_object, dev_number, 1)) {
-		pr_err("an error occured -> cdev_add()\n");
+		dev_err(drv_dev, "cdev_add\n");
 		goto free_cdev;
 	}
 
 	/* add sysfs/udev entry */
 	dev_class = class_create(THIS_MODULE, DRIVER_NAME);
 	if (IS_ERR(dev_class)) {
-		pr_err("an error occured -> class_create()\n");
+		dev_err(drv_dev, "class_create\n");
 		goto free_cdev;
 	}
 #ifdef CONFIG_PM
@@ -291,7 +282,7 @@ char_driver_init(void)
 	drv_dev = device_create(dev_class, NULL, dev_number, NULL, "%s",
 				DRIVER_NAME);
 	if (IS_ERR(drv_dev)) {
-		pr_err("an error occured -> device_create()\n");
+		dev_err(drv_dev, "device_create\n");
 		goto free_class;
 	}
 
@@ -312,8 +303,6 @@ free_dev_number:
 static void __exit
 char_driver_exit(void)
 {
-	dev_info(drv_dev, "char_driver_exit called\n");
-
 	device_destroy(dev_class, dev_number);
 	class_destroy(dev_class);
 
