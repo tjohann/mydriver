@@ -147,6 +147,8 @@ gpio_irq_driver_write(struct file *instance,
 	to_copy = min(count, sizeof(value));
 	not_copied = copy_from_user(&value, user, to_copy);
 
+	pr_info("in write: value:%d", value);
+
 	if (config_pin(value, &data) == -1)
 		return -EIO;
 
@@ -160,7 +162,7 @@ gpio_irq_driver_write(struct file *instance,
                 kfree(instance->private_data);
 
         } else {
-                pr_err("instance->private_data == NULL\n");
+                pr_err("gpio_*_write: instance->private_data == NULL\n");
         }
 
 	instance->private_data = (void *) data;
@@ -205,7 +207,7 @@ gpio_irq_driver_read(struct file *instance,
 
 		return to_copy - not_copied;
 	} else {
-		pr_err("instance->private_data == NULL");
+		pr_err("gpio_*_read: instance->private_data == NULL");
 		return -1;
 	}
 }
