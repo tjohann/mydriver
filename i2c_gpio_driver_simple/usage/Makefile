@@ -15,10 +15,10 @@ $(PROG): $(OBJ)
 	gcc -o $@ $^ $(CFLAGS)
 
 install: $(PROG)
-	install $(PROG) $(HOME)/bin/$(PROG)_i2c_gpio_driver
+	install $(PROG) $(HOME)/bin/$(PROG)_i2c_gpio_driver_simple
 
 uninstall:
-	rm -rf $(HOME)/bin/$(PROG)_i2c_gpio_driver
+	rm -rf $(HOME)/bin/$(PROG)_i2c_gpio_driver_simple
 
 clean:
 	rm -rf *~

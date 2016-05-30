@@ -5,11 +5,12 @@ This is a collection of different linux kernel driver templates:
 
 1. an absolute minimal driver
 2. char driver (use ioctl and write to define a new read buffer)
-3. i2c-gpio driver (PCF8574 based)
-4. gpio irq driver_simple (bind a PIN to an irq)
-5. gpio irq driver (use write to define PIN)
+3. i2c-gpio driver_simple (PCF8574 based)
+4. i2c-gpio driver (PCF8574 based with check of IRQ line)
+5. gpio irq driver_simple (bind a PIN to an irq)
+6. gpio irq driver (use write to define PIN)
 7. gpio driver (use ioctl to define PIN for read/write)
-9. spi driver (MAX7119 based)
+8. spi driver (MAX7119 based)
 
 It's an playground for different topics like I2C. Therefore i implement a userspace example based on what is already available within the kernel/userspace (like i2c-tools) and a driver with a specialized interface (and a example of how to use it). You find also schematics and pics about my test setup.
 
@@ -100,6 +101,16 @@ Example usage of the driver:
 State: finished
 
 
+The i2c-gpio driver (simple)
+----------------------------
+
+Simple driver to demonstrate the usage of an PCF8574 controlled via I2C.
+
+Used hardware: Bananapi-M1
+
+State: started
+
+
 The i2c-gpio driver
 ------------------
 
@@ -107,9 +118,16 @@ Basic for drivers like https://github.com/tjohann/pcf8574_gpio.git and https://g
 
 Feartures:
 	Dts config for intr, id and more
-	Intr handler for PIN13/IO-0/PI18 (IRQ line of pcf8574)
+	Intr handler for PIN13/IO-0/PI18 (IRQ line of PCF8574)
 	Read/write all pins (8 bit)
 	Using offset to read/write a bit position
+	Controll mapping of A20-GPIO to PCF8574-IRQ-line via ioctl
+
+Used defaults:
+
+2. PIN13 (IO-0/PI18) for input
+
+Used hardware: Bananapi-M1
 
 State: not started
 

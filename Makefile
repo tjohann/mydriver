@@ -5,6 +5,7 @@
 CLEAN = $(shell ls -d */ | cut -f1 -d'/')
 BUILD = char_driver 		\
 	i2c_gpio_driver 	\
+	i2c_gpio_driver_simple 	\
 	gpio_driver 		\
 	gpio_driver_new		\
 	gpio_irq_driver 	\
