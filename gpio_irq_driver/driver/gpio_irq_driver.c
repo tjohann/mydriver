@@ -87,6 +87,8 @@ config_pin(unsigned int pin, SD **data)
 		return -1;
 	}
 
+	pr_info("in config_pin: name: %s\n", name);
+	
 	memcpy(name, tmp_name, len);
 	name[len] = '\0';
 
@@ -123,13 +125,16 @@ config_pin(unsigned int pin, SD **data)
 free_instance:
 	kfree(*data);
 	*data = NULL;
+	pr_info("in config_pin: free_instance\n");
 
 free_pin:
 	gpio_free(pin);
+	pr_info("in config_pin: free_pin\n");
 
 free_name:
 	kfree(name);
-
+	pr_info("in config_pin: free_name\n");
+	
 	return -1;
 }
 
@@ -181,7 +186,7 @@ gpio_irq_driver_write(struct file *instance,
 	}
 
         /* some useful info  */
-        pr_info("gpio_irq_driver_ioctl values:\n");
+        pr_info("gpio_irq_driver_write values:\n");
         pr_info("name = %s\n", data->name);
         pr_info("pin = %d\n", data->pin);
         pr_info("irq = %d\n", data->gpio_irq);
