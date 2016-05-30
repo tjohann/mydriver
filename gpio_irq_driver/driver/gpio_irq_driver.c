@@ -116,6 +116,8 @@ config_pin(unsigned int pin, SD **data)
 	(*data)->gpio_irq = gpio_irq;
 	(*data)->pin = pin;
 
+	pr_info("config_pin finished\n");
+
 	return 0;
 
 free_instance:
@@ -147,7 +149,7 @@ gpio_irq_driver_write(struct file *instance,
 	to_copy = min(count, sizeof(value));
 	not_copied = copy_from_user(&value, user, to_copy);
 
-	pr_info("in write: value:%d", value);
+	pr_info("in write: value: %d\n", value);
 
 	if (config_pin(value, &data) == -1)
 		return -EIO;
@@ -162,7 +164,7 @@ gpio_irq_driver_write(struct file *instance,
                 kfree(instance->private_data);
 
         } else {
-                pr_err("gpio_*_write: instance->private_data == NULL\n");
+                pr_info("gpio_*_write: instance->private_data == NULL\n");
         }
 
 	instance->private_data = (void *) data;
@@ -234,7 +236,7 @@ gpio_irq_driver_close(struct inode *dev_node, struct file *instance)
 		kfree(data->name);
 		kfree(instance->private_data);
 	} else {
-		pr_info("instance->private_data == NULL\n");
+		pr_info("gpio_*_close: instance->private_data == NULL\n");
 	}
 
 	pr_info("gpio_irq_driver_closed finished cleanup\n");

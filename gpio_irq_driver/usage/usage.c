@@ -76,7 +76,7 @@ work_mode(int fd, unsigned int pin)
 		perror("write");
 		return -1;
 	} else {
-		printf("Wrote %d bytes\n", n);
+		printf("Wrote %d bytes\n", (int) n);
 	}
 
 	sleep(1);
