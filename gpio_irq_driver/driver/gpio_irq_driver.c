@@ -87,10 +87,10 @@ config_pin(unsigned int pin, SD **data)
 		return -1;
 	}
 
-	pr_info("in config_pin: name: %s\n", name);
-	
 	memcpy(name, tmp_name, len);
 	name[len] = '\0';
+
+	pr_info("in config_pin: name: %s\n", name);
 
 	err = gpio_request(pin, name);
 	if (err) {
@@ -110,6 +110,7 @@ config_pin(unsigned int pin, SD **data)
 		goto free_pin;
 	}
 
+	pr_info("used pin: %d", pin);
 	gpio_irq = gpio_to_irq(pin);
 	if (gpio_irq < 0)
 		goto free_instance;
