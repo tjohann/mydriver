@@ -29,8 +29,6 @@
 #include <linux/sched.h>
 #include <linux/slab.h>
 
-#include "../common.h"
-
 #define DRIVER_NAME "gpio_irq_driver"
 
 static dev_t dev_number;

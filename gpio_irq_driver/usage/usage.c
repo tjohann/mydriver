@@ -30,12 +30,10 @@
 #include <stdbool.h>
 #include <time.h>
 
-/* common defines for driver and usage */
-#include "../common.h"
-
 #define DEV_NAME "/dev/gpio_irq_driver"
-#define MAX_LINE 256
+#define DEF_PIN_READ  244
 
+#define MAX_LINE 256
 
 static void
 __attribute__((noreturn)) usage(void)
@@ -68,12 +66,15 @@ work_mode(int fd, unsigned int pin)
         size_t len = sizeof(value);
         ssize_t n = 0;
 
-	if (pin != 0) {
-		n = write(fd, &pin, sizeof(unsigned int));
-		if (n == -1) {
-			perror("write");
-			return -1;
-		}
+	if (pin == 0)
+		pin = DEF_PIN_READ;
+
+	printf("Use pin %d\n", pin);
+
+	n = write(fd, &pin, sizeof(unsigned int));
+	if (n == -1) {
+		perror("write");
+		return -1;
 	}
 
 	sleep(1);
@@ -107,8 +108,6 @@ main(int argc, char *argv[])
 			usage();
 		}
 	}
-
-	printf("Used pin %d\n", pin);
 
 	int fd = open_device();
 	if (fd == -1)

@@ -22,8 +22,6 @@
 #ifndef _COMMON_H_
 #define _COMMON_H_
 
-#define IOCTL_SET_READ_PIN  0x0002
-
 #define DEF_PIN_READ  244
 
 #endif
