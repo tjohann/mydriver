@@ -182,9 +182,11 @@ Usage:
 
 Note: The driver configured the default pin after open. So to use more than one instance you have to use ioctl to change the pin.
 
-State: finished
+Example usage of the driver:
 
 ![Alt text](pics/gpio_driver_02.png?raw=true "Gpio-driver in action")
+
+State: finished
 
 
 The gpio driver (new)
@@ -253,7 +255,12 @@ The gpio test environment:
 
 ![Alt text](pics/gpio_led_04.jpg?raw=true "GPIO-LED and switch")
 
-![Alt text](pics/gpio_input.jpg?raw=true "GPIO-Switches")
+
+The gpio IRQ test environment:
+
+![Alt text](pics/gpio_irq_input_env_02.jpg?raw=true "GPIO-Switches")
+
+![Alt text](pics/gpio_input_02.jpg?raw=true "GPIO-Switches")
 
 
 Schematics
