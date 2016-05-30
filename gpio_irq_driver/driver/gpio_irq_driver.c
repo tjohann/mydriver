@@ -112,8 +112,10 @@ config_pin(unsigned int pin, SD **data)
 
 	pr_info("used pin: %d", pin);
 	gpio_irq = gpio_to_irq(pin);
-	if (gpio_irq < 0)
+	if (gpio_irq < 0) {
+		pr_err("gpio_to_irq %d\n", gpio_irq);
 		goto free_instance;
+	}
 
 	(*data)->name = name;
 	(*data)->gpio_irq = gpio_irq;
@@ -126,16 +128,13 @@ config_pin(unsigned int pin, SD **data)
 free_instance:
 	kfree(*data);
 	*data = NULL;
-	pr_info("in config_pin: free_instance\n");
 
 free_pin:
 	gpio_free(pin);
-	pr_info("in config_pin: free_pin\n");
 
 free_name:
 	kfree(name);
-	pr_info("in config_pin: free_name\n");
-	
+
 	return -1;
 }
 
