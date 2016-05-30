@@ -55,7 +55,7 @@ __attribute__((noreturn)) usage(void)
 	fprintf(stdout, "Examples:                                     \n");
 	fprintf(stdout, "       ./usage -r (read from default pin)     \n");
 	fprintf(stdout, "       ./usage -w (write to default pin)      \n");
-	fprintf(stdout, "       ./usage -w - 123 (write to pin 123)   \n");
+	fprintf(stdout, "       ./usage -w -p 123 (write to pin 123)   \n");
 	fprintf(stdout, "       ./usage -rp 321 (read from pin 321)    \n");
 
 	exit(EXIT_FAILURE);

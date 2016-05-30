@@ -3,15 +3,13 @@ My template drivers
 
 This is a collection of different linux kernel driver templates:
 
-  an absolute minimal driver
-  char driver
-  i2c-gpio driver
-  gpio irq driver_simple (int based)
-  gpio irq driver (int based)
-  gpio irq driver (fd based)
-  gpio driver (int based)
-  gpio driver (fd based)
-  spi driver
+1. an absolute minimal driver
+2. char driver (use ioctl and write to define a new read buffer)
+3. i2c-gpio driver (PCF8574 based)
+4. gpio irq driver_simple (bind a PIN to an irq)
+5. gpio irq driver (use write to define PIN)
+7. gpio driver (use ioctl to define PIN for read/write)
+9. spi driver (MAX7119 based)
 
 It's an playground for different topics like I2C. Therefore i implement a userspace example based on what is already available within the kernel/userspace (like i2c-tools) and a driver with a specialized interface (and a example of how to use it). You find also schematics and pics about my test setup.
 
@@ -99,7 +97,6 @@ Example usage of the driver:
 
 ![Alt text](Documentation/char_driver_usage.png?raw=true "Usage of driver")
 
-
 State: finished
 
 
@@ -120,9 +117,13 @@ State: not started
 The gpio irq driver (simple)
 ----------------------------
 
-Simple(st) driver to show the usage of an IRQ connected PIN (PIN13/IO-0/PI18 -> bananapi-m1). Used default value:
+Simple(st) driver to show the usage of an IRQ connected PIN (PIN13/IO-0/PI18 -> bananapi-m1).
+
+Used defaults:
 
 1. PIN16 (IO-4/PH20) for input
+
+The driver doesn't support more than one instance and it uses only the default PIN.
 
 State: finished
 
@@ -130,13 +131,20 @@ State: finished
 The gpio irq driver
 -------------------
 
-An int based driver to show the usage of an IRQ connected PIN (PIN13/IO-0/PI18 -> bananapi-m1). Used default value:
+An int based driver to show the usage of an IRQ connected PIN (PIN16/IO-4/PI20 -> bananapi-m1). Via write syscall you have to define a input PIN, otherwise it will use the defaults.
+
+Used defaults:
 
 1. PIN16 (IO-4/PH20) for input
 
-Via ioctl syscall you can change the PIN for input.
+Used hardware: Bananapi-M1
 
-State: debugging/testing (finished)
+Usage:
+
+	usage_gpio_irq_driver (read from default pin)
+	usage_gpio_irq_driver -p 123 (read from to pin 123)
+
+State: nearly finished
 
 
 The gpio irq driver (new)
@@ -150,22 +158,33 @@ State: not started
 The gpio driver
 ---------------
 
-Simple (int based) driver to show the usage of gpio for read and write from a PIN. I use a bananapi-m1 as test hardware.
+Simple (int based) driver to show the usage of gpio for read and write from a PIN. Via ioctl syscall you can change the PIN for in/output. It doesn't bind a PIN to an IRQ!
 
-Used default values:
+Used defaults:
 
 1. PIN11 (IO-0/PI19) for output
 2. PIN13 (IO-0/PI18) for input
 
-Via ioctl syscall you can change the PIN for in/output.
+Used hardware: Bananapi-M1
+
+Usage:
+
+	usage_gpio_driver -r (read from default pin)
+	usage_gpio_driver -w (write to default pin)
+	usage_gpio_driver -rp 321 (read from pin 321)
+	usage_gpio_driver -w -p 123 (write to pin 123)
+
+Note: The driver configured the default pin after open. So to use more than one instance you have to use ioctl to change the pin.
 
 State: finished
+
+![Alt text](pics/gpio_driver_02.png?raw=true "Gpio-driver in action")
 
 
 The gpio driver (new)
 ---------------------
 
-Simple (fd based) driver to show the usage of gpio for read and write from a PIN. It behaves in the same way like gpio_driver, but it uses the new file descriptor gpio framework of the kernel
+Simple (fd based) driver to show the usage of gpio for read and write from a PIN. It behaves in the same way like gpio_driver, but it uses the new file descriptor gpio framework of the kernel.
 
 State: not started
 
@@ -224,11 +243,11 @@ Here you find some pictures of the wiring and my test setup.
 
 The gpio test environment:
 
-![Alt text](pics/overview_05.jpg?raw=true "Overview of GPIO-Environment")
+![Alt text](pics/overview_06.jpg?raw=true "Overview of GPIO-Environment")
 
-![Alt text](pics/gpio_led_04.jpg?raw=true "GPIO-LED")
+![Alt text](pics/gpio_led_04.jpg?raw=true "GPIO-LED and switch")
 
-![Alt text](pics/gpio_driver_02.png?raw=true "Gpio-driver in action")
+![Alt text](pics/gpio_input.jpg?raw=true "GPIO-Switches")
 
 
 Schematics
