@@ -46,7 +46,7 @@ MODULE_DEVICE_TABLE(i2c, pcf8574_idtable);
 
 // start with 0x20
 static struct i2c_board_info info_20 = {
-    I2C_BOARD_INFO("pcf8574", 0x26),
+    I2C_BOARD_INFO("pcf8574", 0x27),
 };
 
 static ssize_t
