@@ -1,5 +1,5 @@
 /*
- * gpio_driver.c -> simple template driver
+ * i2c_gpio_driver_simple.c -> simple template driver
  *
  * GPL
  * (c) 2016, thorsten.johannvorderbrueggen@t-online.de
@@ -38,14 +38,15 @@ static struct i2c_client *slave;
 
 
 static struct i2c_device_id pcf8574_idtable[] = {
-        { "pcf8574", 0 }, { }
+        { "pcf8574", 0 },
+	{ }
 };
 
 MODULE_DEVICE_TABLE(i2c, pcf8574_idtable);
 
 // start with 0x20
 static struct i2c_board_info info_20 = {
-    I2C_BOARD_INFO("pcf8574", 0x20),
+    I2C_BOARD_INFO("pcf8574", 0x26),
 };
 
 static ssize_t
@@ -79,17 +80,13 @@ gpio_driver_write(struct file *instance,
 {
 	unsigned long not_copied;
 	unsigned long to_copy;
-	char value;
-	char buf;
+	unsigned char value;
 
 	to_copy = min(count, sizeof(value));
 	not_copied = copy_from_user(&value, user, to_copy);
 	to_copy -= not_copied;
 
-        /* TODO: check */
-
-	buf = value;
-	i2c_master_send(slave, &buf, 1);
+	i2c_master_send(slave, &value, sizeof(value));
 
 	return to_copy;
 }
@@ -98,16 +95,22 @@ static int
 pcf8574_probe(struct i2c_client *client,
 	      const struct i2c_device_id *id)
 {
-	/* char buf; */
+	unsigned char value = 0x00;
 
 	dev_info(drv_dev, "pcf8574_probe\n");
 
-        /*
-	   TODO: content:
+	pr_info("client %p\n", client);
+	pr_info("client->addr %d", client->addr);
+	pr_info("id %p\n", id);
+	pr_info("id->name %s\n", id->name);
 
-	   buf = 0x00;
-	   i2c_master_send(client, buf, 1);
-	*/
+
+	if(client->addr != 0x26)
+		pr_info("client->addr != 0x26\n");
+
+	slave = client;
+
+	i2c_master_recv(slave, &value, sizeof(value));
 
 	return 0;
 }
