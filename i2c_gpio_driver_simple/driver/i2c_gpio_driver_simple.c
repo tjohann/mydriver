@@ -26,7 +26,7 @@
 #include <asm/uaccess.h>
 #include <linux/i2c.h>
 
-#define DRIVER_NAME "i2_gpio_driver"
+#define DRIVER_NAME "i2c_gpio_driver"
 
 static dev_t pcf8574_dev_number;
 static struct cdev *pcf8574_object;
@@ -111,6 +111,8 @@ pcf8574_probe(struct i2c_client *client,
 	slave = client;
 
 	i2c_master_recv(slave, &value, sizeof(value));
+
+	pr_info("read %d\n", value);
 
 	return 0;
 }
