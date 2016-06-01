@@ -255,7 +255,7 @@ static struct file_operations fops = {
 	.read = gpio_irq_driver_read,
 	.write = gpio_irq_driver_write,
 	.open = gpio_irq_driver_open,
-	.release = gpio_irq_driver_close,
+	.release = gpio_irq_driver_close
 };
 
 static int __init

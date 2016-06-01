@@ -38,14 +38,15 @@ static struct i2c_client *slave;
 
 
 static struct i2c_device_id pcf8574_idtable[] = {
-        { "pcf8574", 0 }, { }
+        { "pcf8574", 0 },
+	{ }
 };
 
 MODULE_DEVICE_TABLE(i2c, pcf8574_idtable);
 
 // start with 0x20
 static struct i2c_board_info info_20 = {
-    I2C_BOARD_INFO("pcf8574", 0x20),
+    I2C_BOARD_INFO("pcf8574", 0x27),
 };
 
 static ssize_t
@@ -79,35 +80,72 @@ gpio_driver_write(struct file *instance,
 {
 	unsigned long not_copied;
 	unsigned long to_copy;
-	char value;
-	char buf;
+	unsigned char value;
 
 	to_copy = min(count, sizeof(value));
 	not_copied = copy_from_user(&value, user, to_copy);
 	to_copy -= not_copied;
 
-        /* TODO: check */
-
-	buf = value;
-	i2c_master_send(slave, &buf, 1);
+	i2c_master_send(slave, &value, sizeof(value));
 
 	return to_copy;
 }
 
 static int
+gpio_driver_open(struct inode *dev_node, struct file *instance)
+{
+	dev_info(drv_dev, "open called\n");
+
+	return 0;
+}
+
+static int
+gpio_driver_close(struct inode *dev_node, struct file *instance)
+{
+	dev_info(drv_dev, "close finished\n");
+
+	return 0;
+}
+
+static long
+gpio_driver_ioctl(struct file *instance, unsigned int cmd,
+		  unsigned long __user arg)
+{
+
+	return 0;
+}
+
+static struct file_operations fops = {
+	.owner= THIS_MODULE,
+	.write= gpio_driver_write,
+	.read = gpio_driver_read,
+	.unlocked_ioctl = gpio_driver_ioctl,
+	.open = gpio_driver_open,
+	.release = gpio_driver_close
+};
+
+static int
 pcf8574_probe(struct i2c_client *client,
 	      const struct i2c_device_id *id)
 {
-	/* char buf; */
+	unsigned char value = 0x00;
 
 	dev_info(drv_dev, "pcf8574_probe\n");
 
-        /*
-	   TODO: content:
+	pr_info("client %p\n", client);
+	pr_info("client->addr %d", client->addr);
+	pr_info("id %p\n", id);
+	pr_info("id->name %s\n", id->name);
 
-	   buf = 0x00;
-	   i2c_master_send(client, buf, 1);
-	*/
+
+	if(client->addr != 0x26)
+		pr_info("client->addr != 0x26\n");
+
+	slave = client;
+
+	i2c_master_recv(slave, &value, sizeof(value));
+
+	pr_info("read %d\n", value);
 
 	return 0;
 }
@@ -120,12 +158,6 @@ pcf8574_remove(struct i2c_client *client)
 	return 0;
 }
 
-static struct file_operations fops = {
-	.owner= THIS_MODULE,
-	.write= gpio_driver_write,
-	.read = gpio_driver_read,
-};
-
 static struct i2c_driver pcf8574_driver = {
         .driver = {
                 .name   = "pcf8574",
@@ -136,7 +168,7 @@ static struct i2c_driver pcf8574_driver = {
 };
 
 static int __init
-gpio_driver_init(void)
+i2c_gpio_driver_init(void)
 {
 	pr_info("char_driver_init called\n");
 
@@ -207,7 +239,7 @@ free_dev_number:
 }
 
 static void __exit
-gpio_driver_exit(void)
+i2c_gpio_driver_exit(void)
 {
 	device_destroy(pcf8574_class, pcf8574_dev_number);
 	class_destroy(pcf8574_class );
@@ -221,8 +253,8 @@ gpio_driver_exit(void)
 	return;
 }
 
-module_init(gpio_driver_init);
-module_exit(gpio_driver_exit);
+module_init(i2c_gpio_driver_init);
+module_exit(i2c_gpio_driver_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("pcf8574 gpio - simple template driver");

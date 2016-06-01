@@ -134,7 +134,7 @@ static struct file_operations fops = {
 	.owner = THIS_MODULE,
 	.read = gpio_irq_driver_read,
 	.open = gpio_irq_driver_open,
-	.release = gpio_irq_driver_close,
+	.release = gpio_irq_driver_close
 };
 
 static int __init

@@ -279,7 +279,7 @@ static struct file_operations fops = {
 	.write = gpio_driver_write,
 	.open = gpio_driver_open,
 	.unlocked_ioctl = gpio_driver_ioctl,
-	.release = gpio_driver_close,
+	.release = gpio_driver_close
 };
 
 static int __init

@@ -206,7 +206,7 @@ static struct file_operations fops = {
 	.write = char_driver_write,
 	.open = char_driver_open,
 	.unlocked_ioctl = char_driver_ioctl,
-	.release = char_driver_close,
+	.release = char_driver_close
 };
 
 
