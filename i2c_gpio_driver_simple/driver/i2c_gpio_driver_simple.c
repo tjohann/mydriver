@@ -25,29 +25,28 @@
 #include <linux/device.h>
 #include <asm/uaccess.h>
 #include <linux/i2c.h>
+#include <linux/slab.h>
 
-#define DRIVER_NAME "i2c_gpio_driver"
+#define DRIVER_NAME "i2c_gpio_driver_simple"
+
+#define WRITE_PORT 0x01
+#define READ_PORT  0x02
 
 static dev_t pcf8574_dev_number;
 static struct cdev *pcf8574_object;
 struct class *pcf8574_class;
 static struct device *drv_dev;
 
-static struct i2c_adapter *adapter;
-static struct i2c_client *slave;
-
-
-static struct i2c_device_id pcf8574_idtable[] = {
-        { "pcf8574", 0 },
-	{ }
+struct _instance_data {
+	struct i2c_client *slave;
+	struct i2c_adapter *adapter;
+	int pin_irq;
+	int gpio_irq;
+	int adapter_nr;
+	unsigned short addr;
+	unsigned char direction;
 };
-
-MODULE_DEVICE_TABLE(i2c, pcf8574_idtable);
-
-// start with 0x20
-static struct i2c_board_info info_20 = {
-    I2C_BOARD_INFO("pcf8574", 0x27),
-};
+#define SD struct _instance_data
 
 static ssize_t
 gpio_driver_read(struct file *instance,
@@ -94,7 +93,41 @@ gpio_driver_write(struct file *instance,
 static int
 gpio_driver_open(struct inode *dev_node, struct file *instance)
 {
-	dev_info(drv_dev, "open called\n");
+	SD *data = NULL;
+
+	int accmode = (instance->f_flags & O_ACCMODE);
+	bool read_mode  = (accmode == O_RDONLY);
+	bool write_mode = (accmode == O_WRONLY);
+
+	if (!read_mode && !write_mode) {
+		dev_err(drv_dev, "only O_RDONLY or O_WRONLY allowed\n");
+		return -EIO;
+	}
+
+	if (write_mode)
+		pr_info("write mode");
+
+	if (read_mode)
+		pr_info("read mode");
+
+	data = (SD *) kmalloc(sizeof(SD), GFP_USER);
+	if (data == NULL) {
+		dev_err(drv_dev, "kmalloc\n");
+		return -EIO;
+	}
+	memset(data, 0, sizeof(SD));
+
+	if (write_mode) {
+		data->direction = WRITE_PORT;
+		pr_info("write mode");
+	}
+
+	if (read_mode) {
+		data->direction = READ_PORT;
+		pr_info("read mode");
+	}
+
+	instance->private_data = (void *) data;
 
 	return 0;
 }
@@ -102,7 +135,22 @@ gpio_driver_open(struct inode *dev_node, struct file *instance)
 static int
 gpio_driver_close(struct inode *dev_node, struct file *instance)
 {
-	dev_info(drv_dev, "close finished\n");
+	SD *data = NULL;
+
+	if (instance->private_data) {
+		data = (SD *) instance->private_data;
+
+		if (data->slave)
+			i2c_unregister_device(data->slave);
+
+		/*
+		 *  free i2c device
+		 */
+
+		kfree(instance->private_data);
+	} else {
+		dev_err(drv_dev, "close: instance->private_data == NULL\n");
+	}
 
 	return 0;
 }
@@ -111,6 +159,30 @@ static long
 gpio_driver_ioctl(struct file *instance, unsigned int cmd,
 		  unsigned long __user arg)
 {
+
+
+	/*	adapter = i2c_get_adapter(1);
+	if (adapter==NULL) {
+		dev_err(drv_dev, "i2c_get_adapter\n");
+		goto free_i2c_driver;
+	}
+
+	slave = i2c_new_device(adapter, &info_20);
+	if (slave==NULL) {
+		dev_err(drv_dev, "i2c_new_device\n");
+		goto free_i2c_driver;
+	}
+
+	return 0;
+
+free_i2c_driver:
+	i2c_del_driver(&pcf8574_driver);
+
+	dev_info(drv_dev, "close finished\n");
+
+	return -EIO; */
+
+
 
 	return 0;
 }
@@ -137,7 +209,6 @@ pcf8574_probe(struct i2c_client *client,
 	pr_info("id %p\n", id);
 	pr_info("id->name %s\n", id->name);
 
-
 	if(client->addr != 0x26)
 		pr_info("client->addr != 0x26\n");
 
@@ -157,6 +228,13 @@ pcf8574_remove(struct i2c_client *client)
 
 	return 0;
 }
+
+
+static struct i2c_device_id pcf8574_idtable[] = {
+        { "pcf8574", 0 },
+	{ }
+};
+MODULE_DEVICE_TABLE(i2c, pcf8574_idtable);
 
 static struct i2c_driver pcf8574_driver = {
         .driver = {
@@ -207,23 +285,7 @@ i2c_gpio_driver_simple_init(void)
 		goto free_class;
 	}
 
-	/* TODO: check adapter number */
-	adapter = i2c_get_adapter(1);
-	if (adapter==NULL) {
-		dev_err(drv_dev, "i2c_get_adapter\n");
-		goto free_i2c_driver;
-	}
-
-	slave = i2c_new_device(adapter, &info_20);
-	if (slave==NULL) {
-		dev_err(drv_dev, "i2c_new_device\n");
-		goto free_i2c_driver;
-	}
-
 	return 0;
-
-free_i2c_driver:
-	i2c_del_driver(&pcf8574_driver);
 
 free_class:
 	device_destroy(pcf8574_class, pcf8574_dev_number);
@@ -247,7 +309,10 @@ i2c_gpio_driver_simple_exit(void)
 	cdev_del(pcf8574_object);
 	unregister_chrdev_region(pcf8574_dev_number, 1);
 
-	i2c_unregister_device( slave );
+	/*
+	 * Has to be done by close:
+	 * i2c_unregister_device(slave);
+	 */
 	i2c_del_driver(&pcf8574_driver);
 
 	return;

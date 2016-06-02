@@ -94,6 +94,8 @@ config_pin(int pin, bool write_pin, SD **data)
 		goto free_pin;
 	}
 
+	memset(*data, 0, sizeof(SD));
+
 	(*data)->name = name;
 	(*data)->pin = pin;
 
