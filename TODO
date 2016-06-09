@@ -2,6 +2,23 @@
 # TODO
 #
 
+
+#
+# -------------- 2016-06-08 ----------------------------------------------------
+#
+
+## char_driver
+- add NON_BLOCKING handling
+
+## i2c_gpio_driver
+- add irq handling via gpio pin
+
+## i2c_gpio_driver_simple
+- make error handling of kernel functions via macro
+
+## device_tree_driver
+- add simple driver which uses OF for input
+
 #
 # -------------- 2016-05-30 ----------------------------------------------------
 #
@@ -37,6 +54,8 @@
 ## gpio_driver
 - working gpio_driver                                       [2016-05-15 -> done]
 - add dts support for gpio_driver (in + out PIN)
+
+## gpio_driver_new
 - add descriptor based gpio driver
 
 ## gpio_irq_driver
@@ -57,7 +76,7 @@
 - add support for ioctl in char_driver (Idea switch        [2016-05-xx -> done]
   between different strings for read)
 
-## i2c_gpio_driver
+## i2c_gpio_driver                                    [2016-06-08 -> chanceled]
 driver part:
 - add dts config
 - add irq handler -> PIN13(!INT)
@@ -65,7 +84,8 @@ driver part:
 - driver_read and driver_write read/write only one bit
   - add offset handling for read/write -> offset for bit position
 - add /dev entry for every bit on P0...P7
-userspace example:
+
+## userspace example:
 - add userspace example code                                [2016-05-xx -> done]
 
 

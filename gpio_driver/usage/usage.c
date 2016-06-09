@@ -83,6 +83,7 @@ open_device(unsigned char mode)
 	}
 
 error:
+	fprintf(stderr, "could not open %s\n", DEV_NAME);
 	return -1;
 }
 

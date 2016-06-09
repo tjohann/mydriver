@@ -27,10 +27,14 @@
 #include <linux/i2c.h>
 #include <linux/slab.h>
 
-#define DRIVER_NAME "i2c_gpio_driver_simple"
+#include "../common.h"
 
 #define WRITE_PORT 0x01
 #define READ_PORT  0x02
+
+static int pcf8574_probe(struct i2c_client *client,
+			 const struct i2c_device_id *id);
+static int pcf8574_remove(struct i2c_client *client);
 
 static dev_t pcf8574_dev_number;
 static struct cdev *pcf8574_object;
@@ -40,7 +44,7 @@ static struct device *drv_dev;
 struct _instance_data {
 	struct i2c_client *slave;
 	struct i2c_adapter *adapter;
-	int pin_irq;
+	unsigned int pin_irq;
 	int gpio_irq;
 	int adapter_nr;
 	unsigned short addr;
@@ -48,46 +52,99 @@ struct _instance_data {
 };
 #define SD struct _instance_data
 
+static struct i2c_device_id pcf8574_idtable[] = {
+        { "pcf8574_simple", 0 },
+	{ }
+};
+MODULE_DEVICE_TABLE(i2c, pcf8574_idtable);
+
+static struct i2c_driver pcf8574_driver = {
+        .driver = {
+                .name   = "pcf8574_simple",
+        },
+        .id_table       = pcf8574_idtable,
+        .probe          = pcf8574_probe,
+        .remove         = pcf8574_remove,
+};
+
 static ssize_t
 gpio_driver_read(struct file *instance,
 		 char __user *user, size_t count, loff_t *offset)
 {
-	unsigned long not_copied;
-	unsigned long to_copy;
-	char value;
-	/*char command; */
+	int not_recv;
+	unsigned char value;
 
-	dev_info(drv_dev, "gpio_driver_read\n");
+	SD *data = NULL;
 
-	/*
-	   TODO: content:
+	if (!instance->private_data) {
+		dev_err(drv_dev, "read: instance->private_data == NULL\n");
+		return -EFAULT;
+	}
 
-	   command = 0x00;
-	   i2c_master_send(slave, &command, 1);
-	   i2c_master_recv(slave, &value, 1);
-	*/
+	data = (SD *) instance->private_data;
+	if (data->direction != READ_PORT) {
+		dev_err(drv_dev, "device not opened for read\n");
+		return -EFAULT;
+	}
 
-	to_copy = min(count, sizeof(value));
-	not_copied = copy_to_user(user, &value, to_copy);
+	if (!data->slave) {
+		dev_err(drv_dev, "no valid slave pointer\n");
+		return -EFAULT;
+	}
 
-	return to_copy - not_copied;
+	not_recv = i2c_master_recv(data->slave, &value, sizeof(value));
+	if (not_recv < 0) {
+		dev_err(drv_dev, "i2c_master_recv\n");
+		return -EFAULT;
+	}
+
+	if (put_user(value, (unsigned char __user *) user)) {
+		dev_err(drv_dev, "could not copy to userspace\n");
+		return -EFAULT;
+	}
+
+	return 0;
 }
 
 static ssize_t
 gpio_driver_write(struct file *instance,
 		  const char __user *user, size_t count, loff_t *offset)
 {
-	unsigned long not_copied;
-	unsigned long to_copy;
+	int not_send;
 	unsigned char value;
 
-	to_copy = min(count, sizeof(value));
-	not_copied = copy_from_user(&value, user, to_copy);
-	to_copy -= not_copied;
+	SD *data = NULL;
 
-	i2c_master_send(slave, &value, sizeof(value));
+	if (!instance->private_data) {
+		dev_err(drv_dev, "write: instance->private_data == NULL\n");
+		return -EFAULT;
+	}
 
-	return to_copy;
+	data = (SD *) instance->private_data;
+	if (data->direction != WRITE_PORT) {
+		dev_err(drv_dev, "device not opened for write\n");
+		return -EFAULT;
+	}
+
+	if (!data->slave) {
+		dev_err(drv_dev, "no valid slave pointer\n");
+		return -EFAULT;
+	}
+
+	if (get_user(value, (unsigned char __user *) user)) {
+		dev_err(drv_dev, "could not copy from userspace\n");
+		return -EFAULT;
+	}
+
+	dev_info(drv_dev, "got %d from userspace\n", value);
+
+	not_send = i2c_master_send(data->slave, &value, sizeof(value));
+	if (not_send < 0) {
+		dev_err(drv_dev, "i2c_master_send\n");
+		return -EFAULT;
+	}
+
+	return 0;
 }
 
 static int
@@ -104,12 +161,6 @@ gpio_driver_open(struct inode *dev_node, struct file *instance)
 		return -EIO;
 	}
 
-	if (write_mode)
-		pr_info("write mode");
-
-	if (read_mode)
-		pr_info("read mode");
-
 	data = (SD *) kmalloc(sizeof(SD), GFP_USER);
 	if (data == NULL) {
 		dev_err(drv_dev, "kmalloc\n");
@@ -117,15 +168,13 @@ gpio_driver_open(struct inode *dev_node, struct file *instance)
 	}
 	memset(data, 0, sizeof(SD));
 
-	if (write_mode) {
+	if (write_mode)
 		data->direction = WRITE_PORT;
-		pr_info("write mode");
-	}
 
-	if (read_mode) {
+	if (read_mode)
 		data->direction = READ_PORT;
-		pr_info("read mode");
-	}
+
+	dev_info(drv_dev, "direction %d\n", data->direction);
 
 	instance->private_data = (void *) data;
 
@@ -143,13 +192,10 @@ gpio_driver_close(struct inode *dev_node, struct file *instance)
 		if (data->slave)
 			i2c_unregister_device(data->slave);
 
-		/*
-		 *  free i2c device
-		 */
-
 		kfree(instance->private_data);
 	} else {
 		dev_err(drv_dev, "close: instance->private_data == NULL\n");
+		return -EFAULT;
 	}
 
 	return 0;
@@ -159,32 +205,62 @@ static long
 gpio_driver_ioctl(struct file *instance, unsigned int cmd,
 		  unsigned long __user arg)
 {
+	struct client_config __user user_data;
+	SD *data = NULL;
 
-
-	/*	adapter = i2c_get_adapter(1);
-	if (adapter==NULL) {
-		dev_err(drv_dev, "i2c_get_adapter\n");
-		goto free_i2c_driver;
+	if (!instance->private_data) {
+		dev_err(drv_dev, "ioctl: instance->private_data == NULL\n");
+		return -1;
 	}
 
-	slave = i2c_new_device(adapter, &info_20);
-	if (slave==NULL) {
-		dev_err(drv_dev, "i2c_new_device\n");
-		goto free_i2c_driver;
+	data = (SD *) instance->private_data;
+
+	switch (cmd) {
+	case IOCTL_SET_I2C_CLIENT:
+		if (copy_from_user(&user_data,
+				   (struct client_config __user *) arg,
+				   sizeof(struct client_config)))
+			return -EFAULT;
+
+		dev_info(drv_dev, "addr: 0x%x\n", user_data.addr);
+		dev_info(drv_dev, "adapter_nr: %d\n", user_data.adapter_nr);
+		dev_info(drv_dev, "IRQ - pin %d\n", user_data.pin_irq);
+
+		struct i2c_board_info info = {
+			I2C_BOARD_INFO("pcf8574_simple", user_data.addr),
+		};
+
+		data->adapter = i2c_get_adapter(user_data.adapter_nr);
+		if (data->adapter == NULL)
+			goto error;
+
+		data->slave = i2c_new_device(data->adapter, &info);
+		if (data->slave == NULL)
+			goto error;
+
+		if (data->direction == READ_PORT) {
+			dev_info(drv_dev, "IRQ handler for PIN %d\n",
+				 user_data.pin_irq);
+			data->pin_irq = user_data.pin_irq;
+		}
+
+		data->addr = user_data.addr;
+		data->adapter_nr = user_data.adapter_nr;
+		if (data->direction == READ_PORT)
+			data->pin_irq = user_data.pin_irq;
+
+		break;
+	default:
+		dev_err(drv_dev, "unknown ioctl 0x%x\n", cmd);
+		return -EINVAL;
 	}
 
 	return 0;
-
-free_i2c_driver:
+error:
+	dev_err(drv_dev, "i2c_new_device or i2c_get_adapter\n");
 	i2c_del_driver(&pcf8574_driver);
 
-	dev_info(drv_dev, "close finished\n");
-
-	return -EIO; */
-
-
-
-	return 0;
+	return -EFAULT;
 }
 
 static struct file_operations fops = {
@@ -200,23 +276,10 @@ static int
 pcf8574_probe(struct i2c_client *client,
 	      const struct i2c_device_id *id)
 {
-	unsigned char value = 0x00;
-
-	dev_info(drv_dev, "pcf8574_probe\n");
-
-	pr_info("client %p\n", client);
-	pr_info("client->addr %d", client->addr);
-	pr_info("id %p\n", id);
-	pr_info("id->name %s\n", id->name);
-
-	if(client->addr != 0x26)
-		pr_info("client->addr != 0x26\n");
-
-	slave = client;
-
-	i2c_master_recv(slave, &value, sizeof(value));
-
-	pr_info("read %d\n", value);
+	dev_info(drv_dev, "client %p\n", client);
+	dev_info(drv_dev, "client->addr 0x%x", client->addr);
+	dev_info(drv_dev, "id %p\n", id);
+	dev_info(drv_dev, "id->name %s\n", id->name);
 
 	return 0;
 }
@@ -225,30 +288,13 @@ static int
 pcf8574_remove(struct i2c_client *client)
 {
 	dev_info(drv_dev, "pcf8574_remove\n");
-
 	return 0;
 }
-
-
-static struct i2c_device_id pcf8574_idtable[] = {
-        { "pcf8574", 0 },
-	{ }
-};
-MODULE_DEVICE_TABLE(i2c, pcf8574_idtable);
-
-static struct i2c_driver pcf8574_driver = {
-        .driver = {
-                .name   = "pcf8574",
-        },
-        .id_table       = pcf8574_idtable,
-        .probe          = pcf8574_probe,
-        .remove         = pcf8574_remove,
-};
 
 static int __init
 i2c_gpio_driver_simple_init(void)
 {
-	pr_info("char_driver_init called\n");
+	pr_info("i2c_gpio_driver_simple_init called\n");
 
 	if (alloc_chrdev_region(&pcf8574_dev_number, 0, 1, DRIVER_NAME) < 0)
 		return -EIO;
@@ -309,10 +355,6 @@ i2c_gpio_driver_simple_exit(void)
 	cdev_del(pcf8574_object);
 	unregister_chrdev_region(pcf8574_dev_number, 1);
 
-	/*
-	 * Has to be done by close:
-	 * i2c_unregister_device(slave);
-	 */
 	i2c_del_driver(&pcf8574_driver);
 
 	return;

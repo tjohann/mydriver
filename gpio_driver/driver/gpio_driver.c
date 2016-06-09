@@ -66,7 +66,7 @@ config_pin(int pin, bool write_pin, SD **data)
 	name = (char *) kmalloc(len, GFP_USER);
 	if (name == NULL) {
 		dev_err(drv_dev, "kmalloc in config_pin\n");
-		return -1;
+		return -ENOMEM;
 	}
 
 	memcpy(name, tmp_name, len);

@@ -90,7 +90,7 @@ config_pin(unsigned int pin, SD **data)
 	name = (char *) kmalloc(len, GFP_USER);
 	if (name == NULL) {
 		pr_err("kmalloc in config_pin\n");
-		return -1;
+		return -ENOMEM;
 	}
 
 	memcpy(name, tmp_name, len);
@@ -137,7 +137,7 @@ free_pin:
 free_name:
 	kfree(name);
 
-	return -1;
+	return -EIO;
 }
 
 static ssize_t
