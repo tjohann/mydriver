@@ -5,7 +5,7 @@
 MODULES = $(shell ls -d */ | cut -f1 -d '/')
 PWD=$(shell pwd)
 
-all: driver usage
+all: driver test_cases usage
 
 driver:
 	@echo "+------------------------------------------------------------+"
@@ -17,7 +17,12 @@ usage:
 	@echo "+------------------------------------------------------------+"
 	@echo "|   build $@ in $(PWD)"
 	@echo "+------------------------------------------------------------+"
+	(cd $@ && $(MAKE))
 
+test_cases:
+	@echo "+------------------------------------------------------------+"
+	@echo "|   build $@ in $(PWD)"
+	@echo "+------------------------------------------------------------+"
 	(cd $@ && $(MAKE))
 
 install:
@@ -32,4 +37,4 @@ clean:
 
 distclean: clean
 
-.PHONY: clean driver usage install uninstall
+.PHONY: clean driver usage test_cases install uninstall
