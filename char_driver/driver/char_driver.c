@@ -29,7 +29,8 @@
 /* common defines for driver and usage */
 #include "../common.h"
 
-#define DRIVER_NAME "char_driver"
+static const char char_driver_name[] = "char_driver";
+static const char class_name[] = "char_driver_class";
 
 static dev_t dev_number;
 static struct cdev *dev_object;
@@ -254,7 +255,7 @@ char_driver_init(void)
  * - create /dev entry via udev (/etc/udev/rules/90-<modulename>.rules)
  *   entry -> KERNEL=="char_driver", MODE="0666"
  */
-	if (alloc_chrdev_region(&dev_number, 0, 1, DRIVER_NAME) < 0)
+	if (alloc_chrdev_region(&dev_number, 0, 1, char_driver_name) < 0)
 		return -EIO;
 
 	dev_object = cdev_alloc();
@@ -270,7 +271,7 @@ char_driver_init(void)
 	}
 
 	/* add sysfs/udev entry */
-	dev_class = class_create(THIS_MODULE, DRIVER_NAME);
+	dev_class = class_create(THIS_MODULE, class_name);
 	if (IS_ERR(dev_class)) {
 		dev_err(drv_dev, "class_create\n");
 		goto free_cdev;
@@ -280,7 +281,7 @@ char_driver_init(void)
 	dev_class->resume = char_driver_resume;
 #endif
 	drv_dev = device_create(dev_class, NULL, dev_number, NULL, "%s",
-				DRIVER_NAME);
+				char_driver_name);
 	if (IS_ERR(drv_dev)) {
 		dev_err(drv_dev, "device_create\n");
 		goto free_class;
@@ -315,6 +316,8 @@ char_driver_exit(void)
 module_init(char_driver_init);
 module_exit(char_driver_exit);
 
+MODULE_VERSION("1.0");
+MODULE_ALIAS("my_char_driver");
 MODULE_LICENSE("GPL");
-MODULE_DESCRIPTION("char_driver - simple template driver");
+MODULE_DESCRIPTION("char_driver - simple char template driver");
 MODULE_AUTHOR("Thorsten Johannvorderbrueggen <thorsten.johannvorderbrueggen@t-online.de>");

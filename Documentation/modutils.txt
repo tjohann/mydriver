@@ -1,0 +1,15 @@
+#
+# some info about modutils and co
+#
+
+
+tjohann@echnaton:~/src/my_driver/char_driver/driver$ modinfo char_driver
+filename:       /lib/modules/4.4.13/kernel/char_driver.ko
+author:         Thorsten Johannvorderbrueggen <thorsten.johannvorderbrueggen@t-online.de>
+description:    char_driver - simple char template driver
+license:        GPL
+alias:          my_char_driver
+version:        1.0
+srcversion:     BCFAC1F6C4C080D5BE3D33D
+depends:        
+vermagic:       4.4.13 SMP mod_unload 

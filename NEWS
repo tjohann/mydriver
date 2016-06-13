@@ -2,6 +2,9 @@
 # NEWS
 #
 
+2016-06-13
+- add some doc about udev rules and kernel driver
+
 2016-05-18
 - gpio_driver is aware of instance specific pin config
 

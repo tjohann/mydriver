@@ -1,0 +1,30 @@
+#
+# some notes about using udev
+#
+
+#
+# example char_driver
+#
+
+# get infos
+tjohann@echnaton:~/src/my_driver/char_driver/driver$ udevadm info -a -p /sys/class/char_driver_class/
+
+...
+  looking at device '/class/char_driver_class':
+    KERNEL=="char_driver_class"
+    SUBSYSTEM=="subsystem"
+    DRIVER==""
+
+tjohann@echnaton:~/src/my_driver/char_driver/driver$ udevadm info -a -p /sys/class/char_driver_class/char_driver
+
+...
+  looking at device '/devices/virtual/char_driver_class/char_driver':
+    KERNEL=="char_driver"
+    SUBSYSTEM=="char_driver_class"
+    DRIVER==""
+
+# write simple rule (99 -> lowest priority)
+.../mydriver/udev$ cat 99-char_driver.rule
+KERNEL=="char_driver", SUBSYSTEM=="subsystem", MODE="0666"
+
+copy that to /etc/udev/rules.d$

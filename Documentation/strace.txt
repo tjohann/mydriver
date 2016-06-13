@@ -1,0 +1,50 @@
+#
+# some info about using strace 
+#
+
+# to check interaction of userspace and kernel driver 
+
+tjohann@echnaton:~/Programming/my_driver/char_driver/usage$ strace -T ./usage -r
+execve("./usage", ["./usage", "-r"], [/* 68 vars */]) = 0 <0.000213>
+brk(0) = 0xbba000 <0.000014>
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fce8eca0000 <0.000016>
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory) <0.000015>
+open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3 <0.000015>
+fstat(3, {st_mode=S_IFREG|0644, st_size=268064, ...}) = 0 <0.000011>
+mmap(NULL, 268064, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7fce8ec5e000 <0.000013>
+close(3) = 0 <0.000009>
+open("/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3 <0.000017>
+read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\220\t\2\0\0\0\0\0"..., 832) = 832 <0.000011>
+fstat(3, {st_mode=S_IFREG|0755, st_size=2102592, ...}) = 0 <0.000011>
+mmap(NULL, 3976896, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7fce8e6b3000 <0.000013>
+mprotect(0x7fce8e874000, 2097152, PROT_NONE) = 0 <0.000015>
+mmap(0x7fce8ea74000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1c1000) = 0x7fce8ea74000 <0.000017>
+mmap(0x7fce8ea7a000, 16064, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7fce8ea7a000 <0.000014>
+close(3) = 0 <0.000010>
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fce8ec5d000 <0.000013>
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fce8ec5c000 <0.000012>
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fce8ec5b000 <0.000011>
+arch_prctl(ARCH_SET_FS, 0x7fce8ec5c700) = 0 <0.000009>
+mprotect(0x7fce8ea74000, 16384, PROT_READ) = 0 <0.000014>
+mprotect(0x7fce8eca1000, 4096, PROT_READ) = 0 <0.000014>
+munmap(0x7fce8ec5e000, 268064) = 0 <0.000023>
+open("/dev/char_driver", O_RDWR|O_EXCL) = 3 <0.000031>
+fstat(1, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 1), ...}) = 0 <0.000014>
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7fce8ec9f000 <0.000014>
+write(1, "try to read data from /dev/char_"..., 39try to read data from /dev/char_driver) = 39 <0.000022>
+read(3, "char_driver says hello crude wor"..., 256) = 36 <0.000017>
+write(1, "read 36 bytes \"char_driver says "..., 52read 36 bytes "char_driver says hello crude world!"
+) = 52 <0.000017>
+write(1, "\n", 1) = 1 <0.000014>
+rt_sigprocmask(SIG_BLOCK, [CHLD], [], 8) = 0 <0.000010>
+rt_sigaction(SIGCHLD, NULL, {SIG_DFL, [], 0}, 8) = 0 <0.000010>
+rt_sigprocmask(SIG_SETMASK, [], NULL, 8) = 0 <0.000009>
+nanosleep({1, 0}, 0x7ffd91e4e0c0) = 0 <1.000184>
+close(3) = 0 <0.000043>
+exit_group(0) = ?
++++ exited with 0 +++
+
+
+# some comments ...
+-> syscal with arguments and "= 0" return val took 0.000213 seconds
+execve("./usage", ["./usage", "-r"], [/* 68 vars */]) = 0 <0.000213>

@@ -1,1 +1,0 @@
-KERNEL=="char_driver", MODE="0666"

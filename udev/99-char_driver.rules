@@ -1,0 +1,1 @@
+KERNEL=="char_driver", SUBSYSTEM=="char_driver_class", MODE="0666"
