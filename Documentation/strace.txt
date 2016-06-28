@@ -1,8 +1,8 @@
 #
-# some info about using strace 
+# some info about using strace
 #
 
-# to check interaction of userspace and kernel driver 
+# to check interaction of userspace and kernel driver
 
 tjohann@echnaton:~/Programming/my_driver/char_driver/usage$ strace -T ./usage -r
 execve("./usage", ["./usage", "-r"], [/* 68 vars */]) = 0 <0.000213>

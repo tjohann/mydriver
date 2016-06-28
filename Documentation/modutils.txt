@@ -11,5 +11,5 @@ license:        GPL
 alias:          my_char_driver
 version:        1.0
 srcversion:     BCFAC1F6C4C080D5BE3D33D
-depends:        
-vermagic:       4.4.13 SMP mod_unload 
+depends:
+vermagic:       4.4.13 SMP mod_unload
