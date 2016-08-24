@@ -12,7 +12,7 @@ OBJ = pcf8574_hd44780.o
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 $(PROG): $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS) -lc
+	$(CC) -o $@ $^ -lc
 
 install: $(PROG)
 	install $(PROG) $(HOME)/bin/$(PROG)

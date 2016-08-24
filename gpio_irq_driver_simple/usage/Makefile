@@ -12,7 +12,7 @@ OBJ = usage.o
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 $(PROG): $(OBJ)
-	gcc -o $@ $^ $(CFLAGS)
+	gcc -o $@ $^
 
 install: $(PROG)
 	install $(PROG) $(HOME)/bin/$(PROG)_gpio_irq_driver_simple

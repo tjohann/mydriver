@@ -9,7 +9,7 @@ PROG = usage
 OBJ = usage.o
 
 %.o: %.c
-	$(CC) -c -o $@ $< $(CFLAGS)
+	$(CC) -c -o $@ $<
 
 $(PROG): $(OBJ)
 	gcc -o $@ $^ $(CFLAGS)
