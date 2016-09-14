@@ -1,7 +1,7 @@
 My template drivers
 ===================
 
-This is a collection of different linux kernel driver templates:
+This is a collection of different linux kernel driver (can be use as a template):
 
 1. an absolute minimal driver
 2. char driver (use ioctl and write to define a new read buffer)
@@ -117,6 +117,7 @@ The i2c-gpio driver
 Basic for drivers like https://github.com/tjohann/pcf8574_gpio.git and https://github.com/tjohann/lcd160x_driver.git
 
 Feartures:
+
 	Dts config for intr, id and more
 	Intr handler for PIN13/IO-0/PI18 (IRQ line of PCF8574)
 	Read/write all pins (8 bit)
@@ -125,7 +126,7 @@ Feartures:
 
 Used defaults:
 
-2. PIN13 (IO-0/PI18) for input
+	PIN13 (IO-0/PI18) for input
 
 Used hardware: Bananapi-M1
 
@@ -139,7 +140,7 @@ Simple(st) driver to show the usage of an IRQ connected PIN (PIN13/IO-0/PI18 -> 
 
 Used defaults:
 
-1. PIN16 (IO-4/PH20) for input
+	PIN16 (IO-4/PH20) for input
 
 The driver doesn't support more than one instance and it uses only the default PIN.
 
@@ -186,8 +187,8 @@ Simple (int based) driver to show the usage of gpio for read and write from a PI
 
 Used defaults:
 
-1. PIN11 (IO-0/PI19) for output
-2. PIN13 (IO-0/PI18) for input
+	PIN11 (IO-0/PI19) for output
+	PIN13 (IO-0/PI18) for input
 
 Used hardware: Bananapi-M1
 

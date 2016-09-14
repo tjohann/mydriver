@@ -2,6 +2,9 @@
 # NEWS
 #
 
+2016-09-14
+- some smaller cleanups
+
 2016-06-13
 - add some doc about udev rules and kernel driver
 

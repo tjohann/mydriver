@@ -1,5 +1,5 @@
 /*
- * char_driver.c -> simple template driver
+ * i2c_gpio_driver.c -> simple template driver
  *
  * GPL
  * (c) 2013-2016, thorsten.johannvorderbrueggen@t-online.de

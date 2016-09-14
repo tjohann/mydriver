@@ -29,8 +29,10 @@
 
 #include "../common.h"
 
-#define WRITE_PORT 0x01
-#define READ_PORT  0x02
+/*
+ * #define WRITE_PORT 0x01
+ * #define READ_PORT  0x02
+ */
 
 static int pcf8574_probe(struct i2c_client *client,
 			 const struct i2c_device_id *id);
