@@ -104,7 +104,7 @@ State: finished
 The i2c-gpio driver (simple)
 ----------------------------
 
-Simple driver to demonstrate the usage of an PCF8574 controlled via I2C.
+Simple driver to demonstrate the usage of an PCF8574 controlled via I2C (no IRQ). Possible base for drivers like https://github.com/tjohann/pcf8574_gpio.git and https://github.com/tjohann/lcd160x_driver.git
 
 Used hardware: Bananapi-M1
 
@@ -114,7 +114,7 @@ State: started
 The i2c-gpio driver
 ------------------
 
-Basic for drivers like https://github.com/tjohann/pcf8574_gpio.git and https://github.com/tjohann/lcd160x_driver.git
+A more advanced driver to demonstrate the usage of an PCF8574 controlled via I2C. Possible base for drivers like https://github.com/tjohann/pcf8574_gpio.git and https://github.com/tjohann/lcd160x_driver.git
 
 Feartures:
 
@@ -203,7 +203,7 @@ Note: The driver configured the default pin after open. So to use more than one 
 
 Example usage of the driver:
 
-![Alt text](pics/gpio_driver_02.png?raw=true "Gpio-driver in action")
+![Alt text](pics/gpio_driver_02.png?raw=true "GPIO-driver in action")
 
 State: finished
 
@@ -234,17 +234,9 @@ The userspace examples (pcf8574)
 --------------------------------------
 
 To implement an I2C driver you normally also have to implement the protocol which is specific to the IC and it's functionlity. As example think of the LCD1602 connected via PCF8574 portexpander with the I2C bus.
-All example use the i2c-dev driver (http://lxr.free-electrons.com/source/Documentation/i2c/dev-interface) and i2c-tools (www.lm-sensors.org).
+All example use the i2c-dev driver (http://lxr.free-electrons.com/source/Documentation/i2c/dev-interface) and i2c-tools (http://www.lm-sensors.org).
 
 State (pcf8574): started
-
-
-The userspace examples (pcf8574_hd44780)
-----------------------------------------
-
-Based on the pcf8574 this example shows the usage with an LCD1602 display.
-
-State (pcf8574_hd44780): not started
 
 
 The userspace examples (gpio_script)

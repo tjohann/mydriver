@@ -144,4 +144,5 @@ http://www.mikrocontroller.net/attachment/42269/board.png
 
 # --- LCD
 http://bralug.de/wiki/BLIT2008-Board-LCD
+http://wiki.friendlyarm.com/wiki/index.php/Matrix_-_I2C_LCD1602
 

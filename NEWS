@@ -2,11 +2,17 @@
 # NEWS
 #
 
+2016-09-20
+- remove hdd44780 userspace example
+
+
 2016-09-14
 - some smaller cleanups
 
+
 2016-06-13
 - add some doc about udev rules and kernel driver
+
 
 2016-05-18
 - gpio_driver is aware of instance specific pin config

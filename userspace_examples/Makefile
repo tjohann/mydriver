@@ -5,7 +5,7 @@
 MODULES = $(shell ls -d */ | cut -f1 -d '/')
 PWD=$(shell pwd)
 
-all: pcf8574 pcf8574_hd44780
+all: pcf8574
 
 
 pcf8574:
