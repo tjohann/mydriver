@@ -1,5 +1,5 @@
 /*
- * usage.c -> show usage of char_driver
+ * pcf8574.c -> show userspace usage of i2c-dev
  *
  * GPL
  * (c) 2016, thorsten.johannvorderbrueggen@t-online.de

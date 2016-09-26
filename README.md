@@ -231,10 +231,14 @@ Below the directory userspace_examples you find my basic userspace playground. I
 
 
 The userspace examples (pcf8574)
---------------------------------------
+--------------------------------
 
 To implement an I2C driver you normally also have to implement the protocol which is specific to the IC and it's functionlity. As example think of the LCD1602 connected via PCF8574 portexpander with the I2C bus.
 All example use the i2c-dev driver (http://lxr.free-electrons.com/source/Documentation/i2c/dev-interface) and i2c-tools (http://www.lm-sensors.org).
+
+This userspace example is really simple and should only show howto use i2c-dev. Therefore I connect a LED line to the PCF8574 and implement a moving light with it.
+
+![Alt text](pics/....png?raw=true "Moving light in action")
 
 State (pcf8574): started
 
