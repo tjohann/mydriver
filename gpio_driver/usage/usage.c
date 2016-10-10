@@ -92,7 +92,6 @@ static int
 work_mode(int fd, unsigned char mode, int pin)
 {
 	struct timespec t;
-
 	memset(&t, 0, sizeof(struct timespec));
 
 	/* sleep time 0.5 sec */
