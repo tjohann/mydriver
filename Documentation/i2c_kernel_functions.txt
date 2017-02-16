@@ -1,0 +1,38 @@
+#
+# some hints about the i2c kernel functions
+#
+
+
+# see also http://www.linux-magazin.de/Ausgaben/2014/02/Kern-Technik
+
+
+# functions
+
+i2c_add_driver -> register driver at ic2 core    (in __init)
+i2c_del_driver -> deregister driver from ic2 core (in __exit)
+---
+i2c_get_adapter -> get i2c adapter (in fops.unlocked_ioctl)
+i2c_new_device -> add device to i2c (in fops.unlocked_ioctl)
+i2c_unregister_device -> counterpart of i2c_new_device (in fops.release)
+---
+i2c_master_send -> send data via i2c 
+i2c_master_rcv -> receive data via i2c
+
+
+# this is what i2c_new_device does in one step:
+
+i2c_register_board_info -> anounce i2c device to i2c core for a adapter
+i2c_new_probed_device -> probe for i2c device
+
+
+# a logical way could be:
+
+- register driver via i2c_add_driver during load of kernel modul
+- via ioctl get adapter number (to which the hw is connected) and
+  (i2c)-address of hw
+  - get adapter via i2c_get_adapter
+  - add device via i2c_new_device
+the i2c core will do all the magic which leads to a relation of driver
+and device.
+
+- ...

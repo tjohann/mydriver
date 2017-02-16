@@ -81,7 +81,7 @@ The char driver
 
 Basic character driver with open, close, read, write and ioctl support (PM-support prepared).
 
-The driver develops a simple char_driver. It creates an dev-node (/dev/char_driver) on which you can use read, write and ioctl on it. The simple example shows how to use the driver:
+The driver implements a simple char_driver. It creates a dev-node (/dev/char_driver), on which you can use read, write and ioctl. The simple example shows how to use the driver:
 
 1. open char_driver
 2. read driver default string from driver
@@ -104,9 +104,15 @@ State: finished
 The i2c-gpio driver (simple)
 ----------------------------
 
-Simple driver to demonstrate the usage of an PCF8574 controlled via I2C (no IRQ). Possible base for drivers like https://github.com/tjohann/pcf8574_gpio.git and https://github.com/tjohann/lcd160x_driver.git
+Simple driver to demonstrate the usage of a PCF8574 controlled via I2C (no IRQ).
 
 Used hardware: Bananapi-M1
+
+Feartures:
+
+	Control apdapter and addr via ioctl
+	Read/write all pins (8 bit)
+	Using offset to read/write a bit position
 
 State: started
 
@@ -114,7 +120,7 @@ State: started
 The i2c-gpio driver
 ------------------
 
-A more advanced driver to demonstrate the usage of an PCF8574 controlled via I2C. Possible base for drivers like https://github.com/tjohann/pcf8574_gpio.git and https://github.com/tjohann/lcd160x_driver.git
+A more advanced driver to demonstrate the usage of a PCF8574 controlled via I2C. Possible base for drivers like https://github.com/tjohann/pcf8574_gpio.git and https://github.com/tjohann/lcd160x_driver.git
 
 Feartures:
 
@@ -122,11 +128,12 @@ Feartures:
 	Intr handler for PIN13/IO-0/PI18 (IRQ line of PCF8574)
 	Read/write all pins (8 bit)
 	Using offset to read/write a bit position
-	Controll mapping of A20-GPIO to PCF8574-IRQ-line via ioctl
+	Control apdapter and addr via ioctl
+	Control mapping of A20-GPIO to PCF8574-IRQ-line via ioctl
 
 Used defaults:
 
-	PIN13 (IO-0/PI18) for input
+	PIN13 (IO-0/PI18) for input (IRQ-line)
 
 Used hardware: Bananapi-M1
 
@@ -150,9 +157,13 @@ State: finished
 The gpio irq driver
 -------------------
 
-An int based driver to show the usage of an IRQ connected PIN. Via write syscall you have to define a input PIN, otherwise it will use the defaults.
+An int based driver to show the usage of an IRQ connected PIN. Via write syscall you can define a input PIN, otherwise it will use the defaults.
 
 Used hardware: Olimex-A20-SOM-EVB
+
+Feartures:
+
+	Control the IRQ pin via write syscall
 
 Usage:
 

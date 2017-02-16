@@ -3,6 +3,18 @@
 #
 
 
+#
+# -------------- 2017-02-16 ----------------------------------------------------
+#
+
+## i2c driver
+- unload driver before we set addapter/addr via ioctl
+  (is there a problem because )
+- check if writing of addr to /sys/class/adapter/*/new_device works with my
+  drivers (echo devicename 0x21 >new_device)
+- check if writing of addr to  /sys/class/adapter/*/delete_device works with my
+  drivers (echo 0x21 >delete_device)
+
 
 #
 # -------------- 2016-09-26 ----------------------------------------------------
@@ -27,6 +39,7 @@
 
 ## device_tree_driver
 - add simple driver which uses OF for input
+
 
 #
 # -------------- 2016-05-30 ----------------------------------------------------
