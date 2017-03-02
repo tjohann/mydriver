@@ -111,8 +111,8 @@ Used hardware: Bananapi-M1
 Feartures:
 
 	Control apdapter and addr via ioctl
+	Configure input/output via ioctl
 	Read/write all pins (8 bit)
-	Using offset to read/write a bit position
 
 State: started
 
@@ -124,12 +124,12 @@ A more advanced driver to demonstrate the usage of a PCF8574 controlled via I2C.
 
 Feartures:
 
-	Dts config for intr, id and more
-	Intr handler for PIN13/IO-0/PI18 (IRQ line of PCF8574)
+	Interrupt handler for PIN13/IO-0/PI18 (IRQ line of PCF8574)
 	Read/write all pins (8 bit)
-	Using offset to read/write a bit position
 	Control apdapter and addr via ioctl
+	Configure input/output via ioctl
 	Control mapping of A20-GPIO to PCF8574-IRQ-line via ioctl
+	default: interrupt handler for PIN13/IO-0/PI18 (IRQ line of PCF8574)
 
 Used defaults:
 

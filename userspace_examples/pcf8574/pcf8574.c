@@ -2,7 +2,7 @@
  * pcf8574.c -> show userspace usage of i2c-dev
  *
  * GPL
- * (c) 2016, thorsten.johannvorderbrueggen@t-online.de
+ * (c) 2016-2017, thorsten.johannvorderbrueggen@t-online.de
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,34 +30,73 @@
 #include <errno.h>
 #include <string.h>
 
-
 #define MAX_ADAPTER_LEN 19
+
 
 static void
 __attribute__((noreturn)) usage(void)
 {
-        fprintf(stdout, "Usage: ./usage -[1...9] -[1...9]   \n");
-        fprintf(stdout, "       -1  -> adapter 1 (/dev/i2c-1)    \n");
-        fprintf(stdout, "       -40 -> i2c address 0x40    \n");
+        fprintf(stdout, "Usage: ./usage [0...9] 0x[XX] [0 ... 255] \n");
+        fprintf(stdout, "       1  -> adapter 1 (/dev/i2c-1)       \n");
+        fprintf(stdout, "       0x20 -> i2c address 0x20           \n");
+        fprintf(stdout, "       10 -> number of runs               \n");
 
         exit(EXIT_FAILURE);
 }
 
+static unsigned char
+create_addr_byte(unsigned char addr)
+{
+	/* rw = 0 -> write, rw = 1 -> read */
+	unsigned char rw = 0x00;
+
+	unsigned char addr_byte = addr << 1;
+	addr_byte |= rw;
+
+	return addr_byte;
+}
+
+/*
+ * for more info see
+ * https://github.com/tjohann/avr_sdk/blob/master/src/libavrcyclon/libavrcyclon.c
+ */
+static int
+cyclon_run(unsigned char count, unsigned char *data)
+{
+	fprintf(stdout, "will run %d times with address byte 0x%x\n",
+		count, data[0]);
+
+	/*
+	  memset(buf, 0, sizeof(buf));
+	  buf[0] = reg;
+	  buf[1] = 0x43;
+	  buf[2] = 0x65;
+	  if (write(fd, buf, 3) != 3)
+	  perror("write");
+	*/
+
+	return 0;
+}
+
+
+
 int
 main(int argc, char *argv[])
 {
-	int fd;
+	int fd = -1;
 	char adapter_s[MAX_ADAPTER_LEN + 1];
+	memset(adapter_s, 0, sizeof(adapter_s));
 
-	if(argc != 3)
+	if(argc != 4)
 		usage();
 
-	int adapter_nr = atoi(++(argv[1]));
-	int addr = atoi(++(argv[2]));
+	unsigned char adapter_nr = atoi(argv[1]);
+	unsigned char addr = strtoul(argv[2], NULL, 0);
+	unsigned char count = atoi(argv[3]);
 
 	snprintf(adapter_s, MAX_ADAPTER_LEN, "/dev/i2c-%d", adapter_nr);
-	printf("try to open %s@0x%d\n", adapter_s, addr);
-
+	fprintf(stdout, "try to open %s@0x%x\n", adapter_s, addr);
+/*
 	fd = open(adapter_s, O_RDWR);
 	if (fd == -1) {
 		perror("open");
@@ -68,34 +107,21 @@ main(int argc, char *argv[])
 		perror("ioctl");
 		exit(EXIT_FAILURE);
 	}
+*/
+	unsigned char data[2]; /* data[2] is used in cyclon run */
+	memset(data, 0, sizeof(data));
 
-	__u8 reg = 0x10; /* register to access */
-	char buf[10];
+	data[0] = create_addr_byte(addr);
+	fprintf(stdout, "addr_byte = 0x%x\n", data[0]);
 
-	if (read(fd, buf, 1) != 1)
-		perror("read");
+	/* the main loop */
+	if (cyclon_run(count, data) == -1)
+		fprintf(stderr, "an error occured -> quit now!\n");
 	else
-		printf("read value %d", buf[0]);
+		fprintf(stdout, "finished :-)\n");
 
-	memset(buf, 0, sizeof(buf));
-	buf[0] = reg;
-	buf[1] = 0x43;
-	buf[2] = 0x65;
-	if (write(fd, buf, 3) != 3)
-		perror("write");
-
-	/*
-	__s32 res = i2c_smbus_read_word_data(fd, reg);
-	if (res < 0) {
-		errno = res;
-		perror("i2c_smbus_read_word_data");
-	} else {
-		printf("read value %ul", res);
-	}
-	*/
-
-
-	close(fd);
+	if (fd > 0)
+		close(fd);
 
 	return EXIT_SUCCESS;
 }

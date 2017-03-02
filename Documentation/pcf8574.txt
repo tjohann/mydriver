@@ -138,6 +138,9 @@ http://www.ti.com/lit/ds/symlink/pcf8574.pdf
 # --- my pcf874 kernel driver
 https://github.com/tjohann/pcf8574_gpio.git
 
+# --- my lcd160x kernel driver
+https://github.com/tjohann/lcd160x_driver
+
 # --- keyboard and led matrix
 http://www.mikrocontroller.net/attachment/42269/board.png
 <linux-source-tree>/drivers/input/misc/pcf8574_keypad.c

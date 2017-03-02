@@ -2,7 +2,7 @@
  * i2c_gpio_driver_simple.c -> simple template driver
  *
  * GPL
- * (c) 2016, thorsten.johannvorderbrueggen@t-online.de
+ * (c) 2016-2017, thorsten.johannvorderbrueggen@t-online.de
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

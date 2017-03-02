@@ -7,6 +7,13 @@
 # -------------- 2017-02-16 ----------------------------------------------------
 #
 
+- replace overview04 and overview05 with actual pics
+
+
+#
+# -------------- 2017-02-16 ----------------------------------------------------
+#
+
 ## i2c driver
 - unload driver before we set addapter/addr via ioctl
   (is there a problem because )
