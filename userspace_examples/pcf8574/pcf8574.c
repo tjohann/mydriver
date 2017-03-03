@@ -32,6 +32,12 @@
 
 #define MAX_ADAPTER_LEN 19
 
+#define WRITE_DATA() do {					\
+		if (write(fd, data, 2) != 2) {			\
+			perror("write");			\
+			return -1;				\
+		}						\
+	} while(0)
 
 static void
 __attribute__((noreturn)) usage(void)
@@ -61,19 +67,48 @@ create_addr_byte(unsigned char addr)
  * https://github.com/tjohann/avr_sdk/blob/master/src/libavrcyclon/libavrcyclon.c
  */
 static int
-cyclon_run(unsigned char count, unsigned char *data)
+cyclon_run(int fd, unsigned char count, unsigned char *data)
 {
 	fprintf(stdout, "will run %d times with address byte 0x%x\n",
 		count, data[0]);
 
-	/*
-	  memset(buf, 0, sizeof(buf));
-	  buf[0] = reg;
-	  buf[1] = 0x43;
-	  buf[2] = 0x65;
-	  if (write(fd, buf, 3) != 3)
-	  perror("write");
-	*/
+	unsigned char *ptr = &data[1];
+	unsigned char act_count = 0;
+
+	unsigned char i = 0;
+	do {
+		while (i < 7) {
+			fprintf(stdout, "date: 0x%x\n", data[1]);
+
+			WRITE_DATA();
+
+			*ptr = (1 << i);
+			usleep(100000);
+			i++;
+		}
+
+		while (i > 0) {
+			fprintf(stdout, "date: 0x%x\n", data[1]);
+
+			WRITE_DATA();
+
+			*ptr = (1 << i);
+			usleep(100000);
+			i--;
+		}
+
+		if (count != 0)
+			act_count++;
+		else
+			act_count = 1;
+
+		if (act_count == count) {
+			*ptr = (1 << 0);
+
+			WRITE_DATA();
+		}
+
+	} while (act_count != count);
 
 	return 0;
 }
@@ -96,7 +131,7 @@ main(int argc, char *argv[])
 
 	snprintf(adapter_s, MAX_ADAPTER_LEN, "/dev/i2c-%d", adapter_nr);
 	fprintf(stdout, "try to open %s@0x%x\n", adapter_s, addr);
-/*
+
 	fd = open(adapter_s, O_RDWR);
 	if (fd == -1) {
 		perror("open");
@@ -107,15 +142,16 @@ main(int argc, char *argv[])
 		perror("ioctl");
 		exit(EXIT_FAILURE);
 	}
-*/
-	unsigned char data[2]; /* data[2] is used in cyclon run */
+
+	/* provide the mem (data[1]) for cyclon function */
+	unsigned char data[2];
 	memset(data, 0, sizeof(data));
 
 	data[0] = create_addr_byte(addr);
 	fprintf(stdout, "addr_byte = 0x%x\n", data[0]);
 
 	/* the main loop */
-	if (cyclon_run(count, data) == -1)
+	if (cyclon_run(fd, count, data) == -1)
 		fprintf(stderr, "an error occured -> quit now!\n");
 	else
 		fprintf(stdout, "finished :-)\n");
