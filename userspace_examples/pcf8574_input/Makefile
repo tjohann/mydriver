@@ -1,12 +1,12 @@
 #
-# build pcf8574.c
+# build pcf8574_input.c
 #
 
 CC = gcc
 CFLAGS = -Wall -Wextra
 
-PROG = pcf8574
-OBJ = pcf8574.o
+PROG = pcf8574_input
+OBJ = pcf8574_input.o
 
 %.o: %.c
 	$(CC) -c -o $@ $< $(CFLAGS)
@@ -21,7 +21,7 @@ uninstall:
 	rm -rf $(HOME)/bin/$(PROG)
 
 clean:
-	rm -rf *~
+	rm -rf *~ .*~
 	rm -rf *.o
 	rm -rf $(PROG)
 

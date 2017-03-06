@@ -5,16 +5,15 @@
 MODULES = $(shell ls -d */ | cut -f1 -d '/')
 PWD=$(shell pwd)
 
-all: pcf8574
+all: pcf8574_cyclon pcf8574_input
 
-
-pcf8574:
+pcf8574_cyclon:
 	@echo "+------------------------------------------------------------+"
 	@echo "|   build $@ in $(PWD)"
 	@echo "+------------------------------------------------------------+"
 	(cd $@ && $(MAKE))
 
-pcf8574_hd44780:
+pcf8574_input:
 	@echo "+------------------------------------------------------------+"
 	@echo "|   build $@ in $(PWD)"
 	@echo "+------------------------------------------------------------+"
@@ -32,4 +31,4 @@ clean:
 
 distclean: clean
 
-.PHONY: uninstall install clean pcf8574 pcf8574_hd44780
+.PHONY: uninstall install clean pcf8574_cyclon pcf8574_input

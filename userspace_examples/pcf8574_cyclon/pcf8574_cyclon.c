@@ -1,5 +1,5 @@
 /*
- * pcf8574.c -> show userspace usage of i2c-dev
+ * pcf8574_cyclon.c -> show userspace usage of i2c-dev
  *
  * GPL
  * (c) 2016-2017, thorsten.johannvorderbrueggen@t-online.de
