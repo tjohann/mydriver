@@ -39,6 +39,14 @@
 		}						\
 	} while(0)
 
+#define CLEAR_ALL() do {					\
+		*ptr = 0x00;					\
+		if (write(fd, data, 2) != 2) {			\
+			perror("write");			\
+			return -1;				\
+		}						\
+	} while(0)
+
 static void
 __attribute__((noreturn)) usage(void)
 {
@@ -75,10 +83,12 @@ cyclon_run(int fd, unsigned char count, unsigned char *data)
 	unsigned char *ptr = &data[1];
 	unsigned char act_count = 0;
 
+	CLEAR_ALL();
+
 	unsigned char i = 0;
 	do {
 		while (i < 7) {
-			fprintf(stdout, "date: 0x%x\n", data[1]);
+			fprintf(stdout, "date: 0x%.2x\n", data[1]);
 
 			WRITE_DATA();
 
@@ -88,7 +98,7 @@ cyclon_run(int fd, unsigned char count, unsigned char *data)
 		}
 
 		while (i > 0) {
-			fprintf(stdout, "date: 0x%x\n", data[1]);
+			fprintf(stdout, "date: 0x%.2x\n", data[1]);
 
 			WRITE_DATA();
 
@@ -102,11 +112,8 @@ cyclon_run(int fd, unsigned char count, unsigned char *data)
 		else
 			act_count = 1;
 
-		if (act_count == count) {
-			*ptr = (1 << 0);
-
-			WRITE_DATA();
-		}
+		if (act_count == count)
+			CLEAR_ALL();
 
 	} while (act_count != count);
 
