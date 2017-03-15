@@ -2,7 +2,7 @@
  * i2c_gpio_driver_simple.c -> simple template driver
  *
  * GPL
- * (c) 2013-2016, thorsten.johannvorderbrueggen@t-online.de
+ * (c) 2013-2017, thorsten.johannvorderbrueggen@t-online.de
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,14 +25,18 @@
 #define DRIVER_NAME "pcf8574_simple"
 #define DEV_NAME "/dev/pcf8574_simple"
 
-#define WRITE_PORT 0x01
-#define READ_PORT  0x02
-
 #define IOCTL_SET_I2C_CLIENT 0x0001
 
+#define PIN_1 0x01
+#define PIN_2 0x02
+#define PIN_3 0x04
+#define PIN_4 0x08
+#define PIN_5 0x10
+#define PIN_6 0x20
+#define PIN_7 0x40
+#define PIN_8 0x80
+
 struct client_config {
-	unsigned char mode;
-	unsigned int pin_irq;
 	int adapter_nr;
 	unsigned short addr;
 };

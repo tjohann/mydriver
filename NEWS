@@ -2,6 +2,10 @@
 # NEWS
 #
 
+2017-03-15
+- start implementing i2c-gpio driver (simple)
+
+
 2017-03-02
 - add some actual pics
 - continue pcf8574 userspace implementation (cyclon example with 8 leds)

@@ -31,7 +31,6 @@
 
 /*
  * #define WRITE_PORT 0x01
- * #define READ_PORT  0x02
  */
 
 static int pcf8574_probe(struct i2c_client *client,
@@ -46,11 +45,8 @@ static struct device *drv_dev;
 struct _instance_data {
 	struct i2c_client *slave;
 	struct i2c_adapter *adapter;
-	unsigned int pin_irq;
-	int gpio_irq;
 	int adapter_nr;
 	unsigned short addr;
-	unsigned char direction;
 };
 #define SD struct _instance_data
 
@@ -69,44 +65,6 @@ static struct i2c_driver pcf8574_driver = {
         .remove         = pcf8574_remove,
 };
 
-static ssize_t
-gpio_driver_read(struct file *instance,
-		 char __user *user, size_t count, loff_t *offset)
-{
-	int not_recv;
-	unsigned char value;
-
-	SD *data = NULL;
-
-	if (!instance->private_data) {
-		dev_err(drv_dev, "read: instance->private_data == NULL\n");
-		return -EFAULT;
-	}
-
-	data = (SD *) instance->private_data;
-	if (data->direction != READ_PORT) {
-		dev_err(drv_dev, "device not opened for read\n");
-		return -EFAULT;
-	}
-
-	if (!data->slave) {
-		dev_err(drv_dev, "no valid slave pointer\n");
-		return -EFAULT;
-	}
-
-	not_recv = i2c_master_recv(data->slave, &value, sizeof(value));
-	if (not_recv < 0) {
-		dev_err(drv_dev, "i2c_master_recv\n");
-		return -EFAULT;
-	}
-
-	if (put_user(value, (unsigned char __user *) user)) {
-		dev_err(drv_dev, "could not copy to userspace\n");
-		return -EFAULT;
-	}
-
-	return 0;
-}
 
 static ssize_t
 gpio_driver_write(struct file *instance,
@@ -123,11 +81,6 @@ gpio_driver_write(struct file *instance,
 	}
 
 	data = (SD *) instance->private_data;
-	if (data->direction != WRITE_PORT) {
-		dev_err(drv_dev, "device not opened for write\n");
-		return -EFAULT;
-	}
-
 	if (!data->slave) {
 		dev_err(drv_dev, "no valid slave pointer\n");
 		return -EFAULT;
@@ -155,11 +108,10 @@ gpio_driver_open(struct inode *dev_node, struct file *instance)
 	SD *data = NULL;
 
 	int accmode = (instance->f_flags & O_ACCMODE);
-	bool read_mode  = (accmode == O_RDONLY);
 	bool write_mode = (accmode == O_WRONLY);
 
-	if (!read_mode && !write_mode) {
-		dev_err(drv_dev, "only O_RDONLY or O_WRONLY allowed\n");
+	if (!write_mode) {
+		dev_err(drv_dev, "only O_WRONLY allowed\n");
 		return -EIO;
 	}
 
@@ -169,15 +121,6 @@ gpio_driver_open(struct inode *dev_node, struct file *instance)
 		return -EIO;
 	}
 	memset(data, 0, sizeof(SD));
-
-	if (write_mode)
-		data->direction = WRITE_PORT;
-
-	if (read_mode)
-		data->direction = READ_PORT;
-
-	dev_info(drv_dev, "direction %d\n", data->direction);
-
 	instance->private_data = (void *) data;
 
 	return 0;
@@ -226,7 +169,6 @@ gpio_driver_ioctl(struct file *instance, unsigned int cmd,
 
 		dev_info(drv_dev, "addr: 0x%x\n", user_data.addr);
 		dev_info(drv_dev, "adapter_nr: %d\n", user_data.adapter_nr);
-		dev_info(drv_dev, "IRQ - pin %d\n", user_data.pin_irq);
 
 		struct i2c_board_info info = {
 			I2C_BOARD_INFO("pcf8574_simple", user_data.addr),
@@ -240,16 +182,8 @@ gpio_driver_ioctl(struct file *instance, unsigned int cmd,
 		if (data->slave == NULL)
 			goto error;
 
-		if (data->direction == READ_PORT) {
-			dev_info(drv_dev, "IRQ handler for PIN %d\n",
-				 user_data.pin_irq);
-			data->pin_irq = user_data.pin_irq;
-		}
-
 		data->addr = user_data.addr;
 		data->adapter_nr = user_data.adapter_nr;
-		if (data->direction == READ_PORT)
-			data->pin_irq = user_data.pin_irq;
 
 		break;
 	default:
@@ -268,7 +202,6 @@ error:
 static struct file_operations fops = {
 	.owner= THIS_MODULE,
 	.write= gpio_driver_write,
-	.read = gpio_driver_read,
 	.unlocked_ioctl = gpio_driver_ioctl,
 	.open = gpio_driver_open,
 	.release = gpio_driver_close

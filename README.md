@@ -104,15 +104,16 @@ State: finished
 The i2c-gpio driver (simple)
 ----------------------------
 
-Simple driver to demonstrate the usage of a PCF8574 controlled via I2C (no IRQ).
+Simple (write) driver to demonstrate the usage of a PCF8574 controlled via I2C (no IRQ). The examples uses the led line of the userspace example below.
+
+The first byte of a write syscall defines which pins to write, the others will be ignored (simple byte AND operation).
 
 Used hardware: Bananapi-M1
 
 Feartures:
 
 	Control apdapter and addr via ioctl
-	Configure input/output via ioctl
-	Read/write all pins (8 bit)
+	Pin configuration via first byte of write
 
 State: started
 
@@ -251,7 +252,8 @@ These userspace examples are really simple and should only show howto use i2c-de
 
 ![Alt text](pics/....png?raw=true "Moving light in action")
 
-State (pcf8574): started
+State (pcf8574_cyclon): finished
+State (pcf8574_input): not started
 
 
 The userspace examples (gpio_script)
