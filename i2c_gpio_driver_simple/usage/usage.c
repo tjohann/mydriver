@@ -2,7 +2,7 @@
  * usage.c -> show usage of char_driver
  *
  * GPL
- * (c) 2016, thorsten.johannvorderbrueggen@t-online.de
+ * (c) 2016-2017, thorsten.johannvorderbrueggen@t-online.de
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,30 +35,22 @@
 
 #define MAX_LINE 256
 
-#define MODE_WRITE 0x0001
-#define MODE_READ  0x0002
 
 static void
 __attribute__((noreturn)) usage(void)
 {
-	fprintf(stdout, "Usage: ./usage -[rw] -[p PIN] -b adapter -a addr \n");
-	fprintf(stdout, "       -r -> read                                \n");
-	fprintf(stdout, "       -w -> write                               \n");
-	fprintf(stdout, "       -p -> PIN for IRQ                         \n");
-	fprintf(stdout, "       -b -> Adapter number                      \n");
-	fprintf(stdout, "       -a -> Address (hex)                       \n");
+	fprintf(stdout, "Usage: ./usage -b adapter -a addr \n");
+	fprintf(stdout, "       -b -> Adapter number       \n");
+	fprintf(stdout, "       -a -> Address (hex)        \n");
 	putchar('\n');
-	fprintf(stdout, "Examples:                                        \n");
-	fprintf(stdout, "       ./usage -r -p 274 -a 0x26 -b 0            \n");
-	fprintf(stdout, "       ./usage -w -a 0x27 -b 2                   \n");
+	fprintf(stdout, "Examples:                         \n");
+	fprintf(stdout, "       ./usage -a 0x26 -b 0       \n");
 	exit(EXIT_FAILURE);
 }
 
 static void
 print_client_config(struct client_config *client)
 {
-	printf("Accessmode:    %d\n", client->mode);
-	printf("PIN for IRQ:   %d\n", client->pin_irq);
 	printf("Adapternumber: %d\n", client->adapter_nr);
 	printf("Address:       0x%x\n", client->addr);
 }
@@ -66,16 +58,6 @@ print_client_config(struct client_config *client)
 static bool
 is_client_config_valid(struct client_config *client)
 {
-	if ((client->mode != MODE_WRITE) &&
-	    (client->mode != MODE_READ)) {
-		fprintf(stderr, "wrong mode -> %d\n", client->mode);
-		return false;
-	}
-
-	if ((client->pin_irq == 0) &&
-	    (client->mode == MODE_READ))
-		printf("wont use IRQ\n");
-
 	if (client->adapter_nr > 20)
 		printf("adapter number > %d makes no sense\n",
 		       client->adapter_nr);
@@ -87,7 +69,7 @@ is_client_config_valid(struct client_config *client)
 }
 
 static int
-work_mode(int fd, unsigned char mode)
+work_mode(int fd)
 {
 	struct timespec t;
 
@@ -101,61 +83,34 @@ work_mode(int fd, unsigned char mode)
 	size_t len = sizeof(value);
 	ssize_t n = 0;
 
-	if (mode == MODE_WRITE) {
-		/* toogle port bits */
-		for (;;) {
-			n = write(fd, &value, len);
-			if (n == -1)
-				perror("write");
-			clock_nanosleep(CLOCK_MONOTONIC, 0, &t, NULL);
+	/* toogle port bits */
+	for (;;) {
+		n = write(fd, &value, len);
+		if (n == -1)
+			perror("write");
+		clock_nanosleep(CLOCK_MONOTONIC, 0, &t, NULL);
 
-			value = 1;
-			n = write(fd, &value, len);
-			if (n == -1)
-				perror("write");
-			clock_nanosleep(CLOCK_MONOTONIC, 0, &t, NULL);
-			value = 0;
-		}
-
-		return 0; /* should never reached */
-	}
-
-	if (mode == MODE_READ) {
-		/* read port */
-		for (;;) {
-			n = read(fd, &value, len);
-			if (n == -1)
-				perror("read");
-			printf("read %d from %s\n", value, DEV_NAME);
-			clock_nanosleep(CLOCK_MONOTONIC, 0, &t, NULL);
-		}
-
-		return 0;  /* should never reached */
+		value = 1;
+		n = write(fd, &value, len);
+		if (n == -1)
+			perror("write");
+		clock_nanosleep(CLOCK_MONOTONIC, 0, &t, NULL);
+		value = 0;
 	}
 
 	return 0;
 }
 
 static int
-open_device(unsigned char mode)
+open_device(void)
 {
 	int fd = -1;
 
-	if (mode & MODE_READ) {
-		fd = open(DEV_NAME, O_RDONLY);
-		if (fd == -1)
-			goto error;
+	fd = open(DEV_NAME, O_WRONLY);
+	if (fd == -1)
+		goto error;
 
-		return fd;
-	}
-
-	if (mode & MODE_WRITE) {
-		fd = open(DEV_NAME, O_WRONLY);
-		if (fd == -1)
-			goto error;
-
-		return fd;
-	}
+	return fd;
 
 error:
 	fprintf(stderr, "could not open %s\n", DEV_NAME);
@@ -169,17 +124,8 @@ main(int argc, char *argv[])
 	memset(&client, 0, sizeof(client));
 
 	int c;
-	while ((c = getopt(argc, argv, "rwp:b:a:h")) != -1) {
+	while ((c = getopt(argc, argv, "b:a:h")) != -1) {
 		switch (c) {
-		case 'r':
-			client.mode |= MODE_READ;
-			break;
-		case 'w':
-			client.mode |= MODE_WRITE;
-			break;
-		case 'p':
-			client.pin_irq = atoi(optarg);
-			break;
 		case 'b':
 			client.adapter_nr = atoi(optarg);
 			break;
@@ -202,7 +148,7 @@ main(int argc, char *argv[])
 		usage();
 	}
 
-	int fd = open_device(client.mode);
+	int fd = open_device();
 	if (fd == -1)
 		usage();
 
@@ -212,7 +158,7 @@ main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	if (work_mode(fd, client.mode) == -1)
+	if (work_mode(fd) == -1)
 		usage();
 
 	close(fd);
