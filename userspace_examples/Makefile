@@ -5,7 +5,7 @@
 MODULES = $(shell ls -d */ | cut -f1 -d '/')
 PWD=$(shell pwd)
 
-all: pcf8574_cyclon pcf8574_input
+all: pcf8574_cyclon pcf8574_input pcf8574_lcd1602
 
 pcf8574_cyclon:
 	@echo "+------------------------------------------------------------+"

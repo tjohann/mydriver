@@ -256,6 +256,16 @@ State (pcf8574_cyclon): finished
 State (pcf8574_input): not started
 
 
+The userspace examples (pcf8574_lcd1062)
+----------------------------------------
+
+This example shows howto access a lcd1602 display via pc8574 i2c gpio port expander. There you can see the steps needed to perform access.
+
+![Alt text](pics/....png?raw=true "LCD1602 userspace example")
+
+State (pcf8574_lcd1062): started
+
+
 The userspace examples (gpio_script)
 ------------------------------------
 
