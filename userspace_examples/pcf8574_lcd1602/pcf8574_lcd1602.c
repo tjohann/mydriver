@@ -81,7 +81,6 @@ main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	/* provide the mem (data[1]) for cyclon function */
 	unsigned char data[2];
 	memset(data, 0, sizeof(data));
 
