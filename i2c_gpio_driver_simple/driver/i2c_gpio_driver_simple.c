@@ -34,7 +34,7 @@
  */
 
 static int pcf8574_probe(struct i2c_client *client,
-			 const struct i2c_device_id *id);
+			const struct i2c_device_id *id);
 static int pcf8574_remove(struct i2c_client *client);
 
 static dev_t pcf8574_dev_number;
@@ -163,8 +163,8 @@ gpio_driver_ioctl(struct file *instance, unsigned int cmd,
 	switch (cmd) {
 	case IOCTL_SET_I2C_CLIENT:
 		if (copy_from_user(&user_data,
-				   (struct client_config __user *) arg,
-				   sizeof(struct client_config)))
+					(struct client_config __user *) arg,
+					sizeof(struct client_config)))
 			return -EFAULT;
 
 		dev_info(drv_dev, "addr: 0x%x\n", user_data.addr);

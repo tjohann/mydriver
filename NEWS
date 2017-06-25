@@ -2,6 +2,8 @@
 # NEWS
 #
 
+2017-04-24
+- next steps for i2c_gpio_driver_simple and co
 
 2017-04-09
 - add userspace example for accessing a lcd1602 display

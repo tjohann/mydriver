@@ -121,7 +121,6 @@ cyclon_run(int fd, unsigned char count, unsigned char *data)
 }
 
 
-
 int
 main(int argc, char *argv[])
 {

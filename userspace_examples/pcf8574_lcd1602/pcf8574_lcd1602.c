@@ -31,6 +31,8 @@
 #include <string.h>
 
 #define MAX_ADAPTER_LEN 19
+#define PCF8474_RW_MODE 0x00
+
 
 static void
 __attribute__((noreturn)) usage(void)
@@ -46,13 +48,34 @@ static unsigned char
 create_addr_byte(unsigned char addr)
 {
 	/* rw = 0 -> write, rw = 1 -> read */
-	unsigned char rw = 0x00;
+	unsigned char rw = PCF8474_RW_MODE;
 
 	unsigned char addr_byte = addr << 1;
 	addr_byte |= rw;
 
 	return addr_byte;
 }
+
+/*
+  Pinning LCD1602 to PCF8574
+
+  - rs  -> pin1
+  - rw  -> pin2
+  - en  -> pin3
+  - bl  -> pin4  (backlight)
+  - db4 -> pin5
+  - db5 -> pin6
+  - db6 -> pin7
+  - db7 -> pin8
+*/
+static int
+init_i2c_lcd()
+{
+
+
+	return 0;
+}
+
 
 int
 main(int argc, char *argv[])
@@ -61,7 +84,7 @@ main(int argc, char *argv[])
 	char adapter_s[MAX_ADAPTER_LEN + 1];
 	memset(adapter_s, 0, sizeof(adapter_s));
 
-	if(argc != 3)
+	if (argc != 3)
 		usage();
 
 	unsigned char adapter_nr = atoi(argv[1]);
@@ -81,6 +104,11 @@ main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
+	if (init_i2c_lcd() == -1) {
+		fprintf(stderr, "could not init i2c lcd\n");
+		exit(EXIT_FAILURE);
+	}
+
 	unsigned char data[2];
 	memset(data, 0, sizeof(data));
 
@@ -88,10 +116,11 @@ main(int argc, char *argv[])
 	fprintf(stdout, "addr_byte = 0x%x\n", data[0]);
 
 	/* the main loop */
+
+
+
+	/* end of main loop */
 	sleep(5);
-
-
-
 
 	if (fd > 0)
 		close(fd);

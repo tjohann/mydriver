@@ -27,15 +27,6 @@
 
 #define IOCTL_SET_I2C_CLIENT 0x0001
 
-#define PIN_1 0x01
-#define PIN_2 0x02
-#define PIN_3 0x04
-#define PIN_4 0x08
-#define PIN_5 0x10
-#define PIN_6 0x20
-#define PIN_7 0x40
-#define PIN_8 0x80
-
 struct client_config {
 	int adapter_nr;
 	unsigned short addr;

@@ -1,5 +1,5 @@
 /*
- * usage.c -> show usage of char_driver
+ * usage.c -> show usage of i2c_gpio_driver_simple driver
  *
  * GPL
  * (c) 2016-2017, thorsten.johannvorderbrueggen@t-online.de
@@ -35,6 +35,20 @@
 
 #define MAX_LINE 256
 
+#define WRITE_DATA() do {					\
+		if (write(fd, data, 2) != 2) {			\
+			perror("write");			\
+			return -1;				\
+		}						\
+	} while(0)
+
+#define CLEAR_ALL() do {					\
+		*ptr = 0x00;					\
+		if (write(fd, data, 2) != 2) {			\
+			perror("write");			\
+			return -1;				\
+		}						\
+	} while(0)
 
 static void
 __attribute__((noreturn)) usage(void)
@@ -44,7 +58,7 @@ __attribute__((noreturn)) usage(void)
 	fprintf(stdout, "       -a -> Address (hex)        \n");
 	putchar('\n');
 	fprintf(stdout, "Examples:                         \n");
-	fprintf(stdout, "       ./usage -a 0x26 -b 0       \n");
+	fprintf(stdout, "       ./usage -a 0x26 -b 1       \n");
 	exit(EXIT_FAILURE);
 }
 
@@ -68,35 +82,52 @@ is_client_config_valid(struct client_config *client)
 	return true;
 }
 
+/*
+ * for more info see
+ * https://github.com/tjohann/avr_sdk/blob/master/src/libavrcyclon/libavrcyclon.c
+ */
 static int
-work_mode(int fd)
+cyclon_run(int fd, unsigned char count, unsigned char *data)
 {
-	struct timespec t;
+	fprintf(stdout, "will run %d times with address byte 0x%x\n",
+		count, data[0]);
 
-	memset(&t, 0, sizeof(struct timespec));
+	unsigned char *ptr = &data[1];
+	unsigned char act_count = 0;
 
-	/* sleep time 0.5 sec */
-	t.tv_sec = 0;
-	t.tv_nsec = 500000000;
+	CLEAR_ALL();
 
-	int value = 0;
-	size_t len = sizeof(value);
-	ssize_t n = 0;
+	unsigned char i = 0;
+	do {
+		while (i < 7) {
+			fprintf(stdout, "date: 0x%.2x\n", data[1]);
 
-	/* toogle port bits */
-	for (;;) {
-		n = write(fd, &value, len);
-		if (n == -1)
-			perror("write");
-		clock_nanosleep(CLOCK_MONOTONIC, 0, &t, NULL);
+			WRITE_DATA();
 
-		value = 1;
-		n = write(fd, &value, len);
-		if (n == -1)
-			perror("write");
-		clock_nanosleep(CLOCK_MONOTONIC, 0, &t, NULL);
-		value = 0;
-	}
+			*ptr = (1 << i);
+			usleep(100000);
+			i++;
+		}
+
+		while (i > 0) {
+			fprintf(stdout, "date: 0x%.2x\n", data[1]);
+
+			WRITE_DATA();
+
+			*ptr = (1 << i);
+			usleep(100000);
+			i--;
+		}
+
+		if (count != 0)
+			act_count++;
+		else
+			act_count = 1;
+
+		if (act_count == count)
+			CLEAR_ALL();
+
+	} while (act_count != count);
 
 	return 0;
 }
