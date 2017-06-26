@@ -4,6 +4,17 @@
 
 
 #
+# -------------- 2017-06-25 ----------------------------------------------------
+#
+
+## i2c gpio driver
+- add cyclon example like the userspace example
+
+## gpio irq lcd driver
+- cleanup and add content
+
+
+#
 # -------------- 2017-03-01 ----------------------------------------------------
 #
 

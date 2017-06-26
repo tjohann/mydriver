@@ -7,10 +7,12 @@ This is a collection of different linux kernel driver (can be use as a template)
 2. char driver (use ioctl and write to define a new read buffer)
 3. i2c-gpio driver_simple (PCF8574 based)
 4. i2c-gpio driver (PCF8574 based with check of IRQ line)
-5. gpio irq driver_simple (bind a PIN to an irq)
-6. gpio irq driver (use write to define PIN)
-7. gpio driver (use ioctl to define PIN for read/write)
-8. spi driver (MAX7119 based)
+5. i2c-gpio driver for hd44780 based dispals (PCF8574 based)
+6. gpio irq driver_simple (bind a PIN to an irq)
+7. gpio irq driver (use write to define PIN)
+8. gpio driver (use ioctl to define PIN for read/write)
+9. gpio irg driver for hd44780 based displays
+10. spi driver (MAX7119 based)
 
 It's an playground for different topics like I2C. Therefore i implement a userspace example based on what is already available within the kernel/userspace (like i2c-tools) and a driver with a specialized interface (and a example of how to use it). You find also schematics and pics about my test setup.
 
@@ -141,6 +143,18 @@ Used hardware: Bananapi-M1
 State: not started
 
 
+The i2c-gpio driver for hd44780 display
+---------------------------------------
+
+Simple driver to show the usage of gpios to connect a hd44780 based lcd display like LCD1602 in 4 bit mode via PCF8574. The size and the pinning to the display can be configured via ioctl. Possible codebase for https://github.com/tjohann/lcd160x_driver.git .
+
+Example usage of the driver:
+
+ADD PICS
+
+State: not started
+
+
 The gpio irq driver (simple)
 ----------------------------
 
@@ -195,7 +209,7 @@ State: not started
 The gpio driver
 ---------------
 
-Simple (int based) driver to show the usage of gpio for read and write from a PIN. Via ioctl syscall you can change the PIN for in/output. It doesn't bind a PIN to an IRQ!
+Simple (interrupt based) driver to show the usage of gpio for read and write from a PIN. Via ioctl syscall you can change the PIN for in/output. It doesn't bind a PIN to an IRQ!
 
 Used defaults:
 
@@ -224,6 +238,18 @@ The gpio driver (new)
 ---------------------
 
 Simple (fd based) driver to show the usage of gpio for read and write from a PIN. It behaves in the same way like gpio_driver, but it uses the new file descriptor gpio framework of the kernel.
+
+State: not started
+
+
+The gpio irq driver for hd44780 display
+---------------------------------------
+
+Simple driver to show the usage of gpios to connect a hd44780 based lcd display like LCD1602 in 4 and 8 bit mode. The irq handler checks the response of the display. This is rarely used because it`s not really needed if you add proper waits between the commands. The size and the pinning to the display can be configured via ioctl.
+
+Example usage of the driver:
+
+ADD PICS
 
 State: not started
 

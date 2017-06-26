@@ -9,6 +9,7 @@ BUILD = char_driver 		\
 	gpio_driver 		\
 	gpio_driver_new		\
 	gpio_irq_driver 	\
+	gpio_irq_lcd_hd44780 	\
 	gpio_irq_driver_simple 	\
 	gpio_irq_driver_new 	\
 	spi_driver 		\

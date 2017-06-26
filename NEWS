@@ -2,6 +2,9 @@
 # NEWS
 #
 
+2017-04-25
+- add skeleton for gpio and irq based lcd hd44780 driver
+
 2017-04-24
 - next steps for i2c_gpio_driver_simple and co
 
