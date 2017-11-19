@@ -2,6 +2,9 @@
 # NEWS
 #
 
+2017-11-19
+- fix build errors (asm/uaccess.h -> linux/uaccess.h)
+
 2017-04-25
 - add skeleton for gpio and irq based lcd hd44780 driver
 

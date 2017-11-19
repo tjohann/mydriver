@@ -23,7 +23,7 @@
 #include <linux/fs.h>
 #include <linux/cdev.h>
 #include <linux/device.h>
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 #include <linux/gpio.h>
 #include <linux/interrupt.h>
 #include <linux/sched.h>
