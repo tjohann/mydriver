@@ -189,8 +189,10 @@ main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
+	/* TODO: do the work
 	if (work_mode(fd) == -1)
 		usage();
+	*/
 
 	close(fd);
 	return EXIT_SUCCESS;

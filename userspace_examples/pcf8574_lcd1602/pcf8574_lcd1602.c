@@ -39,7 +39,7 @@ __attribute__((noreturn)) usage(void)
 {
         fprintf(stdout, "Usage: ./usage [0...9] 0x[XX] [0 ... 255] \n");
         fprintf(stdout, "       1  -> adapter 1 (/dev/i2c-1)       \n");
-        fprintf(stdout, "       0x20 -> i2c address 0x26           \n");
+        fprintf(stdout, "       0x22 -> i2c address 0x22           \n");
 
         exit(EXIT_FAILURE);
 }

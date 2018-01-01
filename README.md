@@ -150,7 +150,7 @@ Simple driver to show the usage of gpios to connect a hd44780 based lcd display 
 
 Example usage of the driver:
 
-ADD PICS
+TODO: ADD PICS
 
 State: not started
 
@@ -249,7 +249,7 @@ Simple driver to show the usage of gpios to connect a hd44780 based lcd display 
 
 Example usage of the driver:
 
-ADD PICS
+TODO: ADD PICS
 
 State: not started
 
@@ -276,9 +276,12 @@ All example use the i2c-dev driver (http://lxr.free-electrons.com/source/Documen
 
 These userspace examples are really simple and should only show howto use i2c-dev. Therefore I connect a LED line to the PCF8574 and implement a moving light with it. Another examples shows howto read from a pin via switches.
 
+TODO: ADD PICS
+
 ![Alt text](pics/....png?raw=true "Moving light in action")
 
 State (pcf8574_cyclon): finished
+
 State (pcf8574_input): not started
 
 
