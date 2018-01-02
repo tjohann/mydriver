@@ -19,6 +19,12 @@ pcf8574_input:
 	@echo "+------------------------------------------------------------+"
 	(cd $@ && $(MAKE))
 
+pcf8574_lcd1602:
+	@echo "+------------------------------------------------------------+"
+	@echo "|   build $@ in $(PWD)"
+	@echo "+------------------------------------------------------------+"
+	(cd $@ && $(MAKE))
+
 install:
 	for dir in $(MODULES); do (cd $$dir && $(MAKE) $@); done
 
@@ -31,4 +37,4 @@ clean:
 
 distclean: clean
 
-.PHONY: uninstall install clean pcf8574_cyclon pcf8574_input
+.PHONY: uninstall install clean pcf8574_cyclon pcf8574_input pcf8574_lcd1602

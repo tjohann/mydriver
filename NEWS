@@ -2,6 +2,9 @@
 # NEWS
 #
 
+2018-01-02
+- fix build error ins userspace_examples
+
 2017-11-19
 - fix build errors (asm/uaccess.h -> linux/uaccess.h)
 
