@@ -108,38 +108,30 @@ send_data(int fd, unsigned char *data, bool is_character)
 {
 	unsigned char *ptr = &data[1];
 
-	unsigned char tmp = data[1];
-	fprintf(stdout, "data to send 0x%.2x\n", tmp);
-
-	*ptr = 0x00;
-	*ptr = (tmp & 0xF0);
-	printf("nach shift >> 4 ... value: %d\n", *ptr);
+	unsigned char ctrl_nibble = (1 << LCD_BL);
 	if (is_character)
-		LCD_SET_RS_TO_CHARACTER();
+		ctrl_nibble |= (1 << LCD_RS);
+	else
+		ctrl_nibble &= ~(1 << LCD_RS);
 
-	LCD_SET_BACKLIGHT_ON();
+	unsigned char high_nibble = (data[1] & 0xF0);
+	unsigned char low_nibble  = ((data[1] & 0x0F) << 4);
+
+	*ptr = high_nibble | ctrl_nibble;
 	LCD_EN_TO_HIGH();
-	printf("send data ... value: %d\n", *ptr);
 	WRITE_DATA();
 	usleep(100);
 
 	LCD_EN_TO_LOW();
-	printf("send data ... value: %d\n", *ptr);
 	WRITE_DATA();
-	usleep(100);
+	usleep(1000);
 
-	*ptr = 0x00;
-	*ptr =((tmp & 0x0F) << 4);
-	printf("nun das zweite nibble ... value: %d\n", *ptr);
-
-	LCD_SET_BACKLIGHT_ON();
+	*ptr = low_nibble | ctrl_nibble;
 	LCD_EN_TO_HIGH();
-	printf("send data ... value: %d\n", *ptr);
 	WRITE_DATA();
 	usleep(100);
 
 	LCD_EN_TO_LOW();
-	printf("send data ... value: %d\n", *ptr);
 	WRITE_DATA();
 	usleep(100);
 
@@ -179,6 +171,8 @@ init_i2c_lcd(int fd, unsigned char *data)
 
 	unsigned char *ptr = &data[1];
 
+	usleep(40);
+
 	*ptr = 0x00;
 	*ptr = (0x03 << 4);
 	LCD_SET_RS_TO_COMMAND();
@@ -189,29 +183,47 @@ init_i2c_lcd(int fd, unsigned char *data)
 	LCD_EN_TO_HIGH();
 	printf("value: %d\n", *ptr);
 	WRITE_DATA();
-	usleep(100);
+	usleep(1000);
 	LCD_EN_TO_LOW();
 	printf("value: %d\n", *ptr);
 	WRITE_DATA();
-	usleep(4100);
+	usleep(5000);
 
 	LCD_EN_TO_HIGH();
 	printf("send data ... value: %d\n", *ptr);
 	WRITE_DATA();
-	usleep(100);
+	usleep(1000);
 	LCD_EN_TO_LOW();
 	printf("send data ... value: %d\n", *ptr);
 	WRITE_DATA();
-	usleep(100);
+	usleep(5000);
 
 	LCD_EN_TO_HIGH();
 	WRITE_DATA();
 	printf("send data ... value: %d\n", *ptr);
-	usleep(100);
+	usleep(1000);
 	LCD_EN_TO_LOW();
 	WRITE_DATA();
 	printf("send data ... value: %d\n", *ptr);
-	usleep(4100);
+	usleep(5000);
+
+	LCD_EN_TO_HIGH();
+	WRITE_DATA();
+	printf("send data ... value: %d\n", *ptr);
+	usleep(1000);
+	LCD_EN_TO_LOW();
+	WRITE_DATA();
+	printf("send data ... value: %d\n", *ptr);
+	usleep(5000);
+
+	LCD_EN_TO_HIGH();
+	WRITE_DATA();
+	printf("send data ... value: %d\n", *ptr);
+	usleep(1000);
+	LCD_EN_TO_LOW();
+	WRITE_DATA();
+	printf("send data ... value: %d\n", *ptr);
+	usleep(5000);
 
 	printf("erster Teil init zu ende\n");
 
@@ -226,11 +238,12 @@ init_i2c_lcd(int fd, unsigned char *data)
 	LCD_EN_TO_LOW();
 	printf("value: %d\n", *ptr);
 	WRITE_DATA();
-	usleep(4100);
+	usleep(5000);
 
 	printf("zweiter Teil init zu ende\n\n");
 
-	*ptr = 0x28;
+	//*ptr = 0x28;
+	*ptr = 0x2c;
 	send_data(fd, data, false);
 
 	*ptr = 0x08;
@@ -243,8 +256,21 @@ init_i2c_lcd(int fd, unsigned char *data)
 	send_data(fd, data, false);
 
 	/* my stuff */
-//	*ptr = 0x0f;
-//	send_data(fd, data, false);
+	*ptr = 0x0f;
+	send_data(fd, data, false);
+
+	/*
+	   0x80 -> erste Zeile
+	   0xc0 -> zweite Zeile
+	*/
+	*ptr = 0x80;
+	send_data(fd, data, false);
+
+	*ptr = 'a';
+	send_data(fd, data, true);
+
+	*ptr = 'b';
+	send_data(fd, data, true);
 
 	return 0;
 }
@@ -293,7 +319,7 @@ main(int argc, char *argv[])
 
 
 	/* end of main loop */
-	sleep(5);
+	sleep(1);
 
 	if (fd > 0)
 		close(fd);
