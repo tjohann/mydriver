@@ -29,9 +29,68 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
+#include <stdbool.h>
 
 #define MAX_ADAPTER_LEN 19
 #define PCF8474_RW_MODE 0x00
+
+
+/*
+  Pinning LCDxxxx to PCF8574
+
+  - rs  -> pin1
+  - rw  -> pin2
+  - en  -> pin3
+  - bl  -> pin4  (backlight)
+  - db4 -> pin5
+  - db5 -> pin6
+  - db6 -> pin7
+  - db7 -> pin8
+*/
+#define LCD_RS    0
+#define LCD_RW    1
+#define LCD_ENA   2
+#define LCD_BL    3
+
+#define WRITE_DATA() do {					\
+		if (write(fd, data, 2) != 2) {			\
+			perror("write");			\
+			return -1;				\
+		}						\
+	} while(0)
+
+
+#define LCD_EN_TO_HIGH() do {		\
+		*ptr |= (1 << LCD_ENA);	\
+	} while(0)
+
+#define LCD_EN_TO_LOW() do {		\
+		*ptr &= ~(1 << LCD_ENA);\
+	} while(0)
+
+#define LCD_SET_RS_TO_COMMAND() do {	\
+		*ptr &= ~(1 << LCD_RS);	\
+	} while(0)
+
+#define LCD_SET_RS_TO_CHARACTER() do {	\
+		*ptr |= (1 << LCD_RS);	\
+	} while (0)
+
+#define LCD_SET_RW_TO_WRITE() do {	\
+		*ptr &= ~(1 << LCD_RW);	\
+	} while(0)
+
+#define LCD_SET_RW_TO_READ() do {	\
+		*ptr |= (1 << LCD_RW);	\
+	} while (0)
+
+#define LCD_SET_BACKLIGHT_ON() do {	\
+		*ptr |= (1 << LCD_BL);	\
+	} while (0)
+
+#define LCD_SET_BACKLIGHT_OFF() do {	\
+		*ptr |= (1 << LCD_BL);	\
+	} while (0)
 
 
 static void
@@ -42,6 +101,51 @@ __attribute__((noreturn)) usage(void)
         fprintf(stdout, "       0x22 -> i2c address 0x22           \n");
 
         exit(EXIT_FAILURE);
+}
+
+static int
+send_data(int fd, unsigned char *data, bool is_character)
+{
+	unsigned char *ptr = &data[1];
+
+	unsigned char tmp = data[1];
+	fprintf(stdout, "data to send 0x%.2x\n", tmp);
+
+	*ptr = 0x00;
+	*ptr = (tmp & 0xF0);
+	printf("nach shift >> 4 ... value: %d\n", *ptr);
+	if (is_character)
+		LCD_SET_RS_TO_CHARACTER();
+
+	LCD_SET_BACKLIGHT_ON();
+	LCD_EN_TO_HIGH();
+	printf("send data ... value: %d\n", *ptr);
+	WRITE_DATA();
+	usleep(100);
+
+	LCD_EN_TO_LOW();
+	printf("send data ... value: %d\n", *ptr);
+	WRITE_DATA();
+	usleep(100);
+
+	*ptr = 0x00;
+	*ptr =((tmp & 0x0F) << 4);
+	printf("nun das zweite nibble ... value: %d\n", *ptr);
+
+	LCD_SET_BACKLIGHT_ON();
+	LCD_EN_TO_HIGH();
+	printf("send data ... value: %d\n", *ptr);
+	WRITE_DATA();
+	usleep(100);
+
+	LCD_EN_TO_LOW();
+	printf("send data ... value: %d\n", *ptr);
+	WRITE_DATA();
+	usleep(100);
+
+	printf("\n");
+
+	return 0;
 }
 
 static unsigned char
@@ -69,9 +173,78 @@ create_addr_byte(unsigned char addr)
   - db7 -> pin8
 */
 static int
-init_i2c_lcd()
+init_i2c_lcd(int fd, unsigned char *data)
 {
+	fprintf(stdout, "will init LCD with address byte 0x%x\n", data[0]);
 
+	unsigned char *ptr = &data[1];
+
+	*ptr = 0x00;
+	*ptr = (0x03 << 4);
+	LCD_SET_RS_TO_COMMAND();
+	LCD_SET_BACKLIGHT_ON();
+
+	printf("value: %d\n", *ptr);
+
+	LCD_EN_TO_HIGH();
+	printf("value: %d\n", *ptr);
+	WRITE_DATA();
+	usleep(100);
+	LCD_EN_TO_LOW();
+	printf("value: %d\n", *ptr);
+	WRITE_DATA();
+	usleep(4100);
+
+	LCD_EN_TO_HIGH();
+	printf("send data ... value: %d\n", *ptr);
+	WRITE_DATA();
+	usleep(100);
+	LCD_EN_TO_LOW();
+	printf("send data ... value: %d\n", *ptr);
+	WRITE_DATA();
+	usleep(100);
+
+	LCD_EN_TO_HIGH();
+	WRITE_DATA();
+	printf("send data ... value: %d\n", *ptr);
+	usleep(100);
+	LCD_EN_TO_LOW();
+	WRITE_DATA();
+	printf("send data ... value: %d\n", *ptr);
+	usleep(4100);
+
+	printf("erster Teil init zu ende\n");
+
+	*ptr = 0x20;
+	LCD_SET_RS_TO_COMMAND();
+	LCD_SET_BACKLIGHT_ON();
+
+	LCD_EN_TO_HIGH();
+	printf("value: %d\n", *ptr);
+	WRITE_DATA();
+	usleep(100);
+	LCD_EN_TO_LOW();
+	printf("value: %d\n", *ptr);
+	WRITE_DATA();
+	usleep(4100);
+
+	printf("zweiter Teil init zu ende\n\n");
+
+	*ptr = 0x28;
+	send_data(fd, data, false);
+
+	*ptr = 0x08;
+	send_data(fd, data, false);
+
+	*ptr = 0x01;
+	send_data(fd, data, false);
+
+	*ptr = 0x06;
+	send_data(fd, data, false);
+
+	/* my stuff */
+//	*ptr = 0x0f;
+//	send_data(fd, data, false);
 
 	return 0;
 }
@@ -104,16 +277,16 @@ main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	if (init_i2c_lcd() == -1) {
-		fprintf(stderr, "could not init i2c lcd\n");
-		exit(EXIT_FAILURE);
-	}
-
 	unsigned char data[2];
 	memset(data, 0, sizeof(data));
 
 	data[0] = create_addr_byte(addr);
 	fprintf(stdout, "addr_byte = 0x%x\n", data[0]);
+
+	if (init_i2c_lcd(fd, data) == -1) {
+		fprintf(stderr, "could not init i2c lcd\n");
+		exit(EXIT_FAILURE);
+	}
 
 	/* the main loop */
 
