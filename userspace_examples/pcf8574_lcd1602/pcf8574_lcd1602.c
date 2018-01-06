@@ -2,7 +2,7 @@
  * pcf8574_lcd1602.c -> show userspace usage of i2c-dev
  *
  * GPL
- * (c) 2017, thorsten.johannvorderbrueggen@t-online.de
+ * (c) 2017-2018, thorsten.johannvorderbrueggen@t-online.de
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -92,6 +92,13 @@ enum bit_pos_priv {
 #define CURSOR_ON           BIT1
 #define DISPLAY_ON          BIT2
 
+/*
+ * DDRAM_ADDResses
+ */
+#define FIRST_LINE          0x80
+#define SECOND_LINE         0xC0
+#define THIRD_LINE          0x90
+#define FOURTH_LINE         0xD0
 
 int init_i2c_lcd(int fd, unsigned char *data);
 int config_lcd(int fd, unsigned char *data);
@@ -318,6 +325,10 @@ send_instruction(int fd, unsigned char *data, unsigned char instruction)
 	if (err == -1)
 		return -1;
 
+	err = usleep(40);  /* execution time 37 us*/
+	if (err == -1)
+		return -1;
+
 	return 0;
 }
 
@@ -352,26 +363,125 @@ config_lcd(int fd, unsigned char *data)
 	return 0;
 }
 
+
+/*
+ * ----------------------------- instructions ----------------------------------
+ */
 int
-enable_lcd(int fd, unsigned char *data)
+clear_display(int fd, unsigned char *data)
 {
-	int err = send_instruction(fd, data,
-				(DISPLAY_ON_OFF_CTRL
-					| DISPLAY_ON
-					| CURSOR_ON
-					| CURSOR_BLINK));
+	int err = send_instruction(fd, data, CLEAR_DISPLAY);
+	if (err == -1)
+		return -1;
+
+	err = usleep(1600);  /* execution time 1520/1640 us */
 	if (err == -1)
 		return -1;
 
 	return 0;
 }
 
+int
+return_home(int fd, unsigned char *data)
+{
+	int err = send_instruction(fd, data, RETURN_HOME);
+	if (err == -1)
+		return -1;
+
+	err = usleep(1600);  /* execution time 1520/1640 us */
+	if (err == -1)
+		return -1;
+
+	return 0;
+}
+
+int
+disable_lcd(int fd, unsigned char *data)
+{
+	return send_instruction(fd, data, DISPLAY_ON_OFF_CTRL);
+}
+
+int
+enable_lcd(int fd, unsigned char *data)
+{
+	return send_instruction(fd, data, (DISPLAY_ON_OFF_CTRL | DISPLAY_ON));
+}
+
+/* Note: enable cursor will also enable lcd */
+int
+enable_blink_cursor(int fd, unsigned char *data)
+{
+	return send_instruction(fd, data,
+				(DISPLAY_ON_OFF_CTRL
+					| DISPLAY_ON
+					| CURSOR_ON
+					| CURSOR_BLINK));
+}
+
+/* Note: enable cursor will also enable lcd */
+int
+enable_cursor(int fd, unsigned char *data)
+{
+	return send_instruction(fd, data,
+				(DISPLAY_ON_OFF_CTRL
+					| DISPLAY_ON
+					| CURSOR_ON));
+}
+
+int
+set_line(int fd, unsigned char *data, unsigned char line)
+{
+
+	return send_instruction(fd, data, line);
+}
 
 /*
- * ----------------------------- instructions ----------------------------------
+ * ----------------------------- test routine ----------------------------------
  */
+void
+do_some_testing(int fd, unsigned char *data)
+{
+	printf("\n--------------- start testing --------------- \n");
+
+	printf("test-01: enable_cursor \n");
+	enable_cursor(fd, data);
+	sleep(5);
+
+	printf("test-02: return_home\n");
+	return_home(fd, data);
+	sleep(5);
+
+	printf("test-03: disable_lcd\n");
+	disable_lcd(fd, data);
+	sleep(5);
+
+	printf("test-04: enable_lcd\n");
+	enable_lcd(fd, data);
+	sleep(5);
+
+	printf("test-05: enable_cursor\n");
+	enable_cursor(fd, data);
+	sleep(5);
+
+	printf("test-06: clear_display\n");
+	clear_display(fd, data);
+	sleep(5);
+
+	printf("test-07: enable_blinking_cursor\n");
+	enable_blink_cursor(fd, data);
+	sleep(5);
+
+	printf("test-08: set_line -> SECOND_LINE\n");
+	set_line(fd, data, SECOND_LINE);
+	// sleep(5);
+
+	printf("--------------- test finished --------------- \n\n");
+}
 
 
+/*
+ * -------------------------------- main ---------------------------------------
+ */
 int
 main(int argc, char *argv[])
 {
@@ -410,24 +520,19 @@ main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-
-
         /* the main loop */
 
+	/*
+	 * do some tests
+	 */
+	do_some_testing(fd, data);
 
 	/*
-	   0x80 -> erste Zeile
-	   0xc0 -> zweite Zeile
-	*/
-
+	 * some random stuff
+	 */
 	unsigned char *ptr = &data[1];
-
-	*ptr = 0x80;
-	send_data(fd, data, false);
-
 	*ptr = 'a';
 	send_data(fd, data, true);
-
 	*ptr = 'b';
 	send_data(fd, data, true);
 
