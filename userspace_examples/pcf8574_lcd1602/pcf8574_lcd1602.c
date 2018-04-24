@@ -208,6 +208,25 @@ send_i2c_data(int fd, unsigned char *data)
 	if (err == -1)
 		return -1;
 
+	*ptr |= (1 << LCD_ENA);
+	if (write(fd, data, 2) != 2) {
+		perror("write");
+		return -1;
+	}
+
+	err = usleep(1); /* enable time > 450ns*/
+	if (err == -1)
+		return -1;
+
+	*ptr &= ~(1 << LCD_ENA);
+	if (write(fd, data, 2) != 2) {
+		perror("write");
+		return -1;
+	}
+	err = usleep(100);
+	if (err == -1)
+		return -1;
+
 	return 0;
 }
 

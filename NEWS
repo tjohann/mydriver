@@ -2,6 +2,10 @@
 # NEWS
 #
 
+
+2018-04-24
+- next parts to the userspace example of pcf8574_lcd1602 (still not compete)
+
 2018-01-05
 - add first init parts to the userspace example of pcf8574_lcd1602
 
