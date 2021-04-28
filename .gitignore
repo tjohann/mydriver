@@ -38,3 +38,5 @@
 *.order
 .tmp_versions
 *.mod.c
+*.mod
+*.o.d

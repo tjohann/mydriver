@@ -2,7 +2,7 @@
  * pcf8574_cyclon.c -> show userspace usage of i2c-dev
  *
  * GPL
- * (c) 2016-2017, thorsten.johannvorderbrueggen@t-online.de
+ * (c) 2016-2021, thorsten.johannvorderbrueggen@t-online.de
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

@@ -3,23 +3,36 @@
 #
 
 
+2021-04-28
+- update .gitignore
+- continue working on the pcf8474 userspace applications
+- fix build error of i2c driver skeletons
+- some documentation updates
+
+
 2018-04-24
-- next parts to the userspace example of pcf8574_lcd1602 (still not compete)
+- next parts to the userspace example of pcf8574_lcd1602 (still not complete)
+
 
 2018-01-05
 - add first init parts to the userspace example of pcf8574_lcd1602
 
+
 2018-01-02
 - fix build error ins userspace_examples
+
 
 2017-11-19
 - fix build errors (asm/uaccess.h -> linux/uaccess.h)
 
+
 2017-04-25
 - add skeleton for gpio and irq based lcd hd44780 driver
 
+
 2017-04-24
 - next steps for i2c_gpio_driver_simple and co
+
 
 2017-04-09
 - add userspace example for accessing a lcd1602 display

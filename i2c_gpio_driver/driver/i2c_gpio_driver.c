@@ -2,7 +2,7 @@
  * i2c_gpio_driver.c -> simple template driver
  *
  * GPL
- * (c) 2016, thorsten.johannvorderbrueggen@t-online.de
+ * (c) 2021, thorsten.johannvorderbrueggen@t-online.de
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -333,7 +333,7 @@ gpio_driver_ioctl(struct file *instance, unsigned int cmd,
 		if (data->adapter == NULL)
 			goto error;
 
-		data->slave = i2c_new_device(data->adapter, &info);
+		data->slave = i2c_new_client_device(data->adapter, &info);
 		if (data->slave == NULL)
 			goto error;
 

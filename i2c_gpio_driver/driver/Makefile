@@ -1,7 +1,7 @@
 # Makefile for gpio_driver.c
 #
 # GPL
-# (c) 2016, thorsten.johannvorderbrueggen@t-online.de
+# (c) 2021, thorsten.johannvorderbrueggen@t-online.de
 #
 
 DRIVER=i2c_gpio_driver
@@ -22,6 +22,7 @@ clean:
 	rm -f Module.symvers modules.order
 	rm -f .*.cmd *.ko *.mod.c
 	rm -rf .tmp_versions
+	rm -rf .*.o.d
 
 install: default
 	sudo cp $(DRIVER).ko /lib/modules/$(shell uname -r)/kernel

@@ -265,7 +265,7 @@ State: not started
 The userspace examples
 ----------------------
 
-Below the directory userspace_examples you find my basic userspace playground. In most cases the userspace parts are the starting point for the driver develpment and the functionality provided by "normal" userspace will be implemented within a special driver(s). They are the basic for my blog entrys about embedded linux (https://tjohann.wordpress.com/category/embedded-realtime/) and linux realtime topics (https://github.com/tjohann/time_triggert_env.git).
+Below the directory userspace_examples you find my basic userspace playground. In most cases the userspace parts are the starting point for the driver development and the functionality provided by "normal" userspace will be implemented within a special driver(s). They are the basic for my blog entrys about embedded linux (https://tjohann.wordpress.com/category/embedded-realtime/) and linux realtime topics (https://github.com/tjohann/time_triggert_env.git).
 
 
 The userspace examples (pcf8574_cyclon/pcf8574_input)
@@ -274,13 +274,13 @@ The userspace examples (pcf8574_cyclon/pcf8574_input)
 To implement an I2C driver you normally also have to implement the protocol which is specific to the IC and it's functionlity. As example think of the LCD1602 connected via PCF8574 portexpander with the I2C bus.
 All example use the i2c-dev driver (http://lxr.free-electrons.com/source/Documentation/i2c/dev-interface) and i2c-tools (http://www.lm-sensors.org).
 
-These userspace examples are really simple and should only show howto use i2c-dev. Therefore I connect a LED line to the PCF8574 and implement a moving light with it. Another examples shows howto read from a pin via switches.
+These userspace examples are really simple and should only show howto use i2c-dev (https://www.kernel.org/doc/Documentation/i2c/dev-interface). Therefore I connect a LED line to the PCF8574 and implement a moving light with it. Another examples shows howto read from a pin via switches.
 
 TODO: ADD PICS
 
 ![Alt text](pics/....png?raw=true "Moving light in action")
 
-State (pcf8574_cyclon): finished
+State (pcf8574_cyclon): started
 
 State (pcf8574_input): not started
 
@@ -288,9 +288,9 @@ State (pcf8574_input): not started
 The userspace examples (pcf8574_lcd1062)
 ----------------------------------------
 
-This example shows howto access a lcd1602 display via pc8574 i2c gpio port expander. There you can see the steps needed to perform access.
+This example shows howto access a lcd1602 display via pc8574 i2c gpio port expander (a version for a lcd2004 see https://github.com/tjohann/ambient_tracking_with_raspi/tree/main/lcd2004_i2c). There you can see the steps needed to perform access.
 
-![Alt text](pics/....png?raw=true "LCD1602 userspace example")
+![Alt text](pics/lcd1602_pcf8574_i2c_extention_modul.jpg?raw=true "LCD1602 module")
 
 State (pcf8574_lcd1062): started
 
